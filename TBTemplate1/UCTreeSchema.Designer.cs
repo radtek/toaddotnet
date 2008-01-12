@@ -79,6 +79,7 @@ namespace TBTreeSchema
             this.buttonGetOracleTables.TabIndex = 33;
             this.buttonGetOracleTables.Text = "Connect";
             this.buttonGetOracleTables.UseVisualStyleBackColor = true;
+            this.buttonGetOracleTables.Click += new System.EventHandler(this.buttonGetOracleTables_Click);
             // 
             // label3
             // 
