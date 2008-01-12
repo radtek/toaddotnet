@@ -28,10 +28,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Connexion, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\DAOClassGenerator\DAOClassGenerator\Connexion\bin\Debug\Connexion.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.OracleClient" />
@@ -49,13 +45,17 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\SyntaxHighlighter\SyntaxHighlighter.csproj">
-      <Project>{2FB0F42E-F9B6-44C0-8443-FC051A44A64E}</Project>
-      <Name>SyntaxHighlighter</Name>
+    <ProjectReference Include="..\Connexion\Connexion.csproj">
+      <Project>{016DCDD8-DBC9-499B-8E9C-229F98B46435}</Project>
+      <Name>Connexion</Name>
     </ProjectReference>
     <ProjectReference Include="..\PluginTypes\PluginTypes.csproj">
       <Project>{D510B83D-3BF3-4808-B205-BC1410016EBA}</Project>
       <Name>PluginTypes</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SyntaxHighlighter\SyntaxHighlighter.csproj">
+      <Project>{2FB0F42E-F9B6-44C0-8443-FC051A44A64E}</Project>
+      <Name>SyntaxHighlighter</Name>
     </ProjectReference>
     <ProjectReference Include="..\ULib\ULib.csproj">
       <Project>{603751F0-A236-4C24-93F9-1EBBA19F353F}</Project>
