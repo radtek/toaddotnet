@@ -1,5 +1,4 @@
-#summary One-sentence summary of this page.
-
+#summary Another tool for Oracle
 = Introduction =
 
 The Toad.Net (ToadDotNet) application try to give you an easy tool to query and retrieve data from Oracle database.
