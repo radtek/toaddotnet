@@ -1,0 +1,13 @@
+#summary One-sentence summary of this page.
+
+= Introduction =
+
+The Toad.Net (ToadDotNet) application try to give you an easy tool to query and retrieve data from Oracle database.
+
+
+= Features =
+
+At this time, only very little features are offered. New features will be added, depending on time, bug fixing and request. So far the application allows you:
+  * Connect to a database and retrieve all objects
+  * Get the columns of a table
+  * Query the data of the selected table into the tree schema
