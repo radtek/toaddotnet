@@ -88,8 +88,8 @@
             this.label3.Size = new System.Drawing.Size(374, 43);
             this.label3.TabIndex = 4;
             this.label3.Text = "Attention, votre adresse email doit être valide, car le ou les numéros de licence" +
-                               " que vous demandez seront envoyés à cette adrese. Cette adresse ne sera en aucun" +
-                               " cas cédée à des tiers.";
+                " que vous demandez seront envoyés à cette adrese. Cette adresse ne sera en aucun" +
+                " cas cédée à des tiers.";
             // 
             // buttonSubmit
             // 
@@ -116,9 +116,9 @@
             // 
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-                                                                                                  this.Product,
-                                                                                                  this.Key,
-                                                                                                  this.Expiration});
+            this.Product,
+            this.Key,
+            this.Expiration});
             this.dataGridView1.Location = new System.Drawing.Point(12, 240);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.Size = new System.Drawing.Size(407, 217);
@@ -144,17 +144,16 @@
             // 
             // labelGUID
             // 
-            this.labelGUID.AutoSize = true;
             this.labelGUID.Location = new System.Drawing.Point(12, 91);
             this.labelGUID.Name = "labelGUID";
-            this.labelGUID.Size = new System.Drawing.Size(55, 13);
+            this.labelGUID.Size = new System.Drawing.Size(407, 33);
             this.labelGUID.TabIndex = 9;
             this.labelGUID.Text = "Unregister";
             // 
             // buttonRegisterApp
             // 
             this.buttonRegisterApp.Enabled = false;
-            this.buttonRegisterApp.Location = new System.Drawing.Point(344, 118);
+            this.buttonRegisterApp.Location = new System.Drawing.Point(344, 139);
             this.buttonRegisterApp.Name = "buttonRegisterApp";
             this.buttonRegisterApp.Size = new System.Drawing.Size(75, 23);
             this.buttonRegisterApp.TabIndex = 10;
@@ -166,14 +165,14 @@
             // 
             this.labelProductName.Location = new System.Drawing.Point(13, 144);
             this.labelProductName.Name = "labelProductName";
-            this.labelProductName.Size = new System.Drawing.Size(373, 23);
+            this.labelProductName.Size = new System.Drawing.Size(325, 23);
             this.labelProductName.TabIndex = 11;
             // 
             // labelProductVersion
             // 
             this.labelProductVersion.Location = new System.Drawing.Point(13, 171);
             this.labelProductVersion.Name = "labelProductVersion";
-            this.labelProductVersion.Size = new System.Drawing.Size(373, 23);
+            this.labelProductVersion.Size = new System.Drawing.Size(325, 23);
             this.labelProductVersion.TabIndex = 12;
             // 
             // button2
