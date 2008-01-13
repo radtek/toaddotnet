@@ -50,28 +50,25 @@ namespace ToadDotNet
                     Application.Exit();
                 }
             } 
-            else
-            {
-                AssemblyLoader asmLoader = new AssemblyLoader(this, this.menuStrip1, this.rightTabControl, this.leftTabControl, plugEvent);
-                string PluginsPath = Config.GetElement(Config.Load(), "/membs/AppConfig/plugin").GetAttribute("path"); //@".\plugins";//
-                if (Directory.Exists(PluginsPath))
-                {
-                    DirectoryInfo di = new DirectoryInfo(PluginsPath);
-                    string[] files = Directory.GetFiles(di.FullName, "*.dll");
-                    foreach (string file in files)
-                    {
-                        if (asmLoader.Load(file))
-                        {
-
-                        }
-                        else if (asmLoader.GetErrorMessage() != null)
-                        {
-                            MessageBox.Show(asmLoader.GetErrorMessage(), "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                    }
-                }    
-            }
             
+            AssemblyLoader asmLoader = new AssemblyLoader(this, this.menuStrip1, this.rightTabControl, this.leftTabControl, plugEvent);
+            string PluginsPath = Config.GetElement(Config.Load(), "/membs/AppConfig/plugin").GetAttribute("path"); //@".\plugins";//
+            if (Directory.Exists(PluginsPath))
+            {
+                DirectoryInfo di = new DirectoryInfo(PluginsPath);
+                string[] files = Directory.GetFiles(di.FullName, "*.dll");
+                foreach (string file in files)
+                {
+                    if (asmLoader.Load(file))
+                    {
+
+                    }
+                    else if (asmLoader.GetErrorMessage() != null)
+                    {
+                        MessageBox.Show(asmLoader.GetErrorMessage(), "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }                            
         }
 
         private void enregistrementToolStripMenuItem_Click(object sender, EventArgs e)
