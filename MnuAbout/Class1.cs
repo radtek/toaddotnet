@@ -31,34 +31,26 @@
   ce programme ; si ce n’est pas le cas, consultez :
   <http://www.gnu.org/licenses/>.
  *****************************************************************************/
+using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Windows.Forms;
+using PluginTypes;
 
-namespace PluginTypes
+namespace MnuAbout
 {
-    public interface IFormAddOn
+    public class Class1 : IMenuAddOn
     {
-        void Install(Form form);
-    }
-    public interface IMenuAddOn
-    {
-        void Install(MenuStrip menu);
-    }
+        public void Install(MenuStrip menu)
+        {
+            //PlugUtils.AddMenu(menu, "Aide", "Aide", new EventHandler(AideAideMenuItem_Click));
+            PlugUtils.AddMenu(menu, "&Aide", "&A propos...", new EventHandler(AideAProposDeMenuItem_Click));            
+        }        
 
-    public interface  ITabPageAddOn
-    {
-        void Install(TabControl tabControl);
-        void EventPlug(PlugEvent e);
-    }
-
-    public interface ITabPageLeftAddOn
-    {
-        void Install(TabControl tabControl);
-        void EventPlug(PlugEvent e);
-    }
-
-    public interface IGroupBoxAddOn
-    {
-        void Install(TabPage tabPage);
-        void EventPlug(PlugEvent e);
+        private void AideAProposDeMenuItem_Click(object sender, EventArgs e)
+        {
+            AboutBox1 aboutBox = new AboutBox1();
+            aboutBox.ShowDialog();
+        }
     }
 }
