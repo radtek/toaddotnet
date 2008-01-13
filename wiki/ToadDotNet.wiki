@@ -16,4 +16,4 @@ When using the application for the first time, automatically a register form wil
 
 = Screenshots =
 
-http://toaddotnet.googlecode.com/svn/ToadDotNet/WiKi/Screenshots/ToadDotNet.png
+http://toaddotnet.googlecode.com/svn/ToadDotNet/wiki/Screenshots/ToadDotNet.png
