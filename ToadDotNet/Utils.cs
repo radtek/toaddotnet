@@ -106,7 +106,7 @@ namespace ToadDotNet
             string xmlResponse = GetLicenceKey(PluginName, nom, email, labelGUID);
 
             // Get the application configuration file.
-            XmlNodeList elements = Config.GetValue(xmlResponse, "//GestMembre/Product/key");
+            XmlNodeList elements = Config.GetValue(xmlResponse, "//alf-solution/Product/key");
             foreach (XmlElement element in elements)
             {
                 return element.InnerText;                 

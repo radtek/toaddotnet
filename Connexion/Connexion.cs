@@ -49,6 +49,8 @@ namespace Connexion
         private MySQLConnexion mysqlConnexion;
         private SQLConnexion sqlConnexion;
 
+        private bool isOpen = false;
+
         public string Type
         {
             get { return type; }
@@ -64,13 +66,25 @@ namespace Connexion
             internal set { cnn = value; }
         }
 
+        public OracleConnexion OracleConnexion
+        {
+            get { return oracleConnexion; }
+            set { oracleConnexion = value; }
+        }
+
+        public bool IsOpen
+        {
+            get { return isOpen; }
+            set { isOpen = value; }
+        }
+
         public Connexion(string type)
         {
             Type = type;
             switch(Type)
             {
                 case "Oracle":
-                    oracleConnexion = new OracleConnexion();                    
+                    OracleConnexion = new OracleConnexion();                    
                     break;
                 case "MySQL":
                     mysqlConnexion = new MySQLConnexion();
@@ -91,33 +105,33 @@ namespace Connexion
 
         public bool Open()
         {
-            bool rBool = false;
+            //bool rBool = false;
             switch (Type)
             {
                 case "Oracle":
-                    rBool = oracleConnexion.Open();
-                    Cnn = oracleConnexion.cnn;                    
+                    isOpen = OracleConnexion.Open();
+                    Cnn = OracleConnexion.cnn;                    
                     break;
                 case "MySQL":
-                    rBool = mysqlConnexion.Open();
+                    isOpen = mysqlConnexion.Open();
                     Cnn = mysqlConnexion.cnn;
                     break;
                 case "SQLite":
-                    rBool = sqliteConnexion.Open();
+                    isOpen = sqliteConnexion.Open();
                     Cnn = sqliteConnexion.cnn;
                     break;
                 case "MS-Access":
-                    rBool = msaccessConnexion.Open();
+                    isOpen = msaccessConnexion.Open();
                     Cnn = msaccessConnexion.cnn;
                     break;
                 case "SQLServer":
-                    rBool = sqlConnexion.Open();
+                    isOpen = sqlConnexion.Open();
                     Cnn = sqlConnexion.cnn;
                     break;
                 default:
                     break;
             }
-            return rBool;
+            return isOpen;
         }
 
         public bool Open(string param)
@@ -143,9 +157,9 @@ namespace Connexion
             switch (Type)
             {
                 case "Oracle":
-                    oracleConnexion.UserId = user;
-                    oracleConnexion.Password = password;
-                    oracleConnexion.DataSource = datasource;
+                    OracleConnexion.UserId = user;
+                    OracleConnexion.Password = password;
+                    OracleConnexion.DataSource = datasource;
                     return Open();
                     // break;
                 case "MySQL":
@@ -170,9 +184,9 @@ namespace Connexion
             switch (Type)
             {
                 case "Oracle":
-                    oracleConnexion.UserId = user;
-                    oracleConnexion.Password = password;
-                    oracleConnexion.DataSource = datasource;
+                    OracleConnexion.UserId = user;
+                    OracleConnexion.Password = password;
+                    OracleConnexion.DataSource = datasource;
                     return Open();
                     // break;
                 case "MySQL":
@@ -180,10 +194,10 @@ namespace Connexion
                     mysqlConnexion.Password = password;
                     mysqlConnexion.DataSource = datasource;
                     mysqlConnexion.DataBase = database;
-                    bool rbool = mysqlConnexion.Open(user, password, datasource, database);
-                    if (rbool)
+                    isOpen = mysqlConnexion.Open(user, password, datasource, database);
+                    if (isOpen)
                         Cnn = mysqlConnexion.cnn;
-                    return rbool;
+                    return isOpen;
                     //break;
                 case "MS-Access":
                     return Open();
@@ -201,20 +215,21 @@ namespace Connexion
             switch (Type)
             {
                 case "Oracle":
-                    return oracleConnexion.Close();
-                    // break;
+                    isOpen = OracleConnexion.Close();
+                    break;
                 case "MySQL":
-                    return mysqlConnexion.Close();
-                    //break;
+                    isOpen = mysqlConnexion.Close();
+                    break;
                 case "MS-Access":
-                    return msaccessConnexion.Close();
+                    isOpen = msaccessConnexion.Close();
+                    break;
                 case "SQLite":
-                    return sqliteConnexion.Close();
-                    // break;
+                    isOpen = sqliteConnexion.Close();
+                    break;
                 default:
                     break;
             }
-            return false;
+            return isOpen;
 
         }
 

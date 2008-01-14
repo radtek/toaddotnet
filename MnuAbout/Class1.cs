@@ -44,8 +44,13 @@ namespace MnuAbout
         public void Install(MenuStrip menu)
         {
             //PlugUtils.AddMenu(menu, "Aide", "Aide", new EventHandler(AideAideMenuItem_Click));
-            PlugUtils.AddMenu(menu, "&Aide", "&A propos...", new EventHandler(AideAProposDeMenuItem_Click));            
-        }        
+            PlugUtils.AddMenu(menu, "&Help", "&About...", new EventHandler(AideAProposDeMenuItem_Click));            
+        }
+
+        public void EventPlug(PlugEvent e)
+        {
+            //throw new NotImplementedException();
+        }
 
         private void AideAProposDeMenuItem_Click(object sender, EventArgs e)
         {

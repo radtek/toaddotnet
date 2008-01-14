@@ -165,17 +165,22 @@ namespace Membs
 
         public static string Nom()
         {
-            return GetInnerTextValue(Load(), "//membs/RegisterApp/client/nom");
+            return GetInnerTextValue(Load(), "//alf-solution/RegisterApp/client/nom");
         }
 
         public static string PublicKey()
         {
-            return GetInnerTextValue(Load(), "//membs/RegisterApp/client/PublicKey");          
+            return GetInnerTextValue(Load(), "//alf-solution/RegisterApp/client/PublicKey");          
         }
 
         public static string Email()
         {
-            return GetInnerTextValue(Load(), "//membs/RegisterApp/client/email");      
+            return GetInnerTextValue(Load(), "//alf-solution/RegisterApp/client/email");      
+        }
+
+        public static string TnsPath()
+        {
+            return GetInnerTextValue(Load(), "//alf-solution/db/tnsanmes.ora");
         }
 
     }
