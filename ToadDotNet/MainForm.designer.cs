@@ -160,8 +160,8 @@ namespace ToadDotNet
             this.pasteToolStripMenuItem,
             this.toolStripSeparator4,
             this.selectAllToolStripMenuItem});
-            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             resources.ApplyResources(this.editToolStripMenuItem, "editToolStripMenuItem");
+            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             // 
             // undoToolStripMenuItem
             // 
@@ -213,13 +213,13 @@ namespace ToadDotNet
             // 
             // customizeToolStripMenuItem
             // 
-            this.customizeToolStripMenuItem.Name = "customizeToolStripMenuItem";
             resources.ApplyResources(this.customizeToolStripMenuItem, "customizeToolStripMenuItem");
+            this.customizeToolStripMenuItem.Name = "customizeToolStripMenuItem";
             // 
             // optionsToolStripMenuItem1
             // 
-            this.optionsToolStripMenuItem1.Name = "optionsToolStripMenuItem1";
             resources.ApplyResources(this.optionsToolStripMenuItem1, "optionsToolStripMenuItem1");
+            this.optionsToolStripMenuItem1.Name = "optionsToolStripMenuItem1";
             // 
             // helpToolStripMenuItem
             // 
@@ -235,18 +235,18 @@ namespace ToadDotNet
             // 
             // contentsToolStripMenuItem
             // 
-            this.contentsToolStripMenuItem.Name = "contentsToolStripMenuItem";
             resources.ApplyResources(this.contentsToolStripMenuItem, "contentsToolStripMenuItem");
+            this.contentsToolStripMenuItem.Name = "contentsToolStripMenuItem";
             // 
             // indexToolStripMenuItem
             // 
-            this.indexToolStripMenuItem.Name = "indexToolStripMenuItem";
             resources.ApplyResources(this.indexToolStripMenuItem, "indexToolStripMenuItem");
+            this.indexToolStripMenuItem.Name = "indexToolStripMenuItem";
             // 
             // searchToolStripMenuItem
             // 
-            this.searchToolStripMenuItem.Name = "searchToolStripMenuItem";
             resources.ApplyResources(this.searchToolStripMenuItem, "searchToolStripMenuItem");
+            this.searchToolStripMenuItem.Name = "searchToolStripMenuItem";
             // 
             // toolStripSeparator6
             // 

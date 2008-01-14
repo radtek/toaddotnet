@@ -61,33 +61,22 @@ namespace ToadDotNet
                 textBoxNom.Text = Config.Nom();
                 labelGUID.Text = Config.PublicKey();
                 textBoxEmail.Text = Config.Email();
-                //XmlNodeList elements = Config.GetValue(xml, "//Membs/RegisterApp/client");
-                //foreach (XmlElement element in elements)
-                //{
-                //    textBoxNom.Text = element.GetAttribute("nom");
-                //    labelGUID.Text = element.GetAttribute("PublicKey");
-                //    textBoxEmail.Text = element.GetAttribute("email");
-                //}
-
-
-                XmlNodeList elements = Config.GetValue(xml, "//Membs/LicenceKey/plug");
+                
+                XmlNodeList elements = Config.GetValue(xml, "//alf-solution/plugins");
                 foreach (XmlElement element in elements)
                 {
-                    dataGridView1.Rows.Add(
-                        new string[] { element.GetAttribute("name", ""), element.GetAttribute("key", ""), "Never" });
+                    foreach (XmlElement pluginElem in element)
+                    {
+                        string plugname = pluginElem.Name;
+                        string key = Config.GetInnerTextValue(xml, string.Format("//alf-solution/plugins/{0}/key", plugname));
+                        dataGridView1.Rows.Add(
+                        new string[] { plugname, key, "Never" });
+                    }                    
                 }                
             }
             
             this.labelProductName.Text = Application.ProductName;
-            this.labelProductVersion.Text = Application.ProductVersion;
-            //if (labelGUID.Text != "Unregister" )
-            //{
-            //    buttonRegisterApp.Enabled = false;
-            //}
-            //else
-            //{
-            //    buttonRegisterApp.Enabled = false;
-            //}
+            this.labelProductVersion.Text = Application.ProductVersion;            
         }
 
         private void buttonRegisterApp_Click(object sender, EventArgs e)
@@ -96,12 +85,12 @@ namespace ToadDotNet
             string xmlResponse = Utils.RegisterApp(textBoxNom.Text, textBoxEmail.Text, labelGUID.Text);
 
             // Get the application configuration file.
-            XmlNodeList elements = Config.GetValue(xmlResponse, "//GestMembre/RegisterApp/key");
+            XmlNodeList elements = Config.GetValue(xmlResponse, "//alf-solution/RegisterApp/key");
             foreach (XmlElement element in elements)
             {
                 labelGUID.Text = element.InnerText;
                 string xml = Config.Load();
-                XmlNodeList elems = Config.GetValue(xml, "//membs/RegisterApp/client");
+                XmlNodeList elems = Config.GetValue(xml, "//alf-solution/RegisterApp/client");
                 for (int i = 0; i < elems.Count; i++ )
                 {
                     XmlElement elem = elems[i] as XmlElement;
@@ -143,12 +132,12 @@ namespace ToadDotNet
             string xmlResponse = Utils.GetLicenceKey(PluginName,textBoxNom.Text, textBoxEmail.Text, labelGUID.Text);
 
             // Get the application configuration file.
-            XmlNodeList elements = Config.GetValue(xmlResponse, "//GestMembre/Product/key");
+            XmlNodeList elements = Config.GetValue(xmlResponse, "//alf-solution/Product/key");
             foreach (XmlElement element in elements)
             {
                 dataGridView1.CurrentCell.Value = element.InnerText;
                 string xml = Config.Load();
-                XmlNodeList elems = Config.GetValue(xml, "//Concert/LicenceKey/plug[@name='" + dataGridView1.CurrentRow.Cells[0].Value.ToString() + "']");
+                XmlNodeList elems = Config.GetValue(xml, "//alf-solution/LicenceKey/plug[@name='" + dataGridView1.CurrentRow.Cells[0].Value.ToString() + "']");
                 foreach (XmlElement elem in elems)
                 {
                     elem.SetAttribute("key", element.InnerText);

@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<membs>
+<alf-solution>
   <RegisterApp></RegisterApp>
   <LicenceKey></LicenceKey>
   <db>
-	  <file>.\Membs.db3</file>
-      <type>Oracle</type>
-      <factory>System.Data.OracleClient</factory>
+	  <type>Oracle</type>
+    <factory>System.Data.OracleClient</factory>
   </db>
   <AppConfig>
      <plugin path=".\plugin"/>
@@ -13,4 +12,4 @@
   </AppConfig>
   <plugins>      	  	  
   </plugins>
-</membs>
+</alf-solution>

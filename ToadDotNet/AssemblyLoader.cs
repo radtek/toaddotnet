@@ -70,7 +70,7 @@ namespace PlugIn
         #region Constructeur
         public AssemblyLoader(Form form, MenuStrip menuStrip, TabControl tabControl, TabControl tabControlLeft, PlugEvent plugEvent)
         {
-            CurrentCulture = new CultureInfo(Config.GetInnerTextValue(Config.Load(), "/membs/AppConfig/lang"));
+            CurrentCulture = new CultureInfo(Config.GetInnerTextValue(Config.Load(), "/alf-solution/AppConfig/lang"));
             System.Threading.Thread.CurrentThread.CurrentUICulture = CurrentCulture;
             
             this.form = form;
@@ -119,7 +119,7 @@ namespace PlugIn
 
                     //2 - Vérifier si on a la licence
                     string xmlData = Config.Load();
-                    string key = Config.GetInnerTextValue(xmlData, "//membs/plugins/" + moduleInfo.Name + "/key");
+                    string key = Config.GetInnerTextValue(xmlData, "//alf-solution/plugins/" + moduleInfo.Name + "/key");
                     if (string.IsNullOrEmpty(key))
                     {
                         key = Utils.GetKey(moduleInfo.Name, Config.PublicKey(), Config.Nom(), Config.Email());
@@ -161,6 +161,7 @@ namespace PlugIn
                                 IMenuAddOn menuAddOn = o as IMenuAddOn;
                                 //2 - invoker la méthode d'installation
                                 menuAddOn.Install(menuStrip);
+                                menuAddOn.EventPlug(this.plugEvent);
                                 foundInterface = true;
                             }
                             if (ITabPageAddOnType != null)
@@ -221,7 +222,7 @@ namespace PlugIn
                                 {
                                     string version = ((AssemblyFileVersionAttribute) VersionInfo[0]).Version;
                                     string versionDll =
-                                        Config.GetInnerTextValue(xmlData, "//membs/plugins/" + moduleInfo.Name + "/version");
+                                        Config.GetInnerTextValue(xmlData, "//alf-solution/plugins/" + moduleInfo.Name + "/version");
                                     if (string.IsNullOrEmpty(versionDll) || !versionDll.Equals(versionDll))
                                     {
                                         //xmlData = Config.SetValue(xmlData, "plugins", moduleInfo.Name, "");

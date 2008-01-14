@@ -44,6 +44,8 @@ namespace TBTableData
 {
     public partial class UCTableData : UserControl, ITabPageAddOn
     {
+        private Connexion.Connexion connexion = new Connexion.Connexion("Oracle");
+        
         public Thread mythread;
 
         /// <summary> 
@@ -97,7 +99,51 @@ namespace TBTableData
         /// Method to execute when event is fired
         /// </summary>
         public void EventProcess(object sender, string data)
-        {            
+        {
+            XmlDocument xmlData = new XmlDocument();
+            xmlData.LoadXml(data);
+            XmlNode xmlNode = null;
+            foreach (XmlNode xmlNodeAction in xmlData.GetElementsByTagName("action"))
+            {
+                switch (xmlNodeAction.InnerText)
+                {
+                    case "connect":
+                        // Get Info for the oracle connection
+                        xmlNode = xmlData.SelectSingleNode("//ToadDotNet/action/connection");
+                        if (xmlNode != null)
+                        {
+                            connexion.OracleConnexion.UserId = xmlNode.Attributes.GetNamedItem("userid").Value;
+                            connexion.OracleConnexion.Password = xmlNode.Attributes.GetNamedItem("password").Value;
+                            connexion.OracleConnexion.DataSource = xmlNode.Attributes.GetNamedItem("datasource").Value;
+                            if (connexion.IsOpen)
+                            {
+                                connexion.Close();
+                            }
+                            else
+                            {
+                                connexion.Open();
+                            }                            
+                        }
+                        break;
+                    case "gettable":
+                        if (connexion.IsOpen)
+                        {
+                            string tablename = null;
+                            //foreach (XmlNode xmlNode in xmlData.GetElementsByTagName("table"))
+                            xmlNode = xmlData.SelectSingleNode("//ToadDotNet/action/table");
+                            if (xmlNode != null)
+                            {
+                                tablename = xmlNode.Attributes.GetNamedItem("id").Value;
+                                DGVQuery uLib = new DGVQuery(dataGridViewOracleFields, connexion);
+                                uLib.Start(string.Format("SELECT * FROM {0}", tablename));
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            /*
             XmlDocument xmlData = new XmlDocument();
             xmlData.LoadXml((string)data);
 
@@ -126,13 +172,10 @@ namespace TBTableData
                 {
                     tablename = xmlNode.Attributes.GetNamedItem("id").Value;
                     DGVQuery uLib = new DGVQuery(dataGridViewOracleFields, connexion);
-                    uLib.Start(string.Format("SELECT * FROM {0}", tablename));
-                    //if (mythread != null && mythread.IsAlive)
-                    //    mythread.Abort();
-                    //mythread = new Thread((uLib.Display));
-                    //mythread.Start(string.Format("SELECT * FROM {0}", tablename));
+                    uLib.Start(string.Format("SELECT * FROM {0}", tablename));                    
                 }                                
             }
+            */
             
         }
 

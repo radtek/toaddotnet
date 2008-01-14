@@ -51,9 +51,7 @@ namespace TBQuery
         /// </summary>
         private PlugEvent plugSender;
 
-        private string userid; // = "ABSIS";
-        private string password; // = "property";
-        private string datasource; // = "FT.LOCALPDL-ASOCS";
+        private Connexion.Connexion connexion = new Connexion.Connexion("Oracle");
         /// <summary> 
         /// Default Constructor.
         /// </summary>
@@ -101,25 +99,38 @@ namespace TBQuery
             //MessageBox.Show("test " + data);
             XmlDocument xmlData = new XmlDocument();
             xmlData.LoadXml(data);
-
-            // Get Info for the oracle connection
-            foreach (XmlNode xmlNode in xmlData.GetElementsByTagName("connection"))
+            foreach (XmlNode xmlNodeAction in xmlData.GetElementsByTagName("action"))
             {
-                userid = xmlNode.Attributes.GetNamedItem("userid").Value;
-                password = xmlNode.Attributes.GetNamedItem("password").Value;
-                datasource = xmlNode.Attributes.GetNamedItem("datasource").Value;
+                switch (xmlNodeAction.InnerText)
+                {
+                    case "connect":
+                        // Get Info for the oracle connection
+                        XmlNode xmlNode = xmlData.SelectSingleNode("//ToadDotNet/action/connection");
+                        if (xmlNode != null)
+                        {
+                            connexion.OracleConnexion.UserId = xmlNode.Attributes.GetNamedItem("userid").Value;
+                            connexion.OracleConnexion.Password = xmlNode.Attributes.GetNamedItem("password").Value;
+                            connexion.OracleConnexion.DataSource = xmlNode.Attributes.GetNamedItem("datasource").Value;
+                            if (connexion.IsOpen)
+                            {
+                                connexion.Close();
+                            }
+                            else
+                            {
+                                connexion.Open();
+                            }                            
+                        }
+                        break;
+                    default:
+                        break;
+                }
             }
         }
         #endregion
 
         private void toolStripButtonExecQuery_Click(object sender, EventArgs e)
-        {
-            bool bConnexion = false;
-            Connexion.Connexion connexion = new Connexion.Connexion("Oracle");
-            if (!String.IsNullOrEmpty(userid) && !String.IsNullOrEmpty(password) &&
-                !String.IsNullOrEmpty(datasource))
-                bConnexion = connexion.Open(userid, password, datasource);
-            if (bConnexion)
+        {            
+            if (connexion.IsOpen)
             {
                 uLib = new DGVQuery(dataGridViewOracleQueryData, connexion);
                 uLib.Start(richTextBoxOracleQuerySQL.Text);

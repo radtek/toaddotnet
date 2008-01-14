@@ -74,7 +74,8 @@ namespace PluginTypes
                 toolsToolStripMenuItem.Name = menuItem;
                 toolsToolStripMenuItem.Size = new System.Drawing.Size(40, 20);
                 toolsToolStripMenuItem.Text = menuItem;
-                menu.Items.Add(toolsToolStripMenuItem);
+                //menu.Items.Add(toolsToolStripMenuItem);
+                menu.Items.Insert(2, toolsToolStripMenuItem);
             }
             // Add the sub-menu to the Tools menu            
             toolsToolStripMenuItem.DropDownItems.Add(toolsPrefToolStripMenuItem);

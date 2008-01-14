@@ -62,7 +62,7 @@ namespace ToadDotNet
         {
             // Définition de la culture par défaut
             //System.Threading.Thread.CurrentThread.CurrentUICulture = FrenchCulture;
-            CurrentCulture = new CultureInfo(Config.GetInnerTextValue(Config.Load(), "/membs/AppConfig/lang"));
+            CurrentCulture = new CultureInfo(Config.GetInnerTextValue(Config.Load(), "/alf-solution/AppConfig/lang"));
             System.Threading.Thread.CurrentThread.CurrentUICulture = CurrentCulture;
             InitializeComponent();
             
@@ -85,7 +85,7 @@ namespace ToadDotNet
             } 
             
             AssemblyLoader asmLoader = new AssemblyLoader(this, this.menuStrip1, this.rightTabControl, this.leftTabControl, plugEvent);
-            string PluginsPath = Config.GetElement(Config.Load(), "/membs/AppConfig/plugin").GetAttribute("path"); //@".\plugins";//
+            string PluginsPath = Config.GetElement(Config.Load(), "/alf-solution/AppConfig/plugin").GetAttribute("path"); //@".\plugins";//
             if (Directory.Exists(PluginsPath))
             {
                 DirectoryInfo di = new DirectoryInfo(PluginsPath);

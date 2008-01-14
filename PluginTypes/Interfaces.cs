@@ -38,10 +38,12 @@ namespace PluginTypes
     public interface IFormAddOn
     {
         void Install(Form form);
+        void EventPlug(PlugEvent e);
     }
     public interface IMenuAddOn
     {
         void Install(MenuStrip menu);
+        void EventPlug(PlugEvent e);
     }
 
     public interface  ITabPageAddOn
