@@ -2,18 +2,40 @@
 = Introduction =
 
 The Toad.Net (ToadDotNet) application try to give you an easy tool to query and retrieve data from Oracle database.
+It will also give you the ease to manage all objects from your database.
 
 
 = Features =
 
-At this time, only very little features are offered. New features will be added, depending on time, bug fixing and request. So far the application allows you:
+At this time, only very little features are offered. New features will be added (soon), depending on my spare time (unfortunately, unless someone wants to sponsor my work :)), but, bug fixing and request will be considered rapidly. So far the application allows you:
   * Connect to a database and retrieve all objects
   * Get the columns of a table
-  * Query the data of the selected table into the tree schema
+  * Retrieve automatically data from selected table
+  * Query window
 
 = Registration =
-When using the application for the first time, automatically a register form will be prompted to you. You have to entre a firstname, lastname and a valid email address. Thoses informations are necessary to be able to run the application. Those information won't be give to any third party and will be use only for statistics.
+When using the application for the first time, automatically a register form will be prompted to you. You have to enter your full name (first and last name) and a valid email address. These informations are necessary to be able to run the application. Those informations won't be given to any third party and will be use only for statistics.
+
+= Future release =
+As the application is today (January 2008) only at its genesis many features will come. We can already mentioned
+  * Add table
+  * Drop table
+  * Add column
+  * Modify column
+  * Drop column
+  * Add index
+  * Drop index
+  * Add function
+  * Modify function
+  * Drop function
+  * Add procedure
+  * Modify procedure
+  * Drop procedure
+  * Add package (spec and body)
+  * Modify package (spec and body)
+  * Drop package
+  * Add intelisense to sql window
 
 = Screenshots =
 
-http://toaddotnet.googlecode.com/svn/ToadDotNet/wiki/Screenshots/ToadDotNet.png
+http://toaddotnet.googlecode.com/svn/wiki/ToadDotNet.gif
