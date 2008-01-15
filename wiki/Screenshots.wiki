@@ -3,7 +3,7 @@
 
 Some captures of the application.
 
-= Version 0.0.1.0-23 = 
+= Version 0.0.2.0-31 = 
 [http://toaddotnet.googlecode.com/svn/wiki/ToadDotNet1.png http://toaddotnet.googlecode.com/svn/wiki/ToadDotNet1.png]
 
 The main screen
