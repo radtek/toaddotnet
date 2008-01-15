@@ -38,4 +38,4 @@ As the application is today (January 2008) only at its genesis many features wil
 
 = Screenshots =
 
-[http://toaddotnet.googlecode.com/svn/wiki/Screenshots.wiki http://toaddotnet.googlecode.com/svn/wiki/ToadDotNet.gif]
+[http://toaddotnet.googlecode.com/svn/wiki/Screenshots http://toaddotnet.googlecode.com/svn/wiki/ToadDotNet.gif]
