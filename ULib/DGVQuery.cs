@@ -33,10 +33,12 @@
  *****************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.Common;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using System.Data.OracleClient;
 
 namespace ULib
 {
@@ -133,9 +135,8 @@ namespace ULib
             {
                 if (mythread != null && mythread.IsAlive)
                     mythread.Abort();
-                mythread = new Thread((Display));
-                mythread.Start(Convert.ToString(obj));
-                
+                //mythread = new Thread((Display));
+                //mythread.Start(Convert.ToString(obj));
             }
             catch (Exception e)
             {
@@ -167,9 +168,9 @@ namespace ULib
                 MessageBox.Show(errorMessage, "Unexpected error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        public void Display(object obj)
+        public string Display(object obj, BackgroundWorker worker, DoWorkEventArgs eArgs)
         {
-            DateTime startTime = DateTime.Now;
+            string result = null;
             bool bConnexion = true;
             if (this.connexion == null || this.connexion.Cnn == null || this.connexion.Cnn.State.ToString() == "Closed")
             {
@@ -178,24 +179,19 @@ namespace ULib
             }
             if (bConnexion)
             {
-                DisplayQueryData(connexion, Convert.ToString(obj), dgv);
-                //connexion.Close();
+                result = DisplayQueryData(connexion, Convert.ToString(obj), dgv, worker, eArgs);
             }
-            TimeSpan elapsed = DateTime.Now - startTime;
-
-            //Console.WriteLine("response time: {0}", elapsed.TotalSeconds);
-            if (dgv.InvokeRequired)
-                dgv.Invoke(new setElapsedTime(SetElapsedTime), new object[] { elapsed });
-            else
-                SetElapsedTime(elapsed);
+            
+            return result;
         }
         #endregion
 
         #region display
-        private void DisplayQueryData(Connexion.Connexion connexion, string SQL, DataGridView dataGridViewOracleData)
+        private string DisplayQueryData(Connexion.Connexion connexion, string SQL, DataGridView dataGridViewOracleData, BackgroundWorker worker, DoWorkEventArgs eArgs)
         {
+            string result = null;
             try
-            {
+            {                
                 //string SelectedTable = treeViewOracleSchema.SelectedNode.Text;
                 using (DbCommand cmd = connexion.Cnn.CreateCommand())
                 {
@@ -237,7 +233,7 @@ namespace ULib
                             else
                                 dataGridViewOracleData.Columns.Add(rd.GetName(i), rd.GetName(i));
                         }
-                        while (rd.Read())
+                        while (rd.Read() && !worker.CancellationPending)
                         {
                             DataGridViewRow dgrv = new DataGridViewRow();
                             for (int i = 0; i < dataGridViewOracleData.Columns.Count; i++)
@@ -265,15 +261,32 @@ namespace ULib
                                 SetNumberRecord(CurrentNumRec, NumRec);
                                 SetPercentCompleted(CurrentNumRec, NumRec);
                             }
+                            if (NumRec != 0)
+                            {
+                                int percentComplete = (int)((float)CurrentNumRec / (float)NumRec * 100);
+                                worker.ReportProgress(percentComplete);    
+                            } else
+                            {
+                                worker.ReportProgress(CurrentNumRec % 100);
+                            }                                                        
                         }
+                        if (worker.CancellationPending)
+                        {
+                            eArgs.Cancel = true;
+                            result = string.Format("Aborted by user. {0} records found", dataGridViewOracleData.Rows.Count);
+                        } else
+                        {
+                            result = string.Format("{0} records found", dataGridViewOracleData.Rows.Count);    
+                        }
+                        
                         rd.Close();
-                    }
-                    SetNumberRecord(dataGridViewOracleData.Rows.Count, NumRec);
-                    //dataGridViewOracleData.AutoResizeColumns();
+                    }                    
                 }
+                return result;
             }
             catch (Exception e)
             {
+                Exception ee = e;
                 string errorMessage = e.Message;
                 while (e.InnerException != null)
                 {
@@ -281,7 +294,8 @@ namespace ULib
                     errorMessage += "\n" + e.Message;
                 }
                 MessageBox.Show(errorMessage, "Unexpected error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+                return errorMessage;
+            }            
         }
         #endregion
     }

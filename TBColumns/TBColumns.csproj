@@ -36,6 +36,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FormAddCol.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormAddCol.Designer.cs">
+      <DependentUpon>FormAddCol.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UCColumns.cs">
       <SubType>UserControl</SubType>
@@ -59,6 +65,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="FormAddCol.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>FormAddCol.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UCColumns.resx">
       <SubType>Designer</SubType>
       <DependentUpon>UCColumns.cs</DependentUpon>
