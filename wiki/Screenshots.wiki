@@ -24,3 +24,6 @@ The query tab page
 
 The data tab page
 = Version 0.0.1.0-15 =
+[http://toaddotnet.googlecode.com/svn/wiki/ToadDotNet1-0.0.1.0-15.png http://toaddotnet.googlecode.com/svn/wiki/ToadDotNet1-0.0.1.0-15.png]
+
+[http://toaddotnet.googlecode.com/svn/wiki/ToadDotNet4-0.0.1.0-15.png http://toaddotnet.googlecode.com/svn/wiki/ToadDotNet4-0.0.1.0-15.png]
