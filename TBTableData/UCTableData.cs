@@ -33,6 +33,7 @@
  *****************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.Common;
 using System.Threading;
 using System.Windows.Forms;
@@ -45,7 +46,9 @@ namespace TBTableData
     public partial class UCTableData : UserControl, ITabPageAddOn
     {
         private Connexion.Connexion connexion = new Connexion.Connexion("Oracle");
-        
+        private DGVQuery uLib;
+        private DateTime startTime;
+
         public Thread mythread;
 
         /// <summary> 
@@ -129,54 +132,25 @@ namespace TBTableData
                         if (connexion.IsOpen)
                         {
                             string tablename = null;
-                            //foreach (XmlNode xmlNode in xmlData.GetElementsByTagName("table"))
                             xmlNode = xmlData.SelectSingleNode("//ToadDotNet/action/table");
                             if (xmlNode != null)
                             {
                                 tablename = xmlNode.Attributes.GetNamedItem("id").Value;
-                                DGVQuery uLib = new DGVQuery(dataGridViewOracleFields, connexion);
-                                uLib.Start(string.Format("SELECT * FROM {0}", tablename));
+                                uLib = new DGVQuery(dataGridViewOracleFields, connexion);
+                                //uLib.Start(string.Format("SELECT * FROM {0}", tablename));
+                                toolStripProgressBarQuery.Visible = true;
+                                startTime = DateTime.Now;
+                                if (backgroundWorker1.IsBusy)
+                                    backgroundWorker1.CancelAsync();
+                                while (backgroundWorker1.IsBusy) ;
+                                backgroundWorker1.RunWorkerAsync(string.Format("SELECT * FROM {0}", tablename));
                             }
                         }
                         break;
                     default:
                         break;
                 }
-            }
-            /*
-            XmlDocument xmlData = new XmlDocument();
-            xmlData.LoadXml((string)data);
-
-            string userid = null;
-            string password = null;
-            string datasource = null;
-
-            // Get Info for the oracle connection
-            foreach (XmlNode xmlNode in xmlData.GetElementsByTagName("connection"))
-            {
-                userid = xmlNode.Attributes.GetNamedItem("userid").Value;
-                password = xmlNode.Attributes.GetNamedItem("password").Value;
-                datasource = xmlNode.Attributes.GetNamedItem("datasource").Value;
-            }
-
-            bool bConnexion = false;
-            Connexion.Connexion connexion = new Connexion.Connexion("Oracle");
-            if (!String.IsNullOrEmpty(userid) && !String.IsNullOrEmpty(password) &&
-                !String.IsNullOrEmpty(datasource))
-                bConnexion =
-                    connexion.Open(userid, password, datasource);
-            if (bConnexion)
-            {
-                string tablename = null;
-                foreach (XmlNode xmlNode in xmlData.GetElementsByTagName("table"))
-                {
-                    tablename = xmlNode.Attributes.GetNamedItem("id").Value;
-                    DGVQuery uLib = new DGVQuery(dataGridViewOracleFields, connexion);
-                    uLib.Start(string.Format("SELECT * FROM {0}", tablename));                    
-                }                                
-            }
-            */
-            
+            }                        
         }
 
         #endregion
@@ -212,7 +186,7 @@ namespace TBTableData
         {
             if (num > 100)
                 num = 1;
-            this.toolStripProgressBar1.Value = num;
+            this.toolStripProgressBarQuery.Value = num;
         }
 
         private delegate void setElapsedTime(TimeSpan elapsed);
@@ -220,129 +194,7 @@ namespace TBTableData
         {
             this.toolStripStatusLabelElapsedTime.Text = string.Format("Elapsed time: {0} s", elapsed.TotalSeconds);
         }
-        #endregion
-
-        //public void Display(object data)
-        //{
-        //    DateTime startTime = DateTime.Now;
-        //    XmlDocument xmlData = new XmlDocument();
-        //    xmlData.LoadXml((string) data);
-
-        //    string userid = null;
-        //    string password = null;
-        //    string datasource = null;
-
-        //    // Get Info for the oracle connection
-        //    foreach (XmlNode xmlNode in xmlData.GetElementsByTagName("connection"))
-        //    {
-        //        userid = xmlNode.Attributes.GetNamedItem("userid").Value;
-        //        password = xmlNode.Attributes.GetNamedItem("password").Value;
-        //        datasource = xmlNode.Attributes.GetNamedItem("datasource").Value;
-        //    }
-
-        //    bool bConnexion = false;
-        //    Connexion.Connexion connexion = new Connexion.Connexion("Oracle");
-        //    if (!String.IsNullOrEmpty(userid) && !String.IsNullOrEmpty(password) &&
-        //        !String.IsNullOrEmpty(datasource))
-        //        bConnexion =
-        //            connexion.Open(userid, password, datasource);
-
-        //    foreach (XmlNode xmlNode in xmlData.GetElementsByTagName("table"))
-        //    {
-        //        string tablename = xmlNode.Attributes.GetNamedItem("id").Value;
-
-        //        if (bConnexion)
-        //            DisplayQueryData(connexion, string.Format("{0}", tablename), dataGridViewOracleFields);
-        //    }
-        //    TimeSpan elapsed = DateTime.Now - startTime;
-
-        //    //Console.WriteLine("response time: {0}", elapsed.TotalSeconds);
-        //    if (dataGridViewOracleFields.InvokeRequired)
-        //        dataGridViewOracleFields.Invoke(new setElapsedTime(SetElapsedTime), new object[] { elapsed });            
-        //    else
-        //        this.toolStripStatusLabelElapsedTime.Text = string.Format("elapsed time: {0} s", elapsed.TotalSeconds);
-        //}
-
-        //public void DisplayQueryData(Connexion.Connexion connexion, string SelectedTable, DataGridView dataGridViewOracleData)
-        //{
-        //    try
-        //    {
-        //        //string SelectedTable = treeViewOracleSchema.SelectedNode.Text;
-        //        using (DbCommand cmd = connexion.Cnn.CreateCommand())
-        //        {
-        //            cmd.CommandText = string.Format("SELECT count(*) FROM {0}", SelectedTable);
-        //            cmd.Prepare();
-        //            int NumRec = Convert.ToInt32(cmd.ExecuteScalar());
-        //            string SQL = string.Format("SELECT * FROM {0}", SelectedTable);
-        //            cmd.CommandText = SQL;
-        //            cmd.Prepare();
-        //            //int colno = 0;
-        //            using (DbDataReader rd = cmd.ExecuteReader())
-        //            {
-        //                if (dataGridViewOracleData.InvokeRequired)
-        //                {
-        //                    dataGridViewOracleData.Invoke(new datagridClear(ClearDataGrid));
-        //                }
-        //                else
-        //                {
-        //                    dataGridViewOracleData.Rows.Clear();
-        //                    dataGridViewOracleData.Columns.Clear();
-        //                }
-        //                for (int i = 0; i < rd.FieldCount; i++)
-        //                {
-        //                    if (dataGridViewOracleData.InvokeRequired)
-        //                    {
-        //                        dataGridViewOracleData.Invoke(new datagridAddCol(AddColDataGrid),
-        //                                                      new object[] {rd.GetName(i), rd.GetName(i)});
-        //                    }
-        //                    else
-        //                        dataGridViewOracleData.Columns.Add(rd.GetName(i), rd.GetName(i));
-        //                }
-        //                while (rd.Read())
-        //                {
-        //                    DataGridViewRow dgrv = new DataGridViewRow();
-        //                    for (int i = 0; i < dataGridViewOracleData.Columns.Count; i++)
-        //                    {
-        //                        dgrv.Cells.Add(new DataGridViewTextBoxCell());
-        //                        dgrv.Cells[i].Value = rd.GetValue(i);
-        //                    }
-        //                    if (dataGridViewOracleData.InvokeRequired)
-        //                    {
-        //                        dataGridViewOracleData.Invoke(new datagridAddRow(AddRowDataGrid), new object[] {dgrv});
-        //                    }
-        //                    else
-        //                        dataGridViewOracleData.Rows.Add(dgrv);
-
-        //                    int CurrentNumRec = dataGridViewOracleData.Rows.Count;
-        //                    if (dataGridViewOracleData.InvokeRequired)
-        //                    {
-        //                        dataGridViewOracleData.Invoke(new setNumberRecord(SetNumberRecord),
-        //                                                      new object[] {CurrentNumRec, NumRec});
-        //                        dataGridViewOracleData.Invoke(new setPercentCompleted(SetPercentCompleted),
-        //                                                      new object[] {(CurrentNumRec*100/NumRec)});
-        //                    }
-        //                    else
-        //                    {
-        //                        SetNumberRecord(CurrentNumRec, NumRec);
-        //                        SetPercentCompleted((CurrentNumRec * 100 / NumRec));
-        //                    }
-        //                }
-        //            }
-        //            SetNumberRecord(dataGridViewOracleData.Rows.Count, NumRec);
-        //            //dataGridViewOracleData.AutoResizeColumns();
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        string errorMessage = e.Message;
-        //        while (e.InnerException != null)
-        //        {
-        //            e = e.InnerException;
-        //            errorMessage += "\n" + e.Message;
-        //        }
-        //        MessageBox.Show(errorMessage, "Unexpected error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        //    }
-        //}
+        #endregion        
 
         private void dataGridViewOracleFields_RowEnter(object sender, DataGridViewCellEventArgs e)
         {
@@ -357,6 +209,51 @@ namespace TBTableData
             {
                 SetNumberRecord(CurrentNumRec, NumRec);                
             }
+        }
+
+        private void backgroundWorker1_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
+        {
+            toolStripProgressBarQuery.Value = e.ProgressPercentage;
+        }
+
+        private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {            
+            BackgroundWorker worker = sender as BackgroundWorker;
+            e.Result = uLib.Display(e.Argument.ToString(), worker, e);
+            if (worker.CancellationPending)
+            {
+                e.Cancel = true;
+            }
+
+        }
+
+        private void backgroundWorker1_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        {
+            TimeSpan elapsed = DateTime.Now - startTime;
+            SetElapsedTime(elapsed);
+            if (e.Cancelled)
+            {
+                // The user canceled the operation.
+                //MessageBox.Show("Operation was canceled.");
+                toolStripStatusLabelMessage.Text = string.Format("Aborted by user. {0} records found.", dataGridViewOracleFields.Rows.Count);
+            }
+            else if (e.Error != null)
+            {
+                // There was an error during the operation.
+                string msg = String.Format("An error occurred: {0}", e.Error.Message);
+                MessageBox.Show(msg);
+            }
+            else
+            {
+                toolStripStatusLabelMessage.Text = e.Result.ToString();
+            }
+            toolStripProgressBarQuery.Visible = false;
+            
+        }
+
+        private void toolStripButtonCancel_Click(object sender, EventArgs e)
+        {
+            backgroundWorker1.CancelAsync();
         }
     }
 }

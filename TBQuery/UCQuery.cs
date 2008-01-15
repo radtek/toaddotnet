@@ -33,19 +33,27 @@
  *****************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.Common;
 using System.Drawing;
+using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
+using ICSharpCode.TextEditor.Document;
+using ICSharpCode.TextEditor.Util;
+using ICSharpCode.TextEditor;
+using ICSharpCode.TextEditor.Gui.CompletionWindow;
 using PluginTypes;
 using ULib;
+
 
 namespace TBQuery
 {
     public partial class UCQuery : UserControl, ITabPageAddOn
     {
         private DGVQuery uLib;
+        private DateTime startTime;
         /// <summary> 
         /// Private attribute for the event.
         /// </summary>
@@ -129,12 +137,8 @@ namespace TBQuery
         #endregion
 
         private void toolStripButtonExecQuery_Click(object sender, EventArgs e)
-        {            
-            if (connexion.IsOpen)
-            {
-                uLib = new DGVQuery(dataGridViewOracleQueryData, connexion);
-                uLib.Start(richTextBoxOracleQuerySQL.Text);
-            }
+        {
+            ExecuteQuery();
         }
         #region delegate
         
@@ -144,55 +148,33 @@ namespace TBQuery
             this.toolStripStatusLabelRecords.Text = string.Format("Record {0} of {1}", num, total);
         }
 
+        private delegate void setElapsedTime(TimeSpan elapsed);
+        private void SetElapsedTime(TimeSpan elapsed)
+        {
+            this.toolStripStatusLabelElapsedTime.Text = string.Format("Elapsed time: {0} s", elapsed.TotalSeconds);
+        }
         #endregion        
 
         private void UCQuery_Load(object sender, EventArgs e)
-        {
-            richTextBoxOracleQuerySQL.Settings.Keywords.Add("SELECT");
-            richTextBoxOracleQuerySQL.Settings.Keywords.Add("FROM");
-            richTextBoxOracleQuerySQL.Settings.Keywords.Add("WHERE");
-            richTextBoxOracleQuerySQL.Settings.Keywords.Add("AND");
-            richTextBoxOracleQuerySQL.Settings.Keywords.Add("OR");
-            richTextBoxOracleQuerySQL.Settings.Keywords.Add("IN");
-            richTextBoxOracleQuerySQL.Settings.Keywords.Add("DECODE");
-            richTextBoxOracleQuerySQL.Settings.Keywords.Add("SUB");            
-
-             richTextBoxOracleQuerySQL.Settings.Tablewords.Add("COMMANDES");
-             richTextBoxOracleQuerySQL.Settings.Tablewords.Add("DUAL");
-
-             richTextBoxOracleQuerySQL.Settings.Columnwords.Add("SYSDATE");
-
-            richTextBoxOracleQuerySQL.Settings.Comment = "--";
-
-            richTextBoxOracleQuerySQL.Settings.KeywordColor = Color.DarkBlue;
-            richTextBoxOracleQuerySQL.Settings.TablewordColor = Color.DarkTurquoise;
-            richTextBoxOracleQuerySQL.Settings.ColumnwordColor = Color.DarkGray;
-            richTextBoxOracleQuerySQL.Settings.CommentColor = Color.DarkGreen;
-            richTextBoxOracleQuerySQL.Settings.StringColor = Color.Gray;
-            richTextBoxOracleQuerySQL.Settings.IntegerColor = Color.Red;
-
-            // Let's not process strings and integers.
-
-            richTextBoxOracleQuerySQL.Settings.EnableStrings = true;
-            richTextBoxOracleQuerySQL.Settings.EnableIntegers = true;
-
-            richTextBoxOracleQuerySQL.CompileKeywords();
-            richTextBoxOracleQuerySQL.CompileTablewords();
-            richTextBoxOracleQuerySQL.CompileColumnwords();
-
-            richTextBoxOracleQuerySQL.Text = "SELECT * FROM TEST";
-            richTextBoxOracleQuerySQL.ProcessAllLines();
+        {            
+            string appPath = Path.GetDirectoryName(Application.ExecutablePath);
+            
+            ICSharpCode.TextEditor.Document.FileSyntaxModeProvider provider = new ICSharpCode.TextEditor.Document.FileSyntaxModeProvider(appPath);
+            ICSharpCode.TextEditor.Document.HighlightingManager.Manager.AddSyntaxModeFileProvider(provider);
+            //textEditorControl1.Document.HighlightingStrategy = ICSharpCode.TextEditor.Document.HighlightingManager.Manager.FindHighlighter("SQL");
+            textEditorControl1.SetHighlighting("SQL");
         }
 
+/*
         private void richTextBoxOracleQuerySQL_TextChanged(object sender, EventArgs e)
         {
             //richTextBoxOracleQuerySQL.ProcessAllLines();
         }
+*/
 
         private void toolStripButtonAbortQuery_Click(object sender, EventArgs e)
         {
-            if (uLib != null)
-                uLib.Stop();
+            this.backgroundWorker1.CancelAsync();
         }
 
         private void dataGridViewOracleQueryData_RowEnter(object sender, DataGridViewCellEventArgs e)
@@ -208,6 +190,87 @@ namespace TBQuery
             {
                 SetNumberRecord(CurrentNumRec, NumRec);
             }
+        }
+
+        private void textEditorControl1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            
+        }
+
+        private void ExecuteQuery()
+        {
+            if (connexion.IsOpen)
+            {
+                try
+                {
+                    uLib = new DGVQuery(dataGridViewOracleQueryData, connexion);
+                    //uLib.Start(textEditorControl1.Text);
+                    toolStripProgressBarQuery.Visible = true;
+                    startTime = DateTime.Now;
+                    if (backgroundWorker1.IsBusy)
+                        backgroundWorker1.CancelAsync();
+                    while (backgroundWorker1.IsBusy) ;
+                    backgroundWorker1.RunWorkerAsync(textEditorControl1.Text);
+                }
+                catch(Exception e)
+                {
+                    string errorMessage = e.Message;
+                    while (e.InnerException != null)
+                    {
+                        e = e.InnerException;
+                        errorMessage += "\n" + e.Message;
+                    }
+                    MessageBox.Show(errorMessage, "Unexpected error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    textBox1.Text = errorMessage;
+                }
+                
+            }
+        }
+
+        private void textEditorControl1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.F5)
+            {
+                ExecuteQuery();
+            }
+        }
+
+        private void backgroundWorker1_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
+        {
+            toolStripProgressBarQuery.Value = e.ProgressPercentage;
+        }
+
+        private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            BackgroundWorker worker = sender as BackgroundWorker;
+            e.Result = uLib.Display(e.Argument.ToString(), worker, e);
+            if (worker.CancellationPending)
+            {
+                e.Cancel = true;
+            }
+        }
+
+        private void backgroundWorker1_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        {
+            TimeSpan elapsed = DateTime.Now - startTime;
+            SetElapsedTime(elapsed);
+            if (e.Cancelled)
+            {
+                // The user canceled the operation.
+                //MessageBox.Show("Operation was canceled.");
+                toolStripStatusLabelMessage.Text = string.Format("Aborted by user. {0} records found.", dataGridViewOracleQueryData.Rows.Count);
+            }
+            else if (e.Error != null)
+            {
+                // There was an error during the operation.
+                string msg = String.Format("An error occurred: {0}", e.Error.Message);
+                MessageBox.Show(msg);
+            }
+            else
+            {
+                toolStripStatusLabelMessage.Text = e.Result.ToString();
+            }
+            toolStripProgressBarQuery.Visible = false;
         }
     }
 }

@@ -33,6 +33,7 @@
  *****************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.Common;
 using System.Drawing;
 using System.Windows.Forms;
@@ -44,7 +45,10 @@ namespace TBColumns
 {
     public partial class UCColumns : UserControl, ITabPageAddOn
     {
-        private DGVQuery uLib;        
+        private Connexion.Connexion connexion = new Connexion.Connexion("Oracle");
+        private DGVQuery uLib;
+        private DateTime startTime;
+        
         /// <summary> 
         /// Private attribute for the event.
         /// </summary>
@@ -93,74 +97,99 @@ namespace TBColumns
         /// </summary>
         public void EventProcess(object sender, string data)
         {
-            //MessageBox.Show("test " + data);
             XmlDocument xmlData = new XmlDocument();
             xmlData.LoadXml(data);
-
-            string userid = null;
-            string password = null;
-            string datasource = null;
-
-            foreach (XmlNode xmlNode in xmlData.GetElementsByTagName("connection"))
+            XmlNode xmlNode = null;
+            foreach (XmlNode xmlNodeAction in xmlData.GetElementsByTagName("action"))
             {
-                userid = xmlNode.Attributes.GetNamedItem("userid").Value;
-                password = xmlNode.Attributes.GetNamedItem("password").Value;
-                datasource = xmlNode.Attributes.GetNamedItem("datasource").Value;
-            }
-
-            
-            
-            foreach (XmlNode xmlNode in xmlData.GetElementsByTagName("table"))
-            {
-                string tablename = xmlNode.Attributes.GetNamedItem("id").Value;
-                bool bConnexion = false;
-                Connexion.Connexion connexion = new Connexion.Connexion("Oracle");
-                if (!String.IsNullOrEmpty(userid) && !String.IsNullOrEmpty(password) &&
-                    !String.IsNullOrEmpty(datasource))
-                    bConnexion =
-                        connexion.Open(userid, password, datasource);
-                if (bConnexion)
+                switch (xmlNodeAction.InnerText)
                 {
-                    string SQL = "SELECT   c.cname,  " +
-                                 "         c.colno,   " +
-                                 "         (SELECT c1.POSITION  " +
-                                 "            FROM SYS.cdef$ cd,  " +
-                                 "                 SYS.con$ cn,  " +
-                                 "                 SYS.obj$ o,  " +
-                                 "                 SYS.user$ u,  " +
-                                 "                 SYS.dba_cons_columns c1  " +
-                                 "           WHERE cd.type# = 2  " +
-                                 "             AND cd.con# = cn.con#  " +
-                                 "             AND cd.obj# = o.obj#  " +
-                                 "             AND o.owner# = u.user#  " +
-                                 "             AND u.NAME = 'ABSIS'  " +
-                                 "             AND o.NAME = c.tname  " +
-                                 "             AND c1.column_name = c.cname  " +
-                                 "             AND c1.table_name = c.tname  " +
-                                 "             AND c1.constraint_name = cn.NAME  " +
-                                 "             AND c1.owner = u.NAME) pk,  " +
-                                 "         DECODE (c.NULLS, 'NULL', 'Y', 'N') NULLS,  " +
-                                 "         c.coltype,  " +
-                                 "         c.width,  " +
-                                 "         c.PRECISION,  " +
-                                 "         c.scale,  " +
-                                 "         c.defaultval,  " +
-                                 "         c.character_set_name,  " +
-                                 "         ucc.comments  " +
-                                 "    FROM user_col_comments ucc, col c  " +
-                                 "   WHERE ucc.table_name = '" + tablename + "'  " +
-                                 "     AND c.tname = ucc.table_name  " +
-                                 "     AND c.cname = ucc.column_name  " +
-                                 "ORDER BY c.tname, c.colno ";
-                    
-                    uLib = new DGVQuery(dataGridViewOracleFields, connexion);
-                    uLib.Start(SQL);                    
-                }                
+                    case "connect":
+                        // Get Info for the oracle connection
+                        xmlNode = xmlData.SelectSingleNode("//ToadDotNet/action/connection");
+                        if (xmlNode != null)
+                        {
+                            connexion.OracleConnexion.UserId = xmlNode.Attributes.GetNamedItem("userid").Value;
+                            connexion.OracleConnexion.Password = xmlNode.Attributes.GetNamedItem("password").Value;
+                            connexion.OracleConnexion.DataSource = xmlNode.Attributes.GetNamedItem("datasource").Value;
+                            if (connexion.IsOpen)
+                            {
+                                connexion.Close();
+                            }
+                            else
+                            {
+                                connexion.Open();
+                            }
+                        }
+                        break;
+                    case "gettable":
+                        if (connexion.IsOpen)
+                        {                            
+                            xmlNode = xmlData.SelectSingleNode("//ToadDotNet/action/table");
+                            if (xmlNode != null)
+                            {
+                                string tablename = xmlNode.Attributes.GetNamedItem("id").Value;
+                                string SQL = "SELECT   c.cname,  " +
+                                             "         c.colno,   " +
+                                             "         (SELECT c1.POSITION  " +
+                                             "            FROM SYS.cdef$ cd,  " +
+                                             "                 SYS.con$ cn,  " +
+                                             "                 SYS.obj$ o,  " +
+                                             "                 SYS.user$ u,  " +
+                                             "                 SYS.dba_cons_columns c1  " +
+                                             "           WHERE cd.type# = 2  " +
+                                             "             AND cd.con# = cn.con#  " +
+                                             "             AND cd.obj# = o.obj#  " +
+                                             "             AND o.owner# = u.user#  " +
+                                             "             AND u.NAME = 'ABSIS'  " +
+                                             "             AND o.NAME = c.tname  " +
+                                             "             AND c1.column_name = c.cname  " +
+                                             "             AND c1.table_name = c.tname  " +
+                                             "             AND c1.constraint_name = cn.NAME  " +
+                                             "             AND c1.owner = u.NAME) pk,  " +
+                                             "         DECODE (c.NULLS, 'NULL', 'Y', 'N') NULLS,  " +
+                                             "         c.coltype,  " +
+                                             "         c.width,  " +
+                                             "         c.PRECISION,  " +
+                                             "         c.scale,  " +
+                                             "         c.defaultval,  " +
+                                             "         c.character_set_name,  " +
+                                             "         ucc.comments  " +
+                                             "    FROM user_col_comments ucc, col c  " +
+                                             "   WHERE ucc.table_name = '" + tablename + "'  " +
+                                             "     AND c.tname = ucc.table_name  " +
+                                             "     AND c.cname = ucc.column_name  " +
+                                             "ORDER BY c.tname, c.colno ";
+
+                                uLib = new DGVQuery(dataGridViewOracleFields, connexion);
+                                //uLib.Start(SQL);
+                                startTime = DateTime.Now;
+                                if (backgroundWorker1.IsBusy)
+                                    backgroundWorker1.CancelAsync();
+                                while (backgroundWorker1.IsBusy) ;
+                                backgroundWorker1.RunWorkerAsync(SQL);
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
             }
+
+            /* ---------------------------------- */
+            
+            
         }
         #endregion
 
-        
+        #region delegate
+        private delegate void setElapsedTime(TimeSpan elapsed);
+        private void SetElapsedTime(TimeSpan elapsed)
+        {
+            this.toolStripStatusLabelElapsedTime.Text = string.Format("Elapsed time: {0} s", elapsed.TotalSeconds);
+        }
+        #endregion
+
         private void dataGridViewOracleFields_RowEnter(object sender, DataGridViewCellEventArgs e)
         {
             //for (int i = 0; i < dataGridViewOracleFields.Rows[e.RowIndex].Cells.Count; i++)
@@ -182,6 +211,61 @@ namespace TBColumns
             //{
             //    dataGridViewOracleFields[i, e.RowIndex].Style.BackColor = Color.Empty;
             //}
+        }
+
+        private void backgroundWorker1_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
+        {
+            toolStripProgressBarQuery.Value = e.ProgressPercentage;
+        }
+
+        private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            BackgroundWorker worker = sender as BackgroundWorker;
+            e.Result = uLib.Display(e.Argument.ToString(), worker, e);
+        }
+
+        private void backgroundWorker1_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        {
+            TimeSpan elapsed = DateTime.Now - startTime;
+            SetElapsedTime(elapsed);
+            if (e.Cancelled)
+            {
+                // The user canceled the operation.
+                //MessageBox.Show("Operation was canceled.");
+                toolStripStatusLabelMessage.Text = string.Format("Aborted by user. {0} records found.", dataGridViewOracleFields.Rows.Count);
+            }
+            else if (e.Error != null)
+            {
+                // There was an error during the operation.
+                string msg = String.Format("An error occurred: {0}", e.Error.Message);
+                MessageBox.Show(msg);
+            }
+            else
+            {
+                toolStripStatusLabelMessage.Text = e.Result.ToString();
+            }
+            toolStripProgressBarQuery.Visible = false;
+        }
+
+        private void toolStripButtonAddCol_Click(object sender, EventArgs e)
+        {
+            FormAddCol frmAddCol = new FormAddCol();
+            if (frmAddCol.ShowDialog() == DialogResult.OK)
+            {
+                // Create the column
+            }
+            frmAddCol.Close();
+            frmAddCol.Dispose();
+        }
+
+        private void toolStripButtonDeleteCol_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void toolStripButtonModifyCol_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

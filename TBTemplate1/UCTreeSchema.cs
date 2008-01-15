@@ -109,9 +109,9 @@ namespace TBTreeSchema
                         XmlNode xmlNode = xmlData.SelectSingleNode("//ToadDotNet/action/connection");
                         if (xmlNode != null)
                         {
-                            textBoxOracleUserId.Text = xmlNode.Attributes.GetNamedItem("userid").Value;
-                            textBoxOraclePassword.Text = xmlNode.Attributes.GetNamedItem("password").Value;
-                            textBoxOracleDataSource.Text = xmlNode.Attributes.GetNamedItem("datasource").Value;
+                            //textBoxOracleUserId.Text = xmlNode.Attributes.GetNamedItem("userid").Value;
+                            //textBoxOraclePassword.Text = xmlNode.Attributes.GetNamedItem("password").Value;
+                            //textBoxOracleDataSource.Text = xmlNode.Attributes.GetNamedItem("datasource").Value;
                             connexion.OracleConnexion.UserId = xmlNode.Attributes.GetNamedItem("userid").Value;
                             connexion.OracleConnexion.Password = xmlNode.Attributes.GetNamedItem("password").Value;
                             connexion.OracleConnexion.DataSource = xmlNode.Attributes.GetNamedItem("datasource").Value;
@@ -151,7 +151,7 @@ namespace TBTreeSchema
                     TreeNode RootNode = null;
                     TreeNode TablesNode = null;
                     //TreeNode node = null;
-                    RootNode = treeViewOracleSchema.Nodes.Add(textBoxOracleDataSource.Text);
+                    RootNode = treeViewOracleSchema.Nodes.Add(connexion.OracleConnexion.DataSource);
                     RootNode.Tag = "datasource";
                     TablesNode = new TreeNode("Tables");
                     TablesNode.Tag = "tables";
