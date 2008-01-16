@@ -129,37 +129,64 @@ namespace TBColumns
                             if (xmlNode != null)
                             {
                                 string tablename = xmlNode.Attributes.GetNamedItem("id").Value;
-                                string SQL = "SELECT   c.cname,  " +
-                                             "         c.colno,   " +
-                                             "         (SELECT c1.POSITION  " +
-                                             "            FROM SYS.cdef$ cd,  " +
-                                             "                 SYS.con$ cn,  " +
-                                             "                 SYS.obj$ o,  " +
-                                             "                 SYS.user$ u,  " +
-                                             "                 SYS.dba_cons_columns c1  " +
-                                             "           WHERE cd.type# = 2  " +
-                                             "             AND cd.con# = cn.con#  " +
-                                             "             AND cd.obj# = o.obj#  " +
-                                             "             AND o.owner# = u.user#  " +
-                                             "             AND u.NAME = 'ABSIS'  " +
-                                             "             AND o.NAME = c.tname  " +
-                                             "             AND c1.column_name = c.cname  " +
-                                             "             AND c1.table_name = c.tname  " +
-                                             "             AND c1.constraint_name = cn.NAME  " +
-                                             "             AND c1.owner = u.NAME) pk,  " +
-                                             "         DECODE (c.NULLS, 'NULL', 'Y', 'N') NULLS,  " +
-                                             "         c.coltype,  " +
-                                             "         c.width,  " +
-                                             "         c.PRECISION,  " +
-                                             "         c.scale,  " +
-                                             "         c.defaultval,  " +
-                                             "         c.character_set_name,  " +
-                                             "         ucc.comments  " +
-                                             "    FROM user_col_comments ucc, col c  " +
-                                             "   WHERE ucc.table_name = '" + tablename + "'  " +
-                                             "     AND c.tname = ucc.table_name  " +
-                                             "     AND c.cname = ucc.column_name  " +
-                                             "ORDER BY c.tname, c.colno ";
+                                //string SQL = "SELECT   c.cname,  " +
+                                //             "         c.colno,   " +
+                                //             "         (SELECT c1.POSITION  " +
+                                //             "            FROM SYS.cdef$ cd,  " +
+                                //             "                 SYS.con$ cn,  " +
+                                //             "                 SYS.obj$ o,  " +
+                                //             "                 SYS.user$ u,  " +
+                                //             "                 SYS.dba_cons_columns c1  " +
+                                //             "           WHERE cd.type# = 2  " +
+                                //             "             AND cd.con# = cn.con#  " +
+                                //             "             AND cd.obj# = o.obj#  " +
+                                //             "             AND o.owner# = u.user#  " +
+                                //             "             AND u.NAME = 'ABSIS'  " +
+                                //             "             AND o.NAME = c.tname  " +
+                                //             "             AND c1.column_name = c.cname  " +
+                                //             "             AND c1.table_name = c.tname  " +
+                                //             "             AND c1.constraint_name = cn.NAME  " +
+                                //             "             AND c1.owner = u.NAME) pk,  " +
+                                //             "         DECODE (c.NULLS, 'NULL', 'Y', 'N') NULLS,  " +
+                                //             "         c.coltype,  " +
+                                //             "         c.width,  " +
+                                //             "         c.PRECISION,  " +
+                                //             "         c.scale,  " +
+                                //             "         c.defaultval,  " +
+                                //             "         c.character_set_name,  " +
+                                //             "         ucc.comments  " +
+                                //             "    FROM user_col_comments ucc, col c  " +
+                                //             "   WHERE ucc.table_name = '" + tablename + "'  " +
+                                //             "     AND c.tname = ucc.table_name  " +
+                                //             "     AND c.cname = ucc.column_name  " +
+                                //             "ORDER BY c.tname, c.colno ";
+
+                                string SQL =    "SELECT   c.cname,  " +
+                                                "         c.colno, " +
+                                                "         (SELECT c1.POSITION " +
+                                                "            FROM SYS.user_cons_columns c1, SYS.user_constraints a1 " +
+                                                "           WHERE a1.table_name = c1.table_name " +
+                                                "             AND a1.constraint_name = c1.constraint_name " +
+                                                "             AND a1.constraint_type = 'P' " +
+                                                "             AND a1.table_name = c.tname " +
+                                                "             and C1.COLUMN_NAME = c.cname ) pk, " +
+                                                "         DECODE (c.NULLS, 'NULL', 'Y', 'N') NULLS,  " +
+                                                "         c.coltype,  " +
+                                                "         c.width, " +
+                                                "         c.PRECISION,  " +
+                                                "         c.scale,  " +
+                                                "         c.defaultval,  " +
+                                                "         c.character_set_name, " +
+                                                "         ucc.comments " +
+                                                "    FROM user_col_comments ucc,  " +
+                                                "         col c " +
+                                                "   WHERE ucc.table_name = '" + tablename + "' " +
+                                                "     AND c.tname = ucc.table_name " +
+                                                "     AND c.cname = ucc.column_name " +
+                                                "ORDER BY c.tname, c.colno ";
+
+
+
 
                                 uLib = new DGVQuery(dataGridViewOracleFields, connexion);
                                 //uLib.Start(SQL);
