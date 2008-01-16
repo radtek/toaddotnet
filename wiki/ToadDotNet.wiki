@@ -38,5 +38,6 @@ As the application is today (January 2008) only at its genesis many features wil
   * Check for update
 
 = Screenshots =
+Click on the image for more screen captures
 
 [http://code.google.com/p/toaddotnet/wiki/Screenshots http://toaddotnet.googlecode.com/svn/wiki/ToadDotNet.gif]
