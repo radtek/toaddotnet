@@ -1,0 +1,8 @@
+#summary One-sentence summary of this page.
+
+= Introduction =
+
+Details of revisions
+
+= Version 0.0.2.0.38 16/01/2008 =
+  * Change query to retrieve columns informations to be compatible with Oracle 10g Express.
