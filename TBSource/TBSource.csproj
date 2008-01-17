@@ -28,10 +28,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Connexion, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\DAOClassGenerator\DAOClassGenerator\Connexion\bin\Debug\Connexion.dll</HintPath>
-    </Reference>
     <Reference Include="ICSharpCode.TextEditor, Version=3.0.0.2794, Culture=neutral, PublicKeyToken=4d61825e8dd49f1a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files\SharpDevelop\3.0\bin\ICSharpCode.TextEditor.dll</HintPath>
@@ -45,23 +41,32 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UCPersonne.cs">
+    <Compile Include="UCSource.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UCPersonne.Designer.cs">
-      <DependentUpon>UCPersonne.cs</DependentUpon>
+    <Compile Include="UCSource.Designer.cs">
+      <DependentUpon>UCSource.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Connexion\Connexion.csproj">
+      <Project>{016DCDD8-DBC9-499B-8E9C-229F98B46435}</Project>
+      <Name>Connexion</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PluginTypes\PluginTypes.csproj">
       <Project>{D510B83D-3BF3-4808-B205-BC1410016EBA}</Project>
       <Name>PluginTypes</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="UCPersonne.resx">
+    <EmbeddedResource Include="UCSource.resx">
       <SubType>Designer</SubType>
-      <DependentUpon>UCPersonne.cs</DependentUpon>
+      <DependentUpon>UCSource.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL.xshd">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

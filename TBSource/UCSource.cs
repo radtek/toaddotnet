@@ -35,20 +35,17 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Common;
-using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 using System.Xml;
 using PluginTypes;
-using ULib;
 
-namespace TBColumns
+namespace TBSource
 {
-    public partial class UCColumns : UserControl, ITabPageAddOn
+    public partial class UCSource : UserControl, ITabPageAddOn
     {
         private Connexion.Connexion connexion = new Connexion.Connexion("Oracle");
-        private DGVQuery uLib;
         private DateTime startTime;
-        
         /// <summary> 
         /// Private attribute for the event.
         /// </summary>
@@ -56,7 +53,7 @@ namespace TBColumns
         /// <summary> 
         /// Default Constructor.
         /// </summary>
-        public UCColumns()
+        public UCSource()
         {
             InitializeComponent();
         }
@@ -68,7 +65,7 @@ namespace TBColumns
         public void Install(TabControl tabControl)
         {
             // Create a new tab page as we implement a ITabPageAddOn
-            TabPage tp = new TabPage("Columns");
+            TabPage tp = new TabPage("Source");
             // Add the new tab page to the TabControl of the main window's application
             tabControl.TabPages.Add(tp);
             // Set automatic resizing of the UserControl
@@ -97,16 +94,16 @@ namespace TBColumns
         /// </summary>
         public void EventProcess(object sender, string data)
         {
+            //MessageBox.Show("test " + data);
             XmlDocument xmlData = new XmlDocument();
             xmlData.LoadXml(data);
-            XmlNode xmlNode = null;
             foreach (XmlNode xmlNodeAction in xmlData.GetElementsByTagName("action"))
             {
                 switch (xmlNodeAction.InnerText)
                 {
                     case "connect":
                         // Get Info for the oracle connection
-                        xmlNode = xmlData.SelectSingleNode("//ToadDotNet/action/connection");
+                        XmlNode xmlNode = xmlData.SelectSingleNode("//ToadDotNet/action/connection");
                         if (xmlNode != null)
                         {
                             connexion.OracleConnexion.UserId = xmlNode.Attributes.GetNamedItem("userid").Value;
@@ -122,43 +119,28 @@ namespace TBColumns
                             }
                         }
                         break;
-                    case "gettable":
+                    case "getfunction":
+                    case "getprocedure":
+                    case "getpackage":
+                    case "gettrigger":
+                        string typeAction = xmlNodeAction.InnerText.Substring(3);
                         if (connexion.IsOpen)
-                        {                            
-                            xmlNode = xmlData.SelectSingleNode("//ToadDotNet/action/table");
+                        {
+                            xmlNode = xmlData.SelectSingleNode("//ToadDotNet/action/" + typeAction);
                             if (xmlNode != null)
                             {
-                                string tablename = xmlNode.Attributes.GetNamedItem("id").Value;                                
+                                string functionname = xmlNode.Attributes.GetNamedItem("id").Value;
+                                string NodeName = xmlNode.Name.ToUpper();
+                                if (NodeName == "PACKAGEBODY")
+                                    NodeName = "PACKAGE BODY";
+                                string SQL = "SELECT text " +
+                                            "  FROM SYS.user_source " +
+                                            " WHERE NAME = '" + functionname + "' AND TYPE = '" + NodeName + "' ";
 
-                                string SQL =    "SELECT   c.cname,  " +
-                                                "         c.colno, " +
-                                                "         (SELECT c1.POSITION " +
-                                                "            FROM SYS.user_cons_columns c1, SYS.user_constraints a1 " +
-                                                "           WHERE a1.table_name = c1.table_name " +
-                                                "             AND a1.constraint_name = c1.constraint_name " +
-                                                "             AND a1.constraint_type = 'P' " +
-                                                "             AND a1.table_name = c.tname " +
-                                                "             and C1.COLUMN_NAME = c.cname ) pk, " +
-                                                "         DECODE (c.NULLS, 'NULL', 'Y', 'N') NULLS,  " +
-                                                "         c.coltype,  " +
-                                                "         c.width, " +
-                                                "         c.PRECISION,  " +
-                                                "         c.scale,  " +
-                                                "         c.defaultval,  " +
-                                                "         c.character_set_name, " +
-                                                "         ucc.comments " +
-                                                "    FROM user_col_comments ucc,  " +
-                                                "         col c " +
-                                                "   WHERE ucc.table_name = '" + tablename + "' " +
-                                                "     AND c.tname = ucc.table_name " +
-                                                "     AND c.cname = ucc.column_name " +
-                                                "ORDER BY c.tname, c.colno ";
-
-
-
-
-                                uLib = new DGVQuery(dataGridViewOracleFields, connexion);
+                                //uLib = new DGVQuery(dataGridViewOracleFields, connexion);
                                 //uLib.Start(SQL);
+                                textEditorControl1.Text = "CREATE OR REPLACE ";
+                                textEditorControl1.Refresh();
                                 startTime = DateTime.Now;
                                 if (backgroundWorker1.IsBusy)
                                     backgroundWorker1.CancelAsync();
@@ -171,53 +153,102 @@ namespace TBColumns
                         break;
                 }
             }
-
-            /* ---------------------------------- */
-            
-            
         }
         #endregion
 
         #region delegate
+        
+        private delegate void setSourceText(string text);
+        private void SetSourceText(string text)
+        {
+            textEditorControl1.Text = textEditorControl1.Text + text;
+        }
+
         private delegate void setElapsedTime(TimeSpan elapsed);
         private void SetElapsedTime(TimeSpan elapsed)
         {
             this.toolStripStatusLabelElapsedTime.Text = string.Format("Elapsed time: {0} s", elapsed.TotalSeconds);
         }
+        
         #endregion
-
-        private void dataGridViewOracleFields_RowEnter(object sender, DataGridViewCellEventArgs e)
+        
+        private void UCSource_Load(object sender, EventArgs e)
         {
-            //for (int i = 0; i < dataGridViewOracleFields.Rows[e.RowIndex].Cells.Count; i++)
-            //{
-            //    dataGridViewOracleFields[i, e.RowIndex].Style.BackColor = Color.Yellow;
-            //}
+            string appPath = Path.GetDirectoryName(Application.ExecutablePath);
 
-            if (dataGridViewOracleFields.Rows[e.RowIndex] != null)
-                if (dataGridViewOracleFields.Rows[e.RowIndex].Cells["comments"].Value != null)
-                    textBoxFieldComment.Text =
-                        dataGridViewOracleFields.Rows[e.RowIndex].Cells["comments"].Value.ToString();
-                else
-                    textBoxFieldComment.Text = null;
-        }
-
-        private void dataGridViewOracleFields_RowLeave(object sender, DataGridViewCellEventArgs e)
-        {
-            //for (int i = 0; i < dataGridViewOracleFields.Rows[e.RowIndex].Cells.Count; i++)
-            //{
-            //    dataGridViewOracleFields[i, e.RowIndex].Style.BackColor = Color.Empty;
-            //}
-        }
-
-        private void backgroundWorker1_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
-        {
-            toolStripProgressBarQuery.Value = e.ProgressPercentage;
+            ICSharpCode.TextEditor.Document.FileSyntaxModeProvider provider = new ICSharpCode.TextEditor.Document.FileSyntaxModeProvider(appPath);
+            ICSharpCode.TextEditor.Document.HighlightingManager.Manager.AddSyntaxModeFileProvider(provider);
+            //textEditorControl1.Document.HighlightingStrategy = ICSharpCode.TextEditor.Document.HighlightingManager.Manager.FindHighlighter("SQL");
+            textEditorControl1.SetHighlighting("SQL");            
         }
 
         private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             BackgroundWorker worker = sender as BackgroundWorker;
-            e.Result = uLib.Display(e.Argument.ToString(), worker, e);
+            using (DbCommand cmd = connexion.Cnn.CreateCommand())
+            {
+                string SQL = e.Argument.ToString();
+                int NumRec = 0;
+                try
+                {
+                    string SQLCount = "SELECT count(*) " + SQL.Substring(SQL.ToUpper().IndexOf("FROM"));
+                    cmd.CommandText = SQLCount; // string.Format("SELECT count(*) FROM {0}", SelectedTable);
+                    cmd.Prepare();
+                    NumRec = Convert.ToInt32(cmd.ExecuteScalar());
+                }
+                catch (Exception erreur)
+                {
+                    NumRec = 0;
+                }
+
+                cmd.CommandText = SQL;
+                cmd.Prepare();
+                //int colno = 0;
+                using (DbDataReader rd = cmd.ExecuteReader())
+                {
+                    int CurrentNumRec = 0;
+                    
+                    while (rd.Read() && !worker.CancellationPending)
+                    {
+                        CurrentNumRec++;
+                        string text = rd.GetString(0);
+                        if (textEditorControl1.InvokeRequired)
+                        {
+                            textEditorControl1.Invoke(new setSourceText(SetSourceText), new object[] {text});
+                        }
+                        else
+                        {
+                            SetSourceText(rd.GetString(0));
+                        }
+                        if (NumRec != 0)
+                        {
+                            int percentComplete = (int)((float)CurrentNumRec / (float)NumRec * 100);
+                            worker.ReportProgress(percentComplete);
+                        }
+                        else
+                        {
+                            worker.ReportProgress(CurrentNumRec % 100);
+                        } 
+                    }
+                    if (worker.CancellationPending)
+                    {
+                        e.Cancel = true;
+                        e.Result = string.Format("Aborted by user.");
+                    }
+                    else
+                    {
+                        e.Result = string.Format("Function retrieved completely.");
+                    }
+
+                    rd.Close();
+                }
+
+            }
+        }
+
+        private void backgroundWorker1_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
+        {
+            toolStripProgressBarQuery.Value = e.ProgressPercentage;
         }
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
@@ -228,7 +259,7 @@ namespace TBColumns
             {
                 // The user canceled the operation.
                 //MessageBox.Show("Operation was canceled.");
-                toolStripStatusLabelMessage.Text = string.Format("Aborted by user. {0} records found.", dataGridViewOracleFields.Rows.Count);
+                toolStripStatusLabelMessage.Text = string.Format("Aborted by user. {0} records found.", dataGridViewOracleQueryData.Rows.Count);
             }
             else if (e.Error != null)
             {
@@ -241,27 +272,6 @@ namespace TBColumns
                 toolStripStatusLabelMessage.Text = e.Result.ToString();
             }
             toolStripProgressBarQuery.Visible = false;
-        }
-
-        private void toolStripButtonAddCol_Click(object sender, EventArgs e)
-        {
-            FormAddCol frmAddCol = new FormAddCol();
-            if (frmAddCol.ShowDialog() == DialogResult.OK)
-            {
-                // Create the column
-            }
-            frmAddCol.Close();
-            frmAddCol.Dispose();
-        }
-
-        private void toolStripButtonDeleteCol_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void toolStripButtonModifyCol_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }

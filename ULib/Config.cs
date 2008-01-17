@@ -34,7 +34,7 @@
 using System.IO;
 using System.Xml;
 
-namespace Membs
+namespace ULib
 {
     public static class Config
     {
