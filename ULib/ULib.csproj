@@ -35,6 +35,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config.cs" />
     <Compile Include="DGVQuery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TreeQuery.cs" />
