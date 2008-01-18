@@ -112,11 +112,7 @@ namespace PlugIn
             if (moduleInfo != null)
             {
                 //if (MessageBox.Show("On ne dispose d'aucune information sur ce module. Voulez-vous continuer le chargement ?", "Aucune Information", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No)
-                //    return false;
-            
-
-                    
-
+                //    return false;                    
                     //2 - Vérifier si on a la licence
                     string xmlData = Config.Load();
                     string key = Config.GetInnerTextValue(xmlData, "//alf-solution/plugins/" + moduleInfo.Name + "/key");

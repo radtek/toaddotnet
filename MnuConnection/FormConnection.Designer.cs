@@ -38,6 +38,7 @@ namespace MnuConnection
             this.buttonGetOracleTables = new System.Windows.Forms.Button();
             this.dataGridViewConnection = new System.Windows.Forms.DataGridView();
             this.buttonCancel = new System.Windows.Forms.Button();
+            this.checkBoxSavePassword = new System.Windows.Forms.CheckBox();
             this.ConnectionGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewConnection)).BeginInit();
             this.SuspendLayout();
@@ -148,11 +149,23 @@ namespace MnuConnection
             this.buttonCancel.Text = "Cancel";
             this.buttonCancel.UseVisualStyleBackColor = true;
             // 
+            // checkBoxSavePassword
+            // 
+            this.checkBoxSavePassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.checkBoxSavePassword.AutoSize = true;
+            this.checkBoxSavePassword.Location = new System.Drawing.Point(12, 520);
+            this.checkBoxSavePassword.Name = "checkBoxSavePassword";
+            this.checkBoxSavePassword.Size = new System.Drawing.Size(99, 17);
+            this.checkBoxSavePassword.TabIndex = 35;
+            this.checkBoxSavePassword.Text = "Save password";
+            this.checkBoxSavePassword.UseVisualStyleBackColor = true;
+            // 
             // FormConnection
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(766, 551);
+            this.Controls.Add(this.checkBoxSavePassword);
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.buttonGetOracleTables);
             this.Controls.Add(this.dataGridViewConnection);
@@ -164,6 +177,7 @@ namespace MnuConnection
             this.ConnectionGroupBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewConnection)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -174,10 +188,11 @@ namespace MnuConnection
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button buttonGetOracleTables;
-        private System.Windows.Forms.DataGridView dataGridViewConnection;
         private System.Windows.Forms.Button buttonCancel;
         public System.Windows.Forms.TextBox textBoxOraclePassword;
         public System.Windows.Forms.TextBox textBoxOracleUserId;
         public System.Windows.Forms.ComboBox TNSNamesComboBox;
+        public System.Windows.Forms.DataGridView dataGridViewConnection;
+        public System.Windows.Forms.CheckBox checkBoxSavePassword;
     }
 }

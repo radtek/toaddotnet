@@ -61,7 +61,8 @@ namespace ToadDotNet
                 textBoxNom.Text = Config.Nom();
                 labelGUID.Text = Config.PublicKey();
                 textBoxEmail.Text = Config.Email();
-                
+                if (!string.IsNullOrEmpty(labelGUID.Text))
+                    buttonOk.Enabled = true;
                 XmlNodeList elements = Config.GetValue(xml, "//alf-solution/plugins");
                 foreach (XmlElement element in elements)
                 {
@@ -71,7 +72,8 @@ namespace ToadDotNet
                         string key = Config.GetInnerTextValue(xml, string.Format("//alf-solution/plugins/{0}/key", plugname));
                         dataGridView1.Rows.Add(
                         new string[] { plugname, key, "Never" });
-                    }                    
+                    }    
+                    dataGridView1.AutoResizeColumns();
                 }                
             }
             
@@ -106,7 +108,7 @@ namespace ToadDotNet
                     xml = Config.SetValue(xml, "RegisterApp/client", "PublicKey", element.InnerText);
                     Config.Save(xml);
                 }
-                
+                buttonOk.Enabled = true;
             }                        
         }
 
