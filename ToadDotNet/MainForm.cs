@@ -65,6 +65,9 @@ namespace ToadDotNet
             CurrentCulture = new CultureInfo(Config.GetInnerTextValue(Config.Load(), "/alf-solution/AppConfig/lang"));
             System.Threading.Thread.CurrentThread.CurrentUICulture = CurrentCulture;
             InitializeComponent();
+            plugEvent = new PlugEvent();
+            plugEvent.evtHandler += new PlugEvent._evtHandler(EventProcess);
+            
             
         }
 
@@ -82,9 +85,8 @@ namespace ToadDotNet
                 {
                     Application.Exit();
                 }
-            } 
-            
-            AssemblyLoader asmLoader = new AssemblyLoader(this, this.menuStrip1, this.rightTabControl, this.leftTabControl, plugEvent);
+            }
+            AssemblyLoader asmLoader = new AssemblyLoader(this, this.ParentForm.Controls["MenuStrip"] as MenuStrip, this.rightTabControl, this.leftTabControl, plugEvent);
             string PluginsPath = Config.GetElement(Config.Load(), "/alf-solution/AppConfig/plugin").GetAttribute("path"); //@".\plugins";//
             if (Directory.Exists(PluginsPath))
             {
@@ -98,10 +100,15 @@ namespace ToadDotNet
                     }
                     else if (asmLoader.GetErrorMessage() != null)
                     {
-                        MessageBox.Show(asmLoader.GetErrorMessage(), "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        //MessageBox.Show(asmLoader.GetErrorMessage(), "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }                            
+        }
+
+        private void EventProcess(object sender, string data)
+        {
+            //throw new NotImplementedException();
         }
 
         private void enregistrementToolStripMenuItem_Click(object sender, EventArgs e)

@@ -37,6 +37,8 @@ using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 using PluginTypes;
+using ToadDotNet;
+using ULib;
 
 namespace MnuConnection
 {
@@ -47,6 +49,23 @@ namespace MnuConnection
         /// </summary>
         private PlugEvent plugSender;
 
+        private Form parentForm = null;
+
+        /// <summary> 
+        /// Private attribute for the event.
+        /// </summary>
+        public PlugEvent PlugSender
+        {
+            get { return plugSender; }
+            set { plugSender = value; }
+        }
+
+        public Form ParentForm
+        {
+            get { return parentForm; }
+            set { parentForm = value; }
+        }
+
         public void Install(MenuStrip menu)
         {
             PlugUtils.AddMenu(menu, "&Session", "&Connect...", new EventHandler(SessionConnectMenuItem_Click));
@@ -55,8 +74,12 @@ namespace MnuConnection
 
         public void EventPlug(PlugEvent e)
         {
-            plugSender = e;
-            plugSender.evtHandler += new PlugEvent._evtHandler(EventProcess);
+            if (e != null)
+            {
+                PlugSender = e;
+                PlugSender.evtHandler += new PlugEvent._evtHandler(EventProcess);
+            }
+            
         }
 
         private void SessionConnectMenuItem_Click(object sender, EventArgs e)
@@ -68,6 +91,54 @@ namespace MnuConnection
                     && !string.IsNullOrEmpty(formConnection.textBoxOraclePassword.Text)
                     && !string.IsNullOrEmpty(formConnection.TNSNamesComboBox.Text))
                 {
+                    DataGridViewRow dgvr = formConnection.dataGridViewConnection.CurrentRow;
+                    XmlDocument doc = new XmlDocument();
+                    doc.LoadXml(Config.Load());
+                    string SearchCriteria =
+                        string.Format(
+                            "//alf-solution/LastConnections/info[@userid='{0}' and @datasource='{1}']",
+                            formConnection.textBoxOracleUserId.Text, formConnection.TNSNamesComboBox.Text);
+                    XmlNode node = doc.SelectSingleNode(SearchCriteria);
+                    if (node == null)
+
+                    //if (dgvr == null || dgvr.Cells["user"].Value.ToString() != formConnection.textBoxOracleUserId.Text || dgvr.Cells["password"].Value == null ||
+                    //    dgvr.Cells["password"].Value.ToString() != formConnection.textBoxOraclePassword.Text ||
+                    //    dgvr.Cells["datasource"].Value.ToString() != formConnection.TNSNamesComboBox.Text)
+                    {
+                        //XmlDocument doc = new XmlDocument();
+                        doc.LoadXml(Config.Load());
+                        
+                        node =  doc.SelectSingleNode("//alf-solution/LastConnections");
+                        if (node == null)
+                        {
+                            node = doc.CreateElement("LastConnections");
+                            doc.SelectSingleNode("//alf-solution").AppendChild(node);
+                        }
+                        XmlNode infoElem = doc.CreateElement("info");
+                        XmlAttribute attr = doc.CreateAttribute("userid");
+                        attr.Value = formConnection.textBoxOracleUserId.Text;
+                        infoElem.Attributes.Append(attr);
+                        if (formConnection.checkBoxSavePassword.Checked)
+                        {
+                            attr = doc.CreateAttribute("password");
+                            attr.Value = formConnection.textBoxOraclePassword.Text;
+                            infoElem.Attributes.Append(attr);                            
+                        }
+                        attr = doc.CreateAttribute("datasource");
+                        attr.Value = formConnection.TNSNamesComboBox.Text;
+                        infoElem.Attributes.Append(attr);
+                        attr = doc.CreateAttribute("date");
+                        attr.Value = DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToLongTimeString();
+                        infoElem.Attributes.Append(attr);
+
+                        node.AppendChild(infoElem);
+                        
+                        Config.Save(doc.InnerXml);
+                    }
+                    MainForm mainForm = new MainForm();
+                    plugSender = mainForm.plugEvent;
+                    mainForm.MdiParent = ParentForm;
+                    mainForm.Show();
                     SendConnectionInfo(formConnection.textBoxOracleUserId.Text, formConnection.textBoxOraclePassword.Text, formConnection.TNSNamesComboBox.Text);
                 }
             }
@@ -81,6 +152,8 @@ namespace MnuConnection
 
         public void EventProcess(object sender, string data)
         {
+            XmlDocument xmlData = new XmlDocument();
+            xmlData.LoadXml(data);
         }
 
         private void SendConnectionInfo(string userid, string password, string datasource)
@@ -112,8 +185,8 @@ namespace MnuConnection
 
             actionNode.AppendChild(productNode);
 
-            if (plugSender != null)
-                plugSender.Send(doc.OuterXml);
+            if (PlugSender != null)
+                PlugSender.Send(doc.OuterXml);
         }
     }
 }

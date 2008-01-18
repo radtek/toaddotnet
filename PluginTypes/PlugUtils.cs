@@ -57,7 +57,7 @@ namespace PluginTypes
             foreach (ToolStripItem item in menu.Items)
             {
                 // do something with this item
-                Console.WriteLine(item.ToString());
+                //Console.WriteLine(item.ToString());
                 if (item.Text == menuItem)
                     toolsToolStripMenuItem = item as ToolStripMenuItem;
                 // enumerate sub-items (if could have them)
@@ -77,18 +77,23 @@ namespace PluginTypes
                 //menu.Items.Add(toolsToolStripMenuItem);
                 menu.Items.Insert(2, toolsToolStripMenuItem);
             }
-            // Add the sub-menu to the Tools menu            
-            toolsToolStripMenuItem.DropDownItems.Add(toolsPrefToolStripMenuItem);
-            //toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {toolsPrefToolStripMenuItem});
-            // 
-            // configToolStripMenuItem
-            // 
-            toolsPrefToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            toolsPrefToolStripMenuItem.Name = subMenuItem;
-            toolsPrefToolStripMenuItem.Text = subMenuItem;
+            // Add the sub-menu to the Tools menu
+            if (toolsToolStripMenuItem.DropDownItems.Find(subMenuItem, true).Length == 0)
+            {
+
+                toolsToolStripMenuItem.DropDownItems.Add(toolsPrefToolStripMenuItem);
+                //toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {toolsPrefToolStripMenuItem});
+                // 
+                // configToolStripMenuItem
+                // 
+                toolsPrefToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+                toolsPrefToolStripMenuItem.Name = subMenuItem;
+                toolsPrefToolStripMenuItem.Text = subMenuItem;
+
+                // Add event to execute when menu item selected
+                toolsPrefToolStripMenuItem.Click += new System.EventHandler(Target);
+            }    
             
-            // Add event to execute when menu item selected
-            toolsPrefToolStripMenuItem.Click += new System.EventHandler(Target);
             #endregion
         }
 

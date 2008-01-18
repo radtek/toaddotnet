@@ -48,7 +48,8 @@ namespace MnuConnection
                         dgvr.Cells.Add(new DataGridViewTextBoxCell());
                     }
                     dgvr.Cells[0].Value = LastConnectionInfo.Attributes.GetNamedItem("userid").Value;
-                    dgvr.Cells[1].Value = LastConnectionInfo.Attributes.GetNamedItem("password").Value;
+                    if (LastConnectionInfo.Attributes.GetNamedItem("password") != null)
+                        dgvr.Cells[1].Value = LastConnectionInfo.Attributes.GetNamedItem("password").Value;
                     dgvr.Cells[2].Value = LastConnectionInfo.Attributes.GetNamedItem("datasource").Value;
                     dgvr.Cells[3].Value = LastConnectionInfo.Attributes.GetNamedItem("date").Value;
                     dataGridViewConnection.Rows.Add(dgvr);
@@ -61,7 +62,10 @@ namespace MnuConnection
         {
             DataGridViewRow dgvr = dataGridViewConnection.Rows[e.RowIndex];
             textBoxOracleUserId.Text = dgvr.Cells["user"].Value.ToString();
-            textBoxOraclePassword.Text = dgvr.Cells["password"].Value.ToString();
+            if (dgvr.Cells["password"].Value != null)
+                textBoxOraclePassword.Text = dgvr.Cells["password"].Value.ToString();
+            else
+                textBoxOraclePassword.Text = null;
             TNSNamesComboBox.Text = dgvr.Cells["datasource"].Value.ToString();
         }
     }
