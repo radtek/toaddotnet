@@ -40,7 +40,7 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Data.OracleClient;
 
-namespace ULib
+namespace DBDiff
 {
     public class DGVQuery
     {
@@ -52,7 +52,7 @@ namespace ULib
         #region consteurcteur
         public DGVQuery()
         {
-
+            
         }
 
         public DGVQuery(DataGridView dgv)
@@ -111,8 +111,8 @@ namespace ULib
         private void AddRowDataGrid(DataGridViewRow dgrv)
         {
             dgv.Rows.Add(dgrv);
-        }
-
+        }        
+        
         #endregion
 
         #region publicMethode
@@ -145,7 +145,7 @@ namespace ULib
                     mythread.Abort();
             }
             catch (Exception e)
-            {
+            {                
                 string errorMessage = e.Message;
                 while (e.InnerException != null)
                 {
@@ -168,7 +168,7 @@ namespace ULib
             {
                 result = DisplayQueryData(connexion, Convert.ToString(obj), dgv, worker, eArgs);
             }
-
+            
             return result;
         }
         #endregion
@@ -178,7 +178,7 @@ namespace ULib
         {
             string result = null;
             try
-            {
+            {                
                 //string SelectedTable = treeViewOracleSchema.SelectedNode.Text;
                 using (DbCommand cmd = connexion.Cnn.CreateCommand())
                 {
@@ -188,13 +188,13 @@ namespace ULib
                         string SQLCount = "SELECT count(*) " + SQL.Substring(SQL.ToUpper().IndexOf("FROM"));
                         cmd.CommandText = SQLCount; // string.Format("SELECT count(*) FROM {0}", SelectedTable);
                         cmd.Prepare();
-                        NumRec = Convert.ToInt32(cmd.ExecuteScalar());
+                        NumRec = Convert.ToInt32(cmd.ExecuteScalar());   
                     }
                     catch (Exception e)
                     {
                         NumRec = 0;
                     }
-
+                    
                     //string SQL = string.Format("SELECT * FROM {0}", SelectedTable);
                     cmd.CommandText = SQL;
                     cmd.Prepare();
@@ -236,7 +236,7 @@ namespace ULib
                                 dataGridViewOracleData.Rows.Add(dgrv);
 
                             int CurrentNumRec = dataGridViewOracleData.Rows.Count;
-
+                            
                             if (worker.WorkerReportsProgress)
                             {
                                 if (NumRec != 0)
@@ -247,8 +247,8 @@ namespace ULib
                                 else
                                 {
                                     worker.ReportProgress(CurrentNumRec % 100);
-                                }
-                            }
+                                }    
+                            }                                                                                    
                         }
                         if (worker.WorkerSupportsCancellation)
                         {
@@ -260,12 +260,12 @@ namespace ULib
                             else
                             {
                                 result = string.Format("{0} records found", dataGridViewOracleData.Rows.Count);
-                            }
+                            }    
                         }
-
-
+                        
+                        
                         rd.Close();
-                    }
+                    }                    
                 }
                 return result;
             }
@@ -280,7 +280,7 @@ namespace ULib
                 }
                 MessageBox.Show(errorMessage, "Unexpected error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return errorMessage;
-            }
+            }            
         }
         #endregion
     }

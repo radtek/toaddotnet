@@ -35,15 +35,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyLoader.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="DGVQuery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TreeQuery.cs" />
+    <Compile Include="Utils.cs" />
+    <Compile Include="Vigenere.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Connexion\Connexion.csproj">
       <Project>{016DCDD8-DBC9-499B-8E9C-229F98B46435}</Project>
       <Name>Connexion</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PluginTypes\PluginTypes.csproj">
+      <Project>{D510B83D-3BF3-4808-B205-BC1410016EBA}</Project>
+      <Name>PluginTypes</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

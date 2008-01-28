@@ -48,11 +48,13 @@ namespace TBColumns
         private Connexion.Connexion connexion = new Connexion.Connexion("Oracle");
         private DGVQuery uLib;
         private DateTime startTime;
-        
+        private string CurrentTablename = null;
+
         /// <summary> 
         /// Private attribute for the event.
         /// </summary>
         private PlugEvent plugSender;
+
         /// <summary> 
         /// Default Constructor.
         /// </summary>
@@ -62,6 +64,7 @@ namespace TBColumns
         }
 
         #region PluginInstall
+
         /// <summary> 
         /// Required implementation of the interface.
         /// </summary>
@@ -80,9 +83,11 @@ namespace TBColumns
             // Add the UserControl to the tab page
             tp.Controls.Add(this);
         }
+
         #endregion
 
         #region EventProcess
+
         /// <summary> 
         /// Required implementation of the event interface.
         /// </summary>
@@ -124,46 +129,13 @@ namespace TBColumns
                         break;
                     case "gettable":
                         if (connexion.IsOpen)
-                        {                            
+                        {
                             xmlNode = xmlData.SelectSingleNode("//ToadDotNet/action/table");
                             if (xmlNode != null)
                             {
-                                string tablename = xmlNode.Attributes.GetNamedItem("id").Value;                                
+                                CurrentTablename = xmlNode.Attributes.GetNamedItem("id").Value;
 
-                                string SQL =    "SELECT   c.cname,  " +
-                                                "         c.colno, " +
-                                                "         (SELECT c1.POSITION " +
-                                                "            FROM SYS.user_cons_columns c1, SYS.user_constraints a1 " +
-                                                "           WHERE a1.table_name = c1.table_name " +
-                                                "             AND a1.constraint_name = c1.constraint_name " +
-                                                "             AND a1.constraint_type = 'P' " +
-                                                "             AND a1.table_name = c.tname " +
-                                                "             and C1.COLUMN_NAME = c.cname ) pk, " +
-                                                "         DECODE (c.NULLS, 'NULL', 'Y', 'N') NULLS,  " +
-                                                "         c.coltype,  " +
-                                                "         c.width, " +
-                                                "         c.PRECISION,  " +
-                                                "         c.scale,  " +
-                                                "         c.defaultval,  " +
-                                                "         c.character_set_name, " +
-                                                "         ucc.comments " +
-                                                "    FROM user_col_comments ucc,  " +
-                                                "         col c " +
-                                                "   WHERE ucc.table_name = '" + tablename + "' " +
-                                                "     AND c.tname = ucc.table_name " +
-                                                "     AND c.cname = ucc.column_name " +
-                                                "ORDER BY c.tname, c.colno ";
-
-
-
-
-                                uLib = new DGVQuery(dataGridViewOracleFields, connexion);
-                                //uLib.Start(SQL);
-                                startTime = DateTime.Now;
-                                if (backgroundWorker1.IsBusy)
-                                    backgroundWorker1.CancelAsync();
-                                while (backgroundWorker1.IsBusy) ;
-                                backgroundWorker1.RunWorkerAsync(SQL);
+                                getTable();
                             }
                         }
                         break;
@@ -173,17 +145,55 @@ namespace TBColumns
             }
 
             /* ---------------------------------- */
-            
-            
         }
+
+        private void getTable()
+        {
+            string SQL = "SELECT   c.cname,  " +
+                         "         c.colno, " +
+                         "         (SELECT c1.POSITION " +
+                         "            FROM SYS.user_cons_columns c1, SYS.user_constraints a1 " +
+                         "           WHERE a1.table_name = c1.table_name " +
+                         "             AND a1.constraint_name = c1.constraint_name " +
+                         "             AND a1.constraint_type = 'P' " +
+                         "             AND a1.table_name = c.tname " +
+                         "             and C1.COLUMN_NAME = c.cname ) pk, " +
+                         "         DECODE (c.NULLS, 'NULL', 'Y', 'N') NULLS,  " +
+                         "         c.coltype,  " +
+                         "         c.width, " +
+                         "         c.PRECISION,  " +
+                         "         c.scale,  " +
+                         "         c.defaultval,  " +
+                         "         c.character_set_name, " +
+                         "         ucc.comments " +
+                         "    FROM user_col_comments ucc,  " +
+                         "         col c " +
+                         "   WHERE ucc.table_name = '" + CurrentTablename + "' " +
+                         "     AND c.tname = ucc.table_name " +
+                         "     AND c.cname = ucc.column_name " +
+                         "ORDER BY c.tname, c.colno ";
+
+
+            uLib = new DGVQuery(dataGridViewOracleFields, connexion);
+            //uLib.Start(SQL);
+            startTime = DateTime.Now;
+            if (backgroundWorker1.IsBusy)
+                backgroundWorker1.CancelAsync();
+            while (backgroundWorker1.IsBusy) ;
+            backgroundWorker1.RunWorkerAsync(SQL);
+        }
+
         #endregion
 
         #region delegate
+
         private delegate void setElapsedTime(TimeSpan elapsed);
+
         private void SetElapsedTime(TimeSpan elapsed)
         {
             this.toolStripStatusLabelElapsedTime.Text = string.Format("Elapsed time: {0} s", elapsed.TotalSeconds);
         }
+
         #endregion
 
         private void dataGridViewOracleFields_RowEnter(object sender, DataGridViewCellEventArgs e)
@@ -220,7 +230,8 @@ namespace TBColumns
             e.Result = uLib.Display(e.Argument.ToString(), worker, e);
         }
 
-        private void backgroundWorker1_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        private void backgroundWorker1_RunWorkerCompleted(object sender,
+                                                          System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
             TimeSpan elapsed = DateTime.Now - startTime;
             SetElapsedTime(elapsed);
@@ -228,7 +239,8 @@ namespace TBColumns
             {
                 // The user canceled the operation.
                 //MessageBox.Show("Operation was canceled.");
-                toolStripStatusLabelMessage.Text = string.Format("Aborted by user. {0} records found.", dataGridViewOracleFields.Rows.Count);
+                toolStripStatusLabelMessage.Text =
+                    string.Format("Aborted by user. {0} records found.", dataGridViewOracleFields.Rows.Count);
             }
             else if (e.Error != null)
             {
@@ -246,9 +258,42 @@ namespace TBColumns
         private void toolStripButtonAddCol_Click(object sender, EventArgs e)
         {
             FormAddCol frmAddCol = new FormAddCol();
+            frmAddCol.Tablename = CurrentTablename;
             if (frmAddCol.ShowDialog() == DialogResult.OK)
             {
                 // Create the column
+                string sql = frmAddCol.textBoxSql.Text;
+
+                try
+                {
+                    if (this.connexion == null || this.connexion.Cnn == null ||
+                        this.connexion.Cnn.State.ToString() == "Closed")
+                    {
+                        connexion = new Connexion.Connexion("Oracle");
+                        connexion.Open();
+                    }
+                    if (connexion.IsOpen)
+                    {
+                        using (DbCommand cmd = connexion.Cnn.CreateCommand())
+                        {
+                            cmd.CommandText = sql;
+                            cmd.Prepare();
+                            //int colno = 0;
+                            int result = cmd.ExecuteNonQuery();
+                            getTable();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    string errorMessage = ex.Message;
+                    while (ex.InnerException != null)
+                    {
+                        ex = ex.InnerException;
+                        errorMessage += "\n" + ex.Message;
+                    }
+                    MessageBox.Show(errorMessage, "Unexpected error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
             frmAddCol.Close();
             frmAddCol.Dispose();
@@ -256,12 +301,51 @@ namespace TBColumns
 
         private void toolStripButtonDeleteCol_Click(object sender, EventArgs e)
         {
+            if (
+                MessageBox.Show(
+                    string.Format("Are you sure you want to drop the column {0} from the table {1} ?",
+                                  dataGridViewOracleFields.CurrentRow.Cells["cname"].Value, CurrentTablename),
+                    "Drop column", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                string sql =
+                    string.Format("ALTER TABLE {0} DROP COLUMN {1}", CurrentTablename,
+                                  dataGridViewOracleFields.CurrentRow.Cells["cname"].Value);
 
+                try
+                {
+                    if (this.connexion == null || this.connexion.Cnn == null ||
+                        this.connexion.Cnn.State.ToString() == "Closed")
+                    {
+                        connexion = new Connexion.Connexion("Oracle");
+                        connexion.Open();
+                    }
+                    if (connexion.IsOpen)
+                    {
+                        using (DbCommand cmd = connexion.Cnn.CreateCommand())
+                        {
+                            cmd.CommandText = sql;
+                            cmd.Prepare();
+                            //int colno = 0;
+                            int result = cmd.ExecuteNonQuery();
+                            getTable();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    string errorMessage = ex.Message;
+                    while (ex.InnerException != null)
+                    {
+                        ex = ex.InnerException;
+                        errorMessage += "\n" + ex.Message;
+                    }
+                    MessageBox.Show(errorMessage, "Unexpected error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
 
         private void toolStripButtonModifyCol_Click(object sender, EventArgs e)
         {
-
         }
     }
 }
