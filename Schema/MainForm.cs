@@ -32,19 +32,14 @@
   <http://www.gnu.org/licenses/>.
  *****************************************************************************/
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Globalization;
 using System.IO;
-using System.Text;
 using System.Windows.Forms;
-using PlugIn;
 using PluginTypes;
+using Register;
 using ULib;
 
-namespace ToadDotNet
+namespace Schema
 {
     public partial class MainForm : Form
     {
@@ -65,10 +60,8 @@ namespace ToadDotNet
             CurrentCulture = new CultureInfo(Config.GetInnerTextValue(Config.Load(), "/alf-solution/AppConfig/lang"));
             System.Threading.Thread.CurrentThread.CurrentUICulture = CurrentCulture;
             InitializeComponent();
-            plugEvent = new PlugEvent();
+            //plugEvent = new PlugEvent();
             plugEvent.evtHandler += new PlugEvent._evtHandler(EventProcess);
-            
-            
         }
 
         private void quitterToolStripMenuItem_Click(object sender, EventArgs e)
@@ -86,7 +79,7 @@ namespace ToadDotNet
                     Application.Exit();
                 }
             }
-            AssemblyLoader asmLoader = new AssemblyLoader(this, this.ParentForm.Controls["MenuStrip"] as MenuStrip, this.rightTabControl, this.leftTabControl, plugEvent);
+            AssemblyLoader asmLoader = new AssemblyLoader(this, this.ParentForm.Controls["menuStrip"] as MenuStrip, this.rightTabControl, this.leftTabControl, plugEvent);
             string PluginsPath = Config.GetElement(Config.Load(), "/alf-solution/AppConfig/plugin").GetAttribute("path"); //@".\plugins";//
             if (Directory.Exists(PluginsPath))
             {

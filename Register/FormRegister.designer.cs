@@ -1,4 +1,5 @@
-﻿namespace ToadDotNet
+﻿
+namespace Register
 {
     partial class FormRegister
     {
@@ -88,8 +89,8 @@
             this.label3.Size = new System.Drawing.Size(374, 43);
             this.label3.TabIndex = 4;
             this.label3.Text = "Attention, votre adresse email doit être valide, car le ou les numéros de licence" +
-                " que vous demandez seront envoyés à cette adrese. Cette adresse ne sera en aucun" +
-                " cas cédée à des tiers.";
+                               " que vous demandez seront envoyés à cette adrese. Cette adresse ne sera en aucun" +
+                               " cas cédée à des tiers.";
             // 
             // buttonSubmit
             // 
@@ -117,9 +118,9 @@
             // 
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.Product,
-            this.Key,
-            this.Expiration});
+                                                                                                  this.Product,
+                                                                                                  this.Key,
+                                                                                                  this.Expiration});
             this.dataGridView1.Location = new System.Drawing.Point(12, 240);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.Size = new System.Drawing.Size(407, 217);

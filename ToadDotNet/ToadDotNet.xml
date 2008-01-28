@@ -8,6 +8,7 @@
   </db>
   <AppConfig>
      <plugin path=".\plugin"/>
+     <lib path=".\lib"/>
     <lang>en-US</lang>
   </AppConfig>
   <plugins>      	  	  

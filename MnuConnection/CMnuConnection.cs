@@ -32,24 +32,22 @@
   <http://www.gnu.org/licenses/>.
  *****************************************************************************/
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 using PluginTypes;
-using ToadDotNet;
+using Schema;
 using ULib;
 
 namespace MnuConnection
 {
-    public class CMnuConnection : IMenuAddOn
+    public class CMnuConnection : IMenuAddOn, IFormAddOn
     {
         /// <summary> 
         /// Private attribute for the event.
         /// </summary>
         private PlugEvent plugSender;
 
-        private Form parentForm = null;
+        private Form parentForm;
 
         /// <summary> 
         /// Private attribute for the event.
@@ -72,6 +70,11 @@ namespace MnuConnection
             PlugUtils.AddMenu(menu, "&Session", "&Disconnect", new EventHandler(SessionDisconnectMenuItem_Click));
         }
 
+        public void Install(Form form)
+        {
+            ParentForm = form;
+        }
+
         public void EventPlug(PlugEvent e)
         {
             if (e != null)
@@ -79,12 +82,12 @@ namespace MnuConnection
                 PlugSender = e;
                 PlugSender.evtHandler += new PlugEvent._evtHandler(EventProcess);
             }
-            
         }
 
         private void SessionConnectMenuItem_Click(object sender, EventArgs e)
         {
             FormConnection formConnection = new FormConnection();
+            //formConnection.MdiParent = this.ParentForm;
             if (formConnection.ShowDialog() == DialogResult.OK)
             {
                 if (!string.IsNullOrEmpty(formConnection.textBoxOracleUserId.Text) 

@@ -35,6 +35,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CMnuConnection.cs" />
     <Compile Include="FormConnection.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -51,6 +52,10 @@
     <ProjectReference Include="..\PluginTypes\PluginTypes.csproj">
       <Project>{D510B83D-3BF3-4808-B205-BC1410016EBA}</Project>
       <Name>PluginTypes</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Schema\Schema.csproj">
+      <Project>{BA7D3DD7-6FE3-48E2-A2DF-489D388424E5}</Project>
+      <Name>Schema</Name>
     </ProjectReference>
     <ProjectReference Include="..\ULib\ULib.csproj">
       <Project>{603751F0-A236-4C24-93F9-1EBBA19F353F}</Project>
@@ -72,6 +77,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "$(SolutionDir)$(SolutionName)\$(OutDir)"</PostBuildEvent>
+    <PostBuildEvent>copy "$(TargetPath)" "$(SolutionDir)$(SolutionName)\$(OutDir)lib"</PostBuildEvent>
   </PropertyGroup>
 </Project>

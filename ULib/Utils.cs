@@ -41,7 +41,7 @@ using System.Xml;
 using System.Diagnostics;
 using ULib;
 
-namespace ToadDotNet
+namespace ULib
 {
     public static class Utils
     {

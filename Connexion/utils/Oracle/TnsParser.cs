@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Windows.Forms;
 
 namespace Connexion.utils.Oracle
 {
@@ -46,9 +47,14 @@ namespace Connexion.utils.Oracle
             }
             else
             {
-                throw new ArgumentException("ORACLE key does not exist into the registry");
-            }
-            
+                //throw new ArgumentException("ORACLE key does not exist into the registry");
+                OpenFileDialog ofd = new  OpenFileDialog();
+                ofd.Filter = "tnsnames.ora";
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    Parse(ofd.FileName);
+                }
+            }            
         }
 
         /// <summary>

@@ -36,6 +36,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Common;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Xml;
 using PluginTypes;
@@ -140,7 +141,7 @@ namespace TBSource
                                 //uLib = new DGVQuery(dataGridViewOracleFields, connexion);
                                 //uLib.Start(SQL);
                                 textEditorControl1.Text = "CREATE OR REPLACE ";
-                                textEditorControl1.Refresh();
+                                textEditorControl1.Refresh();                                
                                 startTime = DateTime.Now;
                                 if (backgroundWorker1.IsBusy)
                                     backgroundWorker1.CancelAsync();
@@ -272,6 +273,69 @@ namespace TBSource
                 toolStripStatusLabelMessage.Text = e.Result.ToString();
             }
             toolStripProgressBarQuery.Visible = false;
+        }
+
+        private void toolStripButtonExecQuery_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (this.connexion == null || this.connexion.Cnn == null ||
+                                this.connexion.Cnn.State.ToString() == "Closed")
+                {
+                    connexion = new Connexion.Connexion("Oracle");
+                    connexion.Open();
+                }
+                if (connexion.IsOpen)
+                {
+                    using (DbCommand cmd = connexion.Cnn.CreateCommand())
+                    {
+                        string sql = textEditorControl1.Text;
+                        cmd.CommandText = sql;
+                        
+                        cmd.Prepare();
+                        //int colno = 0;
+                        int result = cmd.ExecuteNonQuery();
+                        string sql2 = sql.ToLower();
+                        if (sql2.Contains("create "))
+                        {
+                            string expr =
+                                @"^([\s\S\W\w\- ]*)(?<type>[\s]*function|procedure|trigger|package body|package[\s]*){1}(?<nom>[\s\S\W\w\- ]*)(\([\s\S\W\w\- ]*\))?([ \s]return)?([\s\S\W\w\- ]*)?is([\s\S\W\w\- ]*)$";
+                            Regex regEmail = new Regex(expr);
+                            //string strEmail = "marc.falesse@supinfo.com";
+                            //SQL = "-- \n /* */ create or replace function toto";
+                            Match monMatch = regEmail.Match(sql2);
+                            //for (int i = 0; i < monMatch.Groups.Count; i++ )
+                            //{
+                            //    Console.WriteLine("group {0} = {1}", i, monMatch.Groups[i].Value);
+                            //}
+                            Console.WriteLine("group {0} = {1}", "nom", monMatch.Groups["nom"].Value);
+                            string obj_name = monMatch.Groups["nom"].Value.Trim();
+                            if (obj_name.Contains("("))
+                            {
+                                obj_name = obj_name.Substring(0, obj_name.IndexOf('('));
+                            } else
+                            {
+                                obj_name = obj_name.Trim().Substring(0, obj_name.IndexOf(' ') );
+                            }
+                            cmd.CommandText =
+                                string.Format("ALTER {0} {1} COMPILE", monMatch.Groups["type"].Value, obj_name);
+                            cmd.Prepare();
+                            result = cmd.ExecuteNonQuery();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                string errorMessage = ex.Message;
+                while (ex.InnerException != null)
+                {
+                    ex = ex.InnerException;
+                    errorMessage += "\n" + ex.Message;
+                }
+                this.textBoxMessage.Text = errorMessage;
+                MessageBox.Show(errorMessage, "Unexpected error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

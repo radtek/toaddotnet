@@ -54,21 +54,22 @@ namespace PluginTypes
             // toolsToolStripMenuItem
             // Search for the entry menu tools
             // 
-            foreach (ToolStripItem item in menu.Items)
-            {
+            //foreach (ToolStripItem item in menu.Items)
+            //{
                 // do something with this item
                 //Console.WriteLine(item.ToString());
-                if (item.Text == menuItem)
-                    toolsToolStripMenuItem = item as ToolStripMenuItem;
+                //if (item.Text == menuItem)
+                    //toolsToolStripMenuItem = item as ToolStripMenuItem;
                 // enumerate sub-items (if could have them)
                 //ToolStripDropDownItem dropItem = item as ToolStripDropDownItem;
                 //if (dropItem != null)
                 //{
                 //WalkItems(dropItem.DropDownItems);
                 //}
-            }
+            //}
             // The entry menu Tools has not been found, then create id
-            if (toolsToolStripMenuItem == null)
+            if (menu.Items.Find(menuItem, true).Length == 0)
+                //if (toolsToolStripMenuItem == null)
             {
                 toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
                 toolsToolStripMenuItem.Name = menuItem;
@@ -76,6 +77,9 @@ namespace PluginTypes
                 toolsToolStripMenuItem.Text = menuItem;
                 //menu.Items.Add(toolsToolStripMenuItem);
                 menu.Items.Insert(2, toolsToolStripMenuItem);
+            } else
+            {
+                toolsToolStripMenuItem = menu.Items.Find(menuItem, false)[0] as ToolStripMenuItem;
             }
             // Add the sub-menu to the Tools menu
             if (toolsToolStripMenuItem.DropDownItems.Find(subMenuItem, true).Length == 0)

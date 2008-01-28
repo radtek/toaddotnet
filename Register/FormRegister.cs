@@ -32,19 +32,11 @@
   <http://www.gnu.org/licenses/>.
  *****************************************************************************/
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.IO;
-using System.Text;
 using System.Windows.Forms;
-using System.Configuration;
 using System.Xml;
-using System.Xml.XPath;
 using ULib;
 
-namespace ToadDotNet
+namespace Register
 {
     public partial class FormRegister : Form
     {
@@ -71,7 +63,7 @@ namespace ToadDotNet
                         string plugname = pluginElem.Name;
                         string key = Config.GetInnerTextValue(xml, string.Format("//alf-solution/plugins/{0}/key", plugname));
                         dataGridView1.Rows.Add(
-                        new string[] { plugname, key, "Never" });
+                            new string[] { plugname, key, "Never" });
                     }    
                     dataGridView1.AutoResizeColumns();
                 }                
