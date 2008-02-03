@@ -31,22 +31,32 @@
   ce programme ; si ce n’est pas le cas, consultez :
   <http://www.gnu.org/licenses/>.
  *****************************************************************************/
+using System;
 using System.IO;
+using System.Windows.Forms;
 using System.Xml;
 
 namespace ULib
 {
     public static class Config
     {
-        private static string filename = "ToadDotNet.xml";
+        private static string filename = Application.StartupPath + "\\" + "ToadDotNet.xml";
         public static XmlNodeList GetValue(string xmlData, string section)
         {
-            XmlDocument xml = new XmlDocument();
-            xmlData = xmlData.Replace("&", "&amp;");
-            xml.LoadXml(xmlData);
+            if (string.IsNullOrEmpty(xmlData))
+            {
+                return null;
+            }
+            else
+            {
+                XmlDocument xml = new XmlDocument();
+                xmlData = xmlData.Replace("&", "&amp;");
+                xml.LoadXml(xmlData);
 
-            XmlNodeList elements = xml.SelectNodes(section);
-            return elements;
+                XmlNodeList elements = xml.SelectNodes(section);
+                return elements;
+            }
+            
         }
 
         public static string GetInnerTextValue(string xmlData, string path)
@@ -183,5 +193,49 @@ namespace ULib
             return GetInnerTextValue(Load(), "//alf-solution/db/tnsanmes.ora");
         }
 
+        public static void SaveLastConnectionInfo(string userid, string password, string datasource)
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(Config.Load());
+            string SearchCriteria =
+                string.Format(
+                    "//alf-solution/LastConnections/info[@userid='{0}' and @datasource='{1}']",
+                    userid, datasource);
+            XmlNode node = doc.SelectSingleNode(SearchCriteria);
+            if (node == null)
+
+            //if (dgvr == null || dgvr.Cells["user"].Value.ToString() != formConnection.textBoxOracleUserId.Text || dgvr.Cells["password"].Value == null ||
+            //    dgvr.Cells["password"].Value.ToString() != formConnection.textBoxOraclePassword.Text ||
+            //    dgvr.Cells["datasource"].Value.ToString() != formConnection.TNSNamesComboBox.Text)
+            {
+                //XmlDocument doc = new XmlDocument();
+                //doc.LoadXml(Config.Load());
+
+                node = doc.SelectSingleNode("//alf-solution/LastConnections");
+                if (node == null)
+                {
+                    node = doc.CreateElement("LastConnections");
+                    doc.SelectSingleNode("//alf-solution").AppendChild(node);
+                }
+                XmlNode infoElem = doc.CreateElement("info");
+                XmlAttribute attr = doc.CreateAttribute("userid");
+                attr.Value = userid;
+                infoElem.Attributes.Append(attr);
+                
+                    attr = doc.CreateAttribute("password");
+                    attr.Value = password;
+                    infoElem.Attributes.Append(attr);
+                attr = doc.CreateAttribute("datasource");
+                attr.Value = datasource;
+                infoElem.Attributes.Append(attr);
+                attr = doc.CreateAttribute("date");
+                attr.Value = DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToLongTimeString();
+                infoElem.Attributes.Append(attr);
+
+                node.AppendChild(infoElem);
+
+                Config.Save(doc.InnerXml);
+            }
+        }
     }
 }

@@ -133,11 +133,12 @@ namespace ULib
                 {
                     for (int i = 0; i < types.Length; i++)
                     {
-                        Type IFormAddOnType = types[i].GetInterface("IFormAddOn");
+                        Type IFormAddOnType = types[i].GetInterface("IFormAddOn");                        
                         Type IMenuAddOnType = types[i].GetInterface("IMenuAddOn");
                         Type ITabPageAddOnType = types[i].GetInterface("ITabPageAddOn");
                         Type ITabPageLeftAddOnType = types[i].GetInterface("ITabPageLeftAddOn");
                         Type IGroupBoxAddOnType = types[i].GetInterface("IGroupBoxAddOn");
+
                         //si notre type (une classe ici) implémente l'une de ces deux interfaces alosr...
                         object obj = null;
                         if (IFormAddOnType != null)

@@ -545,7 +545,8 @@ namespace ToadDotNet
             this.IsMdiContainer = true;
             this.MainMenuStrip = this.menuStrip;
             this.Name = "MDI";
-            this.Text = "MDI";
+            this.Text = "Toad.Net";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.Load += new System.EventHandler(this.MDI_Load);
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();

@@ -49,6 +49,8 @@ namespace TBColumns
         private DGVQuery uLib;
         private DateTime startTime;
         private string CurrentTablename = null;
+        private TabPage tp = null;
+        private TabControl tc = null;
 
         /// <summary> 
         /// Private attribute for the event.
@@ -71,8 +73,9 @@ namespace TBColumns
         public void Install(TabControl tabControl)
         {
             // Create a new tab page as we implement a ITabPageAddOn
-            TabPage tp = new TabPage("Columns");
+            tp = new TabPage("Columns");
             // Add the new tab page to the TabControl of the main window's application
+            tc = tabControl;
             tabControl.TabPages.Add(tp);
             // Set automatic resizing of the UserControl
             this.Anchor = (AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom);
@@ -130,16 +133,40 @@ namespace TBColumns
                     case "gettable":
                         if (connexion.IsOpen)
                         {
+                            if (!tc.TabPages.Contains(tp))
+                            {
+                                tc.TabPages.Insert(0, tp);
+                                // Set as the selected tab this one
+                                tc.SelectedTab = tp;
+                            }
                             xmlNode = xmlData.SelectSingleNode("//ToadDotNet/action/table");
                             if (xmlNode != null)
                             {
-                                CurrentTablename = xmlNode.Attributes.GetNamedItem("id").Value;
-
-                                getTable();
+                                string newtablename = xmlNode.Attributes.GetNamedItem("id").Value;
+                                if (CurrentTablename != newtablename)
+                                {
+                                    CurrentTablename = newtablename;
+                                    getTable();
+                                }
+                                    
                             }
                         }
                         break;
+                    case "getfields":
+                    case "getfield":
+                    case "getfks":
+                    case "getfk":
+                        if (!tc.TabPages.Contains(tp))
+                        {
+                            tc.TabPages.Insert(0, tp);
+                            // Set as the selected tab this one
+                            tc.SelectedTab = tp;
+                        }
+                        
+                        break;
                     default:
+                        if (tc.TabPages.Contains(tp))
+                            tc.TabPages.Remove(tp);                        
                         break;
                 }
             }
@@ -251,6 +278,7 @@ namespace TBColumns
             else
             {
                 toolStripStatusLabelMessage.Text = e.Result.ToString();
+                dataGridViewOracleFields.AutoResizeColumns();
             }
             toolStripProgressBarQuery.Visible = false;
         }

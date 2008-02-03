@@ -35,23 +35,30 @@ namespace Connexion.utils.Oracle
             if (oracleHomeKey != null)
             {
                 string tnsFile =
-                string.Format("{0}\\Network\\Admin\\tnsnames.ora", oracleHomeKey.GetValue("ORACLE_HOME").ToString());
+                string.Format("{0}", oracleHomeKey.GetValue("TNSNAMES"));
                 if (!string.IsNullOrEmpty(tnsFile))
                 {
                     Parse(tnsFile);
                 }
                 else
                 {
-                    throw new ArgumentException("ORACLE_HOME key does not exist does not exist ");
+                    OpenFileDialog ofd = new OpenFileDialog();
+                    ofd.Filter = "TNSNAMES.ORA|TNSNAMES.ORA";
+                    if (ofd.ShowDialog() == DialogResult.OK)
+                    {
+                        Microsoft.Win32.Registry.SetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\ORACLE", "TNSNAMES", ofd.FileName);
+                        Parse(ofd.FileName);
+                    }
                 }
             }
             else
             {
                 //throw new ArgumentException("ORACLE key does not exist into the registry");
                 OpenFileDialog ofd = new  OpenFileDialog();
-                ofd.Filter = "tnsnames.ora";
+                ofd.Filter = "TNSNAMES.ORA|TNSNAMES.ORA";
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
+                    Microsoft.Win32.Registry.SetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\ORACLE", "TNSNAMES", ofd.FileName);
                     Parse(ofd.FileName);
                 }
             }            
@@ -69,41 +76,43 @@ namespace Connexion.utils.Oracle
             int countCloseBrackets = 0;
 
             //validate arguments
-            if (!File.Exists(file))
-                throw new ArgumentException("{0} File does not exist", "file");
-
-            _tnsEntries = new TnsEntryCollectionType(file);
-
-            using (StreamReader reader = new StreamReader(file))
+            if (File.Exists(file))
             {
-                while ((line = reader.ReadLine()) != null)
+                _tnsEntries = new TnsEntryCollectionType(file);
+
+                using (StreamReader reader = new StreamReader(file))
                 {
-                    //Ignore comments
-                    if (line.StartsWith("#"))
-                        continue;
-                    entry += line;
-                    for (int idx = 0; idx < line.Length; idx++)
+                    while ((line = reader.ReadLine()) != null)
                     {
-                        switch (line[idx])
+                        //Ignore comments
+                        if (line.StartsWith("#"))
+                            continue;
+                        entry += line;
+                        for (int idx = 0; idx < line.Length; idx++)
                         {
-                            case '(':
-                                countOpenBrackets++;
-                                break;
-                            case ')':
-                                countCloseBrackets++;
-                                break;
+                            switch (line[idx])
+                            {
+                                case '(':
+                                    countOpenBrackets++;
+                                    break;
+                                case ')':
+                                    countCloseBrackets++;
+                                    break;
+                            }
+                        }
+                        if ((countOpenBrackets == countCloseBrackets) &&
+                            (countOpenBrackets > 0) && (countCloseBrackets > 0))
+                        {
+                            ProcessTnsEntry(entry);
+                            countOpenBrackets = 0;
+                            countCloseBrackets = 0;
+                            entry = string.Empty;
                         }
                     }
-                    if ((countOpenBrackets == countCloseBrackets) &&
-                        (countOpenBrackets > 0) && (countCloseBrackets > 0))
-                    {
-                        ProcessTnsEntry(entry);
-                        countOpenBrackets = 0;
-                        countCloseBrackets = 0;
-                        entry = string.Empty;
-                    }
-                }
+                }       
             }
+                //throw new ArgumentException("{0} File does not exist", "file");
+
         }
 
         private void ProcessTnsEntry(string entry)

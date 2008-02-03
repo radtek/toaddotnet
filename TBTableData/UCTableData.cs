@@ -48,6 +48,10 @@ namespace TBTableData
         private Connexion.Connexion connexion = new Connexion.Connexion("Oracle");
         private DGVQuery uLib;
         private DateTime startTime;
+        private string tablename;
+
+        private TabPage tp;
+        private TabControl tc;
 
         public Thread mythread;
 
@@ -72,8 +76,9 @@ namespace TBTableData
         public void Install(TabControl tabControl)
         {
             // Create a new tab page as we implement a ITabPageAddOn
-            TabPage tp = new TabPage("Data");
+            tp = new TabPage("Data");
             // Add the new tab page to the TabControl of the main window's application
+            tc = tabControl;
             tabControl.TabPages.Add(tp);
             // Set automatic resizing of the UserControl
             this.Anchor = (AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom);
@@ -129,25 +134,39 @@ namespace TBTableData
                         }
                         break;
                     case "gettable":
+                        if (!tc.TabPages.Contains(tp))
+                            tc.TabPages.Insert(1, tp);
                         if (connexion.IsOpen)
-                        {
-                            string tablename = null;
+                        {                            
                             xmlNode = xmlData.SelectSingleNode("//ToadDotNet/action/table");
                             if (xmlNode != null)
                             {
-                                tablename = xmlNode.Attributes.GetNamedItem("id").Value;
-                                uLib = new DGVQuery(dataGridViewOracleFields, connexion);
-                                //uLib.Start(string.Format("SELECT * FROM {0}", tablename));
-                                toolStripProgressBarQuery.Visible = true;
-                                startTime = DateTime.Now;
-                                if (backgroundWorker1.IsBusy)
-                                    backgroundWorker1.CancelAsync();
-                                while (backgroundWorker1.IsBusy) ;
-                                backgroundWorker1.RunWorkerAsync(string.Format("SELECT * FROM {0}", tablename));
+                                string newtablename = xmlNode.Attributes.GetNamedItem("id").Value;
+                                if (newtablename != tablename)
+                                {
+                                    tablename = newtablename;
+                                    uLib = new DGVQuery(dataGridViewOracleFields, connexion);
+                                    //uLib.Start(string.Format("SELECT * FROM {0}", tablename));
+                                    toolStripProgressBarQuery.Visible = true;
+                                    startTime = DateTime.Now;
+                                    if (backgroundWorker1.IsBusy)
+                                        backgroundWorker1.CancelAsync();
+                                    while (backgroundWorker1.IsBusy) ;
+                                    backgroundWorker1.RunWorkerAsync(string.Format("SELECT * FROM (SELECT ROWNUM n, t.* FROM {0} t) s WHERE s.n BETWEEN {1} AND {2}", tablename, 0, 500));    
+                                }                                
                             }
                         }
                         break;
+                    case "getfields":
+                    case "getfield":
+                    case "getfks":
+                    case "getfk":
+                        if (!tc.TabPages.Contains(tp))
+                            tc.TabPages.Insert(1, tp);
+                        break;
                     default:
+                        if (tc.TabPages.Contains(tp))
+                            tc.TabPages.Remove(tp);
                         break;
                 }
             }                        
@@ -246,6 +265,7 @@ namespace TBTableData
             else
             {
                 toolStripStatusLabelMessage.Text = e.Result.ToString();
+                dataGridViewOracleFields.AutoResizeColumns();
             }
             toolStripProgressBarQuery.Visible = false;
             
@@ -254,6 +274,36 @@ namespace TBTableData
         private void toolStripButtonCancel_Click(object sender, EventArgs e)
         {
             backgroundWorker1.CancelAsync();
+        }
+
+        private void toolStripButtonNextPage_Click(object sender, EventArgs e)
+        {
+            uLib = new DGVQuery(dataGridViewOracleFields, connexion);
+            uLib.ClearData = false;
+            //uLib.Start(string.Format("SELECT * FROM {0}", tablename));
+            toolStripProgressBarQuery.Visible = true;
+            toolStripProgressBarQuery.Value = 0;
+            startTime = DateTime.Now;
+            if (backgroundWorker1.IsBusy)
+                backgroundWorker1.CancelAsync();
+            while (backgroundWorker1.IsBusy) ;
+            int rowsFetched = dataGridViewOracleFields.Rows.Count;
+            backgroundWorker1.RunWorkerAsync(string.Format("SELECT * FROM (SELECT ROWNUM n, t.* FROM {0} t) s WHERE s.n BETWEEN {1} AND {2}", tablename, rowsFetched + 1, rowsFetched + 500));
+        }
+
+        private void toolStripButtonToEnd_Click(object sender, EventArgs e)
+        {
+            uLib = new DGVQuery(dataGridViewOracleFields, connexion);
+            uLib.ClearData = false;
+            //uLib.Start(string.Format("SELECT * FROM {0}", tablename));
+            toolStripProgressBarQuery.Visible = true;
+            toolStripProgressBarQuery.Value = 0;
+            startTime = DateTime.Now;
+            if (backgroundWorker1.IsBusy)
+                backgroundWorker1.CancelAsync();
+            while (backgroundWorker1.IsBusy) ;
+            int rowsFetched = dataGridViewOracleFields.Rows.Count;
+            backgroundWorker1.RunWorkerAsync(string.Format("SELECT * FROM (SELECT ROWNUM n, t.* FROM {0} t) s WHERE s.n > {1}", tablename, rowsFetched + 1));
         }
     }
 }

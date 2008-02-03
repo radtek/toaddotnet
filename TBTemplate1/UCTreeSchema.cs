@@ -34,6 +34,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Drawing;
 using System.Windows.Forms;
 using System.Xml;
 using Connexion;
@@ -44,6 +45,9 @@ namespace TBTreeSchema
 {
     public partial class UCTreeSchema : UserControl, ITabPageLeftAddOn
     {
+        private bool Dragging;
+        private int mouseX, mouseY;
+        private int clipLeft, clipTop, clipWidth, clipHeight;  
         /// <summary> 
         /// Private attribute for the event.
         /// </summary>
@@ -59,8 +63,7 @@ namespace TBTreeSchema
         /// </summary>
         public UCTreeSchema()
         {
-            InitializeComponent();
-            
+            InitializeComponent();            
         }
 
         #region PluginInstall
@@ -122,7 +125,7 @@ namespace TBTreeSchema
                             {
                                 connexion.Open();
                             }
-                            GetTables();
+                            GetSchema();
                         }
                         break;
                     default:
@@ -135,19 +138,59 @@ namespace TBTreeSchema
         
         private void buttonGetOracleTables_Click(object sender, EventArgs e)
         {
-            GetTables();
+            GetSchema();
         }
 
         private void GetObj(string obj_label, string obj_type, TreeNode tNode)
         {
             TreeNode TablesNode = new TreeNode(obj_label);
             TablesNode.Tag = obj_label.ToLower();
+            switch(obj_type)
+            {
+                case  "DATASOURCE":
+                    TablesNode.ImageIndex = 1;
+                    TablesNode.SelectedImageIndex = 1;
+                    break;
+                case "TABLE":
+                    TablesNode.ImageIndex = 2;
+                    TablesNode.SelectedImageIndex = 2;
+                    break;
+                case "VIEW":
+                    TablesNode.ImageIndex = 2;
+                    TablesNode.SelectedImageIndex = 2;
+                    break;
+                case "FUNCTION":
+                    TablesNode.ImageIndex = 3;
+                    TablesNode.SelectedImageIndex = 3;
+                    break;
+                case "PROCEDURE":
+                    TablesNode.ImageIndex = 4;
+                    TablesNode.SelectedImageIndex = 4;
+                    break;
+                case "PACKAGE":
+                    TablesNode.ImageIndex = 5;
+                    TablesNode.SelectedImageIndex = 5;
+                    break;
+                case "TRIGGER":
+                    TablesNode.ImageIndex = 6;
+                    TablesNode.SelectedImageIndex = 6;
+                    break;
+                case "SEQUENCE":
+                    TablesNode.ImageIndex = 7;
+                    TablesNode.SelectedImageIndex = 7;
+                    break;
+                
+                default:
+                    TablesNode.ImageIndex = 0;
+                    TablesNode.SelectedImageIndex = 0;
+                    break;
+            }
             tNode.Nodes.Add(TablesNode);
             TreeQuery uLib = new TreeQuery(TablesNode, connexion);
             uLib.Start(string.Format("select object_name from obj where object_type = '{0}'", obj_type));
         }
 
-        private void GetTables()
+        private void GetSchema()
         {
             if (connexion.IsOpen)
             {
@@ -158,55 +201,30 @@ namespace TBTreeSchema
                     treeViewOracleSchema.Nodes.Clear();
                     TreeNode RootNode = null;                                        
                     RootNode = treeViewOracleSchema.Nodes.Add(connexion.OracleConnexion.DataSource);
+                    RootNode.ImageIndex = 1;
+                    RootNode.SelectedImageIndex = 1;
                     RootNode.Tag = "datasource";
                     
                     // Get All tables
                     GetObj("Tables", "TABLE", RootNode);
-                    //TreeNode TablesNode = new TreeNode("Tables");
-                    //TablesNode.Tag = "tables";
-                    //RootNode.Nodes.Add(TablesNode);
-                    //TreeQuery uLib = new TreeQuery(TablesNode, connexion);
-                    //uLib.Start("select object_name from obj where object_type = 'TABLE'");
-
+                    
                     // Get All views
                     GetObj("Views", "VIEW", RootNode);
-                    //TreeNode ViewsNode = new TreeNode("Views");
-                    //ViewsNode.Tag = "views";
-                    //RootNode.Nodes.Add(ViewsNode);
-                    //TreeQuery uLibView = new TreeQuery(ViewsNode, connexion);
-                    //uLibView.Start("select object_name from obj where object_type = 'VIEW'");
-
+                    
                     // Get All Function
                     GetObj("Functions", "FUNCTION", RootNode);                    
-                    //TreeNode FunctionsNode = new TreeNode("Functions");
-                    //FunctionsNode.Tag = "functions";
-                    //RootNode.Nodes.Add(FunctionsNode);
-                    //TreeQuery uLibFunc = new TreeQuery(FunctionsNode, connexion);
-                    //uLibFunc.Start("select object_name from obj where object_type = 'FUNCTION'");
-
+                    
                     // Get All Procedure
                     GetObj("Procedures", "PROCEDURE", RootNode);
-                    //TreeNode ProceduresNode = new TreeNode("Procedures");
-                    //ProceduresNode.Tag = "procedures";
-                    //RootNode.Nodes.Add(ProceduresNode);
-                    //TreeQuery uLibProc = new TreeQuery(ProceduresNode, connexion);
-                    //uLibProc.Start("select object_name from obj where object_type = 'PROCEDURE'");
-
+                    
                     // Get All Packages
                     GetObj("Packages", "PACKAGE", RootNode);
-                    //TreeNode PackagesNode = new TreeNode("Packages");
-                    //PackagesNode.Tag = "packages";
-                    //RootNode.Nodes.Add(PackagesNode);
-                    //TreeQuery uLibPkg = new TreeQuery(PackagesNode, connexion);
-                    //uLibPkg.Start("select object_name from obj where object_type = 'PACKAGE'");
-
+                    
                     // Get All Triggers
                     GetObj("Triggers", "TRIGGER", RootNode);
-                    //TreeNode TriggersNode = new TreeNode("Triggers");
-                    //TriggersNode.Tag = "triggers";
-                    //RootNode.Nodes.Add(TriggersNode);
-                    //TreeQuery uLibTrg = new TreeQuery(TriggersNode, connexion);
-                    //uLibTrg.Start("select object_name from obj where object_type = 'TRIGGER'");
+                    
+                    // Get All Sequences
+                    GetObj("Sequences", "SEQUENCE", RootNode);
                 }
                 //connexion.Close();
             }
@@ -228,65 +246,177 @@ namespace TBTreeSchema
             doc.AppendChild(rootNode);
 
             XmlNode actionNode = doc.CreateElement("action");
-            string tagType = treeViewOracleSchema.SelectedNode.Tag.ToString();
+            string tagType = treeViewOracleSchema.SelectedNode.Tag.ToString().Replace(" ", "");
             
             actionNode.InnerText = "get" + tagType.ToLower();
             rootNode.AppendChild(actionNode);
 
             XmlNode productNode = doc.CreateElement(tagType.Replace(" " , ""));
             XmlAttribute productAttribute = doc.CreateAttribute("id");
-            if (tagType == "package " || tagType == "package body ")
-                productAttribute.Value = treeViewOracleSchema.SelectedNode.Parent.Text;
-            else 
-                productAttribute.Value = treeViewOracleSchema.SelectedNode.Text;
+            switch(tagType)
+            {
+                case "packagebodys":
+                case "packagespecs":
+                    productAttribute.Value = treeViewOracleSchema.SelectedNode.Parent.Text;
+                    break;
+                case "packagebody":
+                case "packagespec":
+                    productAttribute.Value = treeViewOracleSchema.SelectedNode.Parent.Parent.Text;
+                    break;
+                default:
+                    productAttribute.Value = treeViewOracleSchema.SelectedNode.Text;
+                    break;                    
+            }
+            
             productNode.Attributes.Append(productAttribute);
             actionNode.AppendChild(productNode);
-
+            Console.WriteLine(string.Format("tagtype = {0} - producAttribute = {1}", tagType, productAttribute.Value));
             if (plugSender != null)
                 plugSender.Send(doc.OuterXml);
+
+            GetTreeChildDetail();
+        }
+
+        private void GetTreeChildDetail()
+        {
             if (treeViewOracleSchema.SelectedNode.Nodes.Count == 0)
             {
-                tagType = treeViewOracleSchema.SelectedNode.Tag.ToString();
-                switch(tagType.Trim().ToLower())
+                string tagType = treeViewOracleSchema.SelectedNode.Tag.ToString();
+                if (!connexion.IsOpen && !String.IsNullOrEmpty(connexion.OracleConnexion.UserId) && !String.IsNullOrEmpty(connexion.OracleConnexion.Password) &&
+                            !String.IsNullOrEmpty(connexion.OracleConnexion.DataSource))
+                    connexion.Open(connexion.OracleConnexion.UserId, connexion.OracleConnexion.Password,
+                                       connexion.OracleConnexion.DataSource);
+
+
+                switch (tagType.Trim().ToLower())
                 {
                     case "table":
                         //bool bConnexion = false;
-                        if (!connexion.IsOpen && !String.IsNullOrEmpty(connexion.OracleConnexion.UserId) && !String.IsNullOrEmpty(connexion.OracleConnexion.Password) &&
-                            !String.IsNullOrEmpty(connexion.OracleConnexion.DataSource))
-                            connexion.Open(connexion.OracleConnexion.UserId, connexion.OracleConnexion.Password,
-                                               connexion.OracleConnexion.DataSource);
-
                         if (connexion.IsOpen)
                         {
                             TreeNode FieldsNode = new TreeNode("Fields");
                             FieldsNode.Tag = "fields";
+                            FieldsNode.SelectedImageIndex = 8;
+                            FieldsNode.ImageIndex = 8;
                             treeViewOracleSchema.SelectedNode.Nodes.Add(FieldsNode);
                             TreeQuery FieldsNodeQry = new TreeQuery(FieldsNode, connexion);
                             FieldsNodeQry.Start(string.Format("SELECT cname FROM col where tname = '{0}'", treeViewOracleSchema.SelectedNode.Text));
                         }
                         break;
-                    case "package":
-                        if (!connexion.IsOpen && !String.IsNullOrEmpty(connexion.OracleConnexion.UserId) && !String.IsNullOrEmpty(connexion.OracleConnexion.Password) &&
-                            !String.IsNullOrEmpty(connexion.OracleConnexion.DataSource))
-                            connexion.Open(connexion.OracleConnexion.UserId, connexion.OracleConnexion.Password,
-                                               connexion.OracleConnexion.DataSource);
+                    case "field":
+                        if (connexion.IsOpen)
+                        {
+                            TreeNode FieldsNode = new TreeNode("FKs");
+                            FieldsNode.Tag = "fks";
+                            FieldsNode.SelectedImageIndex = 9;
+                            FieldsNode.ImageIndex = 9;
+                            TreeQuery FKsNodeQry = new TreeQuery(FieldsNode, connexion);
+                            string SQL = "SELECT r.table_name||'.'||a.COLUMN_NAME cname " +
+                                            "FROM user_constraints t, user_constraints r, user_cons_columns b, user_cons_columns a " +
+                                            "WHERE t.r_constraint_name = r.constraint_name " +
+                                            "and a.CONSTRAINT_NAME = r.CONSTRAINT_NAME " +
+                                            "and b.CONSTRAINT_NAME = t.CONSTRAINT_NAME " +
+                                            "AND t.r_owner = r.owner " +
+                                            "AND t.constraint_type='R' " +
+                                            "AND t.table_name = '{0}' " +
+                                            "and b.COLUMN_NAME = '{1}' ";
+                            //FKsNodeQry.Start(string.Format(SQL, treeViewOracleSchema.SelectedNode.Parent.Parent.Text, treeViewOracleSchema.SelectedNode.Text));
+                            FKsNodeQry.Display(string.Format(SQL, treeViewOracleSchema.SelectedNode.Parent.Parent.Text, treeViewOracleSchema.SelectedNode.Text));
+                            if (FieldsNode.Nodes.Count > 0)
+                                treeViewOracleSchema.SelectedNode.Nodes.Add(FieldsNode);
 
+                        }
+                        break;
+                    case "package":
                         if (connexion.IsOpen)
                         {
                             TreeNode PackagesNode = new TreeNode("Package Spec");
-                            PackagesNode.Tag = "package ";
+                            PackagesNode.Tag = "packagespecs";
                             treeViewOracleSchema.SelectedNode.Nodes.Add(PackagesNode);
 
+                            // Get all procedure and functions
+                            TreeQuery PFNodeQry = new TreeQuery(PackagesNode, connexion);
+                            string SQL = "Select distinct " +
+                                         "       object_name /*, position, data_type, overload, argument_name, " +
+                                         "       data_level, data_length, data_precision, data_scale, default_value, " +
+                                         "       in_out, object_id, sequence */" +
+                                         "from   all_arguments " +
+                                         "where  object_id = (select object_id " +
+                                         "         from sys.user_objects  " +
+                                         "         where object_name ='{0}' " +
+                                         "         and object_type in ('PACKAGE')) " +
+                                         "order by Object_Name --, Overload, Sequence ";
+
+                            PFNodeQry.Display(string.Format(SQL, treeViewOracleSchema.SelectedNode.Text));
+
                             TreeNode PackagesBodyNode = new TreeNode("Package body");
-                            PackagesBodyNode.Tag = "package body ";
-                            treeViewOracleSchema.SelectedNode.Nodes.Add(PackagesBodyNode);                            
+                            PackagesBodyNode.Tag = "packagebodys";
+                            treeViewOracleSchema.SelectedNode.Nodes.Add(PackagesBodyNode);
+
+                            // Get all procedure and functions
+                            TreeQuery PFBNodeQry = new TreeQuery(PackagesBodyNode, connexion);
+                            PFBNodeQry.Display(string.Format(SQL, treeViewOracleSchema.SelectedNode.Text));
+                        }
+                        break;
+                    case "function":
+                    case "procedure":
+                        if (connexion.IsOpen)
+                        {
+                            TreeNode ParametersNode = new TreeNode("Parameters");
+                            ParametersNode.Tag = "parameters";
+                            treeViewOracleSchema.SelectedNode.Nodes.Add(ParametersNode);
+
+                            // Get all procedure and functions
+                            TreeQuery ParamNodeQry = new TreeQuery(ParametersNode, connexion);
+                            string SQL = "Select lower(argument_name||': '||in_out||' '||data_type) param " +
+                                         "from   all_arguments " +
+                                         "where  object_id = (select object_id " +
+                                         "         from sys.user_objects  " +
+                                         "         where object_name ='{0}' " +
+                                         "         and object_type in ('PROCEDURE', 'FUNCTION')) " +
+                                         "order by Sequence ";
+
+
+                            ParamNodeQry.Display(
+                                string.Format(SQL, treeViewOracleSchema.SelectedNode.Text));
+                            //if (PackagesNode.Nodes.Count > 0)
+                            //    treeViewOracleSchema.SelectedNode.Nodes.Add(PackagesNode);
+                        }
+                        break;
+                    case "packagespec":
+                    case "packagebody":
+                    case "proc_func":
+                        if (connexion.IsOpen)
+                        {
+                            TreeNode ParametersNode = new TreeNode("Parameters");
+                            ParametersNode.Tag = "parameters";
+                            treeViewOracleSchema.SelectedNode.Nodes.Add(ParametersNode);
+
+                            // Get all procedure and functions
+                            TreeQuery ParamNodeQry = new TreeQuery(ParametersNode, connexion);
+                            string SQL = "Select lower(argument_name||': '||in_out||' '||data_type) param " +
+                                         "from   all_arguments " +
+                                         "where  object_id = (select object_id " +
+                                         "         from sys.user_objects  " +
+                                         "         where object_name ='{0}' " +
+                                         "         and object_type in ('PACKAGE', 'PROCEDURE', 'FUNCTION')) " +
+                                         "       and object_name = '{1}' " +
+                                         "order by Sequence ";
+
+
+                            ParamNodeQry.Display(
+                                string.Format(SQL, treeViewOracleSchema.SelectedNode.Parent.Parent.Text,
+                                              treeViewOracleSchema.SelectedNode.Text));
+                            //if (PackagesNode.Nodes.Count > 0)
+                            //    treeViewOracleSchema.SelectedNode.Nodes.Add(PackagesNode);
                         }
                         break;
                     default:
                         break;
-                }                
+                }
             }
         }
+
 
         private void SendConnectionInfo()
         {
@@ -319,5 +449,77 @@ namespace TBTreeSchema
                     plugSender.Send(doc.OuterXml);
             }
         }
+
+        private void treeViewOracleSchema_MouseDown(object sender, MouseEventArgs e)
+        {            
+            if (e.Button == MouseButtons.Left) 
+               {
+                   TreeView tree = (TreeView)sender;
+
+                   // Get the node underneath the mouse.
+                   TreeNode node = tree.GetNodeAt(e.X, e.Y);
+                   tree.SelectedNode = node;
+                   // Start the drag-and-drop operation with a cloned copy of the node.
+                   if (node != null)
+                   {
+                       tree.DoDragDrop(node, DragDropEffects.Copy);                       
+                   }                   
+               }              
+        }
+
+        private void refreshToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TreeNode currentNode = treeViewOracleSchema.SelectedNode;
+            TreeNode RootNode = currentNode.Parent;
+            
+
+            string tagType = currentNode.Tag.ToString();
+
+            switch(tagType)
+            {
+                case "tables":
+                    currentNode.Remove();
+                    // Get All tables
+                    GetObj("Tables", "TABLE", RootNode);
+                    break;
+                case "table":
+                    currentNode.Nodes.Clear();
+                    GetTreeChildDetail();
+                    break;
+                case "views":
+                    currentNode.Remove();
+                    // Get All views
+                    GetObj("Views", "VIEW", RootNode);
+                    break;
+                case "functions":
+                    currentNode.Remove();
+                    // Get All Function
+                    GetObj("Functions", "FUNCTION", RootNode);
+                    break;
+                    // Get All Procedure
+                    GetObj("Procedures", "PROCEDURE", RootNode);
+                case "packages":
+                    currentNode.Remove();
+                    // Get All Packages
+                    GetObj("Packages", "PACKAGE", RootNode);
+                    break;
+                case "triggers":
+                    currentNode.Remove();
+                    // Get All Triggers
+                    GetObj("Triggers", "TRIGGER", RootNode);
+                    break;
+                case "sequences":
+                    currentNode.Remove();
+                    // Get All Sequences
+                    GetObj("Sequences", "SEQUENCE", RootNode);
+                    break;
+                case "datasource":
+                    currentNode.Remove();
+                    GetSchema();
+                    break;
+                default:
+                    break;
+            }
+        }        
     }
 }

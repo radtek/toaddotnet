@@ -39,6 +39,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Xml;
+using ICSharpCode.TextEditor;
 using PluginTypes;
 
 namespace TBSource
@@ -51,6 +52,10 @@ namespace TBSource
         /// Private attribute for the event.
         /// </summary>
         private PlugEvent plugSender;
+
+        private TabPage tp;
+        private TabControl tc;
+
         /// <summary> 
         /// Default Constructor.
         /// </summary>
@@ -66,8 +71,9 @@ namespace TBSource
         public void Install(TabControl tabControl)
         {
             // Create a new tab page as we implement a ITabPageAddOn
-            TabPage tp = new TabPage("Source");
+            tp = new TabPage("Source");
             // Add the new tab page to the TabControl of the main window's application
+            tc = tabControl;
             tabControl.TabPages.Add(tp);
             // Set automatic resizing of the UserControl
             this.Anchor = (AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom);
@@ -123,8 +129,16 @@ namespace TBSource
                     case "getfunction":
                     case "getprocedure":
                     case "getpackage":
+                    case "getpackagespecs":
+                    case "getpackagebodys":                    
                     case "gettrigger":
-                        string typeAction = xmlNodeAction.InnerText.Substring(3);
+                        if (!tc.TabPages.Contains(tp))
+                        {
+                            tc.TabPages.Insert(0, tp);
+                            tc.SelectedTab = tp;
+                        }
+                            
+                        string typeAction = xmlNodeAction.InnerText.Substring(3).Replace(" ", "");
                         if (connexion.IsOpen)
                         {
                             xmlNode = xmlData.SelectSingleNode("//ToadDotNet/action/" + typeAction);
@@ -132,8 +146,10 @@ namespace TBSource
                             {
                                 string functionname = xmlNode.Attributes.GetNamedItem("id").Value;
                                 string NodeName = xmlNode.Name.ToUpper();
-                                if (NodeName == "PACKAGEBODY")
+                                if (NodeName.Contains("PACKAGEBODY"))
                                     NodeName = "PACKAGE BODY";
+                                if (NodeName.Contains("PACKAGESPEC"))
+                                    NodeName = "PACKAGE";
                                 string SQL = "SELECT text " +
                                             "  FROM SYS.user_source " +
                                             " WHERE NAME = '" + functionname + "' AND TYPE = '" + NodeName + "' ";
@@ -150,10 +166,24 @@ namespace TBSource
                             }
                         }
                         break;
+                    case "getpackagespec":
+                    case "getpackagebody":
+                    case "getproc_funcs":
+                    case "getproc_func":
+                    case "getparameters":
+                    case "getparameter":
+                        if (!tc.TabPages.Contains(tp))
+                        {
+                            tc.TabPages.Insert(0, tp);
+                            tc.SelectedTab = tp;
+                        }
+                        break;
                     default:
+                        if (tc.TabPages.Contains(tp))
+                            tc.TabPages.Remove(tp);
                         break;
                 }
-            }
+            }                        
         }
         #endregion
 
@@ -180,8 +210,50 @@ namespace TBSource
             ICSharpCode.TextEditor.Document.FileSyntaxModeProvider provider = new ICSharpCode.TextEditor.Document.FileSyntaxModeProvider(appPath);
             ICSharpCode.TextEditor.Document.HighlightingManager.Manager.AddSyntaxModeFileProvider(provider);
             //textEditorControl1.Document.HighlightingStrategy = ICSharpCode.TextEditor.Document.HighlightingManager.Manager.FindHighlighter("SQL");
-            textEditorControl1.SetHighlighting("SQL");            
+            textEditorControl1.SetHighlighting("SQL");
+            textEditorControl1.ActiveTextAreaControl.TextArea.DragDrop += new DragEventHandler(TextArea_DragDrop);
+            textEditorControl1.ActiveTextAreaControl.TextArea.DragEnter += new DragEventHandler(TextArea_DragEnter);
+            textEditorControl1.ActiveTextAreaControl.TextArea.Caret.PositionChanged += new EventHandler(Caret_PositionChanged);
+            textEditorControl1.ActiveTextAreaControl.TextArea.KeyUp += new System.Windows.Forms.KeyEventHandler(TextArea_KeyUp);
         }
+
+        private void TextArea_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.F5)
+            {
+                ExecuteQuery();
+            }
+        }        
+
+        private void Caret_PositionChanged(object sender, EventArgs e)
+        {
+            ICSharpCode.TextEditor.Caret caret = (ICSharpCode.TextEditor.Caret)sender;
+            toolStripStatusLabelPosition.Text = string.Format("Line {0} Col {1}", caret.Line + 1, caret.Column + 1);
+        }
+
+        #region dragdrop
+        private void TextArea_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(typeof(TreeNode)))
+            {
+                e.Effect = DragDropEffects.Copy;
+            }
+
+        }
+
+        private void TextArea_DragDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(typeof(TreeNode)))
+            {
+                TreeNode tn = (TreeNode)e.Data.GetData(typeof(TreeNode));
+                Console.WriteLine(textEditorControl1.ActiveTextAreaControl.TextArea.Caret.Position);
+                int offset = textEditorControl1.ActiveTextAreaControl.TextArea.Caret.Offset;
+                TextLocation currentLocation = textEditorControl1.ActiveTextAreaControl.TextArea.Caret.Position;
+                textEditorControl1.Text = textEditorControl1.Text.Insert(offset, tn.Text);
+                textEditorControl1.ActiveTextAreaControl.Caret.Position = currentLocation;
+            }
+        }
+        #endregion
 
         private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
@@ -277,6 +349,11 @@ namespace TBSource
 
         private void toolStripButtonExecQuery_Click(object sender, EventArgs e)
         {
+            ExecuteQuery();
+        }
+
+        private void ExecuteQuery()
+        {
             try
             {
                 if (this.connexion == null || this.connexion.Cnn == null ||
@@ -289,36 +366,35 @@ namespace TBSource
                 {
                     using (DbCommand cmd = connexion.Cnn.CreateCommand())
                     {
-                        string sql = textEditorControl1.Text;
-                        cmd.CommandText = sql;
+                        string sql = textEditorControl1.Text.ToLower();
+                        // Remove all comments from the sql script
+                        Regex regReplaceAll = new Regex(@"(/\*(.|\s)*?\*/)|\-\-(.)*\s?");
+                        sql = regReplaceAll.Replace(sql, "").Trim();
+                        // Find the name of the procedure/function/package
+                        string expr = @"^(?<header>[\s\S\W\w\- ]*)(?<type>[\s]*function|procedure|trigger|package body|package[\s]*){1}(?<owner>([\s\S\W\w\-][^\.]*))?(\.)?(?<nom>([\s\S\W\w\-]*))(?<parameters>\(([\s\S\W\w\-]*)\))?([ \s]return)? (?<return_type>[\s\S\W\w\- ]*)(is|as)?(?<code>[\s\S\W\w\- ]*)$";
+                        Regex regEmail = new Regex(expr);
+                        Match monMatch = regEmail.Match(sql);
                         
+                        cmd.CommandText = sql;
+
                         cmd.Prepare();
                         //int colno = 0;
                         int result = cmd.ExecuteNonQuery();
-                        string sql2 = sql.ToLower();
-                        if (sql2.Contains("create "))
+
+
+
+                        if (sql.Contains("create "))
                         {
-                            string expr =
-                                @"^([\s\S\W\w\- ]*)(?<type>[\s]*function|procedure|trigger|package body|package[\s]*){1}(?<nom>[\s\S\W\w\- ]*)(\([\s\S\W\w\- ]*\))?([ \s]return)?([\s\S\W\w\- ]*)?is([\s\S\W\w\- ]*)$";
-                            Regex regEmail = new Regex(expr);
-                            //string strEmail = "marc.falesse@supinfo.com";
-                            //SQL = "-- \n /* */ create or replace function toto";
-                            Match monMatch = regEmail.Match(sql2);
-                            //for (int i = 0; i < monMatch.Groups.Count; i++ )
-                            //{
-                            //    Console.WriteLine("group {0} = {1}", i, monMatch.Groups[i].Value);
-                            //}
-                            Console.WriteLine("group {0} = {1}", "nom", monMatch.Groups["nom"].Value);
-                            string obj_name = monMatch.Groups["nom"].Value.Trim();
-                            if (obj_name.Contains("("))
-                            {
-                                obj_name = obj_name.Substring(0, obj_name.IndexOf('('));
-                            } else
-                            {
-                                obj_name = obj_name.Trim().Substring(0, obj_name.IndexOf(' ') );
-                            }
+                            string nom = (string.IsNullOrEmpty(monMatch.Groups["nom"].Value)
+                                              ? monMatch.Groups["owner"].Value
+                                              : monMatch.Groups["nom"].Value);
+                            if (monMatch.Groups["type"].Value.ToUpper() == "PACKAGE BODY")
                             cmd.CommandText =
-                                string.Format("ALTER {0} {1} COMPILE", monMatch.Groups["type"].Value, obj_name);
+                                string.Format("ALTER {0} {1} COMPILE BODY", "PACKAGE", nom);
+                            else
+                            cmd.CommandText =
+                            string.Format("ALTER {0} {1} COMPILE", monMatch.Groups["type"].Value, nom);
+                            
                             cmd.Prepare();
                             result = cmd.ExecuteNonQuery();
                         }

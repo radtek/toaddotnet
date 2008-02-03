@@ -146,5 +146,6 @@ namespace ULib
                 Regex.Match(email.Trim(), pattern, RegexOptions.IgnoreCase);
             return match.Success;			
         }
+        
     }
 }

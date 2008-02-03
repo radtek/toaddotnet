@@ -28,7 +28,6 @@ namespace TBTableData
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UCTableData));
             this.TableDataGroupBox = new System.Windows.Forms.GroupBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabelMessage = new System.Windows.Forms.ToolStripStatusLabel();
@@ -38,6 +37,8 @@ namespace TBTableData
             this.dataGridViewOracleFields = new System.Windows.Forms.DataGridView();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripButtonCancel = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButtonNextPage = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButtonToEnd = new System.Windows.Forms.ToolStripButton();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.TableDataGroupBox.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -118,7 +119,9 @@ namespace TBTableData
             // toolStrip1
             // 
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripButtonCancel});
+            this.toolStripButtonCancel,
+            this.toolStripButtonNextPage,
+            this.toolStripButtonToEnd});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(720, 25);
@@ -128,12 +131,36 @@ namespace TBTableData
             // toolStripButtonCancel
             // 
             this.toolStripButtonCancel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButtonCancel.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonCancel.Image")));
+            this.toolStripButtonCancel.Image = global::TBTableData.Properties.Resources.cancel;
             this.toolStripButtonCancel.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonCancel.Name = "toolStripButtonCancel";
             this.toolStripButtonCancel.Size = new System.Drawing.Size(23, 22);
             this.toolStripButtonCancel.Text = "Cancel";
             this.toolStripButtonCancel.Click += new System.EventHandler(this.toolStripButtonCancel_Click);
+            // 
+            // toolStripButtonNextPage
+            // 
+            this.toolStripButtonNextPage.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.toolStripButtonNextPage.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButtonNextPage.Image = global::TBTableData.Properties.Resources.DataContainer_MoveNextHS;
+            this.toolStripButtonNextPage.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButtonNextPage.Name = "toolStripButtonNextPage";
+            this.toolStripButtonNextPage.Size = new System.Drawing.Size(23, 22);
+            this.toolStripButtonNextPage.Text = ">>";
+            this.toolStripButtonNextPage.ToolTipText = "Next page";
+            this.toolStripButtonNextPage.Click += new System.EventHandler(this.toolStripButtonNextPage_Click);
+            // 
+            // toolStripButtonToEnd
+            // 
+            this.toolStripButtonToEnd.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.toolStripButtonToEnd.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButtonToEnd.Image = global::TBTableData.Properties.Resources.DataContainer_MoveLastHS;
+            this.toolStripButtonToEnd.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButtonToEnd.Name = "toolStripButtonToEnd";
+            this.toolStripButtonToEnd.Size = new System.Drawing.Size(23, 22);
+            this.toolStripButtonToEnd.Text = ">>|";
+            this.toolStripButtonToEnd.ToolTipText = "Last page";
+            this.toolStripButtonToEnd.Click += new System.EventHandler(this.toolStripButtonToEnd_Click);
             // 
             // backgroundWorker1
             // 
@@ -175,5 +202,7 @@ namespace TBTableData
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelMessage;
         private System.Windows.Forms.ToolStripButton toolStripButtonCancel;
+        private System.Windows.Forms.ToolStripButton toolStripButtonNextPage;
+        private System.Windows.Forms.ToolStripButton toolStripButtonToEnd;
     }
 }

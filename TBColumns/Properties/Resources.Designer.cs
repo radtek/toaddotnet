@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TBQuery.Properties {
+namespace TBColumns.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace TBQuery.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TBQuery.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TBColumns.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -60,16 +60,16 @@ namespace TBQuery.Properties {
             }
         }
         
-        internal static System.Drawing.Bitmap DataContainer_MoveLastHS {
+        internal static System.Drawing.Bitmap add_col {
             get {
-                object obj = ResourceManager.GetObject("DataContainer_MoveLastHS", resourceCulture);
+                object obj = ResourceManager.GetObject("add_col", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
-        internal static System.Drawing.Bitmap DataContainer_MoveNextHS {
+        internal static System.Drawing.Bitmap del_col {
             get {
-                object obj = ResourceManager.GetObject("DataContainer_MoveNextHS", resourceCulture);
+                object obj = ResourceManager.GetObject("del_col", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
