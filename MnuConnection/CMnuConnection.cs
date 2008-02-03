@@ -94,50 +94,10 @@ namespace MnuConnection
                     && !string.IsNullOrEmpty(formConnection.textBoxOraclePassword.Text)
                     && !string.IsNullOrEmpty(formConnection.TNSNamesComboBox.Text))
                 {
-                    DataGridViewRow dgvr = formConnection.dataGridViewConnection.CurrentRow;
-                    XmlDocument doc = new XmlDocument();
-                    doc.LoadXml(Config.Load());
-                    string SearchCriteria =
-                        string.Format(
-                            "//alf-solution/LastConnections/info[@userid='{0}' and @datasource='{1}']",
-                            formConnection.textBoxOracleUserId.Text, formConnection.TNSNamesComboBox.Text);
-                    XmlNode node = doc.SelectSingleNode(SearchCriteria);
-                    if (node == null)
-
-                    //if (dgvr == null || dgvr.Cells["user"].Value.ToString() != formConnection.textBoxOracleUserId.Text || dgvr.Cells["password"].Value == null ||
-                    //    dgvr.Cells["password"].Value.ToString() != formConnection.textBoxOraclePassword.Text ||
-                    //    dgvr.Cells["datasource"].Value.ToString() != formConnection.TNSNamesComboBox.Text)
-                    {
-                        //XmlDocument doc = new XmlDocument();
-                        doc.LoadXml(Config.Load());
-                        
-                        node =  doc.SelectSingleNode("//alf-solution/LastConnections");
-                        if (node == null)
-                        {
-                            node = doc.CreateElement("LastConnections");
-                            doc.SelectSingleNode("//alf-solution").AppendChild(node);
-                        }
-                        XmlNode infoElem = doc.CreateElement("info");
-                        XmlAttribute attr = doc.CreateAttribute("userid");
-                        attr.Value = formConnection.textBoxOracleUserId.Text;
-                        infoElem.Attributes.Append(attr);
-                        if (formConnection.checkBoxSavePassword.Checked)
-                        {
-                            attr = doc.CreateAttribute("password");
-                            attr.Value = formConnection.textBoxOraclePassword.Text;
-                            infoElem.Attributes.Append(attr);                            
-                        }
-                        attr = doc.CreateAttribute("datasource");
-                        attr.Value = formConnection.TNSNamesComboBox.Text;
-                        infoElem.Attributes.Append(attr);
-                        attr = doc.CreateAttribute("date");
-                        attr.Value = DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToLongTimeString();
-                        infoElem.Attributes.Append(attr);
-
-                        node.AppendChild(infoElem);
-                        
-                        Config.Save(doc.InnerXml);
-                    }
+                    //DataGridViewRow dgvr = formConnection.dataGridViewConnection.CurrentRow;
+                    Config.SaveLastConnectionInfo(formConnection.textBoxOracleUserId.Text,
+                                           formConnection.textBoxOraclePassword.Text,
+                                           formConnection.TNSNamesComboBox.Text);
                     MainForm mainForm = new MainForm();
                     plugSender = mainForm.plugEvent;
                     mainForm.MdiParent = ParentForm;

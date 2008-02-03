@@ -142,21 +142,7 @@ namespace ULib
                 //string SelectedTable = treeViewOracleSchema.SelectedNode.Text;
                 using (DbCommand cmd = connexion.Cnn.CreateCommand())
                 {
-                    int NumRec = 0;
-                    /*
-                    try
-                    {
-                        string SQLCount = "SELECT count(*) " + SQL.Substring(SQL.ToUpper().IndexOf("FROM"));
-                        cmd.CommandText = SQLCount; // string.Format("SELECT count(*) FROM {0}", SelectedTable);
-                        cmd.Prepare();
-                        NumRec = Convert.ToInt32(cmd.ExecuteScalar());
-                    }
-                    catch (Exception e)
-                    {
-                        NumRec = 0;
-                    }
-                    */
-                    //string SQL = string.Format("SELECT * FROM {0}", SelectedTable);
+                    int NumRec = 0;                    
                     cmd.CommandText = SQL;
                     cmd.Prepare();
                     //int colno = 0;
@@ -169,29 +155,54 @@ namespace ULib
                             string tablename = rd.GetString(0);
                             TreeNode node = new TreeNode(tablename);
                             node.Tag = tn.Tag.ToString().Substring(0, tn.Tag.ToString().Length - 1);
-                            //TreeNode FieldsNode = new TreeNode("Fields");
-                            //FieldsNode.Tag = "fields";                            
-                            if (tn.TreeView.InvokeRequired)
+                            switch(node.Tag.ToString())
                             {
-                                tn.TreeView.Invoke(new addNode(AddNode), new object[] {treeNode, node});
-                                //if (node.Tag.ToString() == "table")
-                                //{
-                                //    tn.TreeView.Invoke(new addNode(AddNode), new object[] {node, FieldsNode});
-                                //}
+                                case "table":
+                                    node.SelectedImageIndex = 2;
+                                    node.ImageIndex = 2;
+                                    break;
+                                case "view":
+                                    node.SelectedImageIndex = 2;
+                                    node.ImageIndex = 2;
+                                    break;
+                                case "function":
+                                    node.SelectedImageIndex = 3;
+                                    node.ImageIndex = 3;
+                                    break;
+                                case "procedure":
+                                    node.SelectedImageIndex = 4;
+                                    node.ImageIndex = 4;
+                                    break;
+                                case "package spec":
+                                case "package body":
+                                case "package":
+                                    node.SelectedImageIndex = 5;
+                                    node.ImageIndex = 5;
+                                    break;
+                                case "trigger":
+                                    node.SelectedImageIndex = 6;
+                                    node.ImageIndex = 6;
+                                    break;
+                                case "sequence":
+                                    node.SelectedImageIndex = 7;
+                                    node.ImageIndex = 7;
+                                    break;
+                                case "field":
+                                    node.SelectedImageIndex = 8;
+                                    node.ImageIndex = 8;
+                                    break;
+                                case "fk":
+                                    node.SelectedImageIndex = 9;
+                                    node.ImageIndex = 9;
+                                    break;
+                            }
+                            if (tn.TreeView != null && tn.TreeView.InvokeRequired)
+                            {
+                                tn.TreeView.Invoke(new addNode(AddNode), new object[] {treeNode, node});                                
                             } else
                             {
-                                treeNode.Nodes.Add(node);
-                                //if (node.Tag.ToString() == "table")
-                                //{
-                                //    node.Nodes.Add(FieldsNode);
-                                //}
-                            }
-                            //if (node.Tag.ToString() == "table")
-                            //{
-                            //    TreeQuery uLibCol = new TreeQuery(FieldsNode, connexion);
-                            //    uLibCol.Start("SELECT cname FROM col where tname = '" + tablename + "'");
-                            //    DisplayQueryData(connexion, "SELECT cname FROM col where tname = '" + tablename + "'", node);
-                            //}
+                                treeNode.Nodes.Add(node);                                
+                            }                            
                         }
                         rd.Close();
                     }                                 

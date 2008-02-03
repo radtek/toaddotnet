@@ -163,6 +163,46 @@ namespace TBQuery
             ICSharpCode.TextEditor.Document.HighlightingManager.Manager.AddSyntaxModeFileProvider(provider);
             //textEditorControl1.Document.HighlightingStrategy = ICSharpCode.TextEditor.Document.HighlightingManager.Manager.FindHighlighter("SQL");
             textEditorControl1.SetHighlighting("SQL");
+            textEditorControl1.ActiveTextAreaControl.TextArea.DragDrop += new DragEventHandler(TextArea_DragDrop);
+            textEditorControl1.ActiveTextAreaControl.TextArea.DragEnter += new DragEventHandler(TextArea_DragEnter);
+            textEditorControl1.ActiveTextAreaControl.TextArea.Caret.PositionChanged +=new EventHandler(Caret_PositionChanged);
+            textEditorControl1.ActiveTextAreaControl.TextArea.KeyUp += new System.Windows.Forms.KeyEventHandler(TextArea_KeyUp);
+        }
+
+        private void TextArea_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.F5)
+            {
+                ExecuteQuery();
+            }
+        }
+
+        private void Caret_PositionChanged(object sender, EventArgs e)
+        {
+            ICSharpCode.TextEditor.Caret caret = (ICSharpCode.TextEditor.Caret) sender;
+            toolStripStatusLabelPosition.Text = string.Format("Line {0} Col {1}", caret.Line + 1, caret.Column + 1);
+        }
+
+        private void TextArea_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(typeof(TreeNode)))
+            {
+                e.Effect = DragDropEffects.Copy;
+            }
+                
+        }
+
+        private void TextArea_DragDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(typeof (TreeNode)))
+            {
+                TreeNode tn = (TreeNode) e.Data.GetData(typeof (TreeNode));
+                Console.WriteLine(textEditorControl1.ActiveTextAreaControl.TextArea.Caret.Position);
+                int offset = textEditorControl1.ActiveTextAreaControl.TextArea.Caret.Offset;
+                TextLocation currentLocation = textEditorControl1.ActiveTextAreaControl.TextArea.Caret.Position;
+                textEditorControl1.Text = textEditorControl1.Text.Insert(offset, tn.Text);
+                textEditorControl1.ActiveTextAreaControl.Caret.Position = currentLocation;
+            }
         }
 
 /*
@@ -192,25 +232,51 @@ namespace TBQuery
             }
         }
 
-        private void textEditorControl1_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            
-        }
-
         private void ExecuteQuery()
         {
             if (connexion.IsOpen)
             {
                 try
                 {
-                    uLib = new DGVQuery(dataGridViewOracleQueryData, connexion);
-                    //uLib.Start(textEditorControl1.Text);
-                    toolStripProgressBarQuery.Visible = true;
-                    startTime = DateTime.Now;
-                    if (backgroundWorker1.IsBusy)
-                        backgroundWorker1.CancelAsync();
-                    while (backgroundWorker1.IsBusy) ;
-                    backgroundWorker1.RunWorkerAsync(textEditorControl1.Text);
+                    string sql = textEditorControl1.ActiveTextAreaControl.TextArea.SelectionManager.SelectedText;
+                    if (string.IsNullOrEmpty(sql))
+                        sql = textEditorControl1.Text; //.Replace("select", "select * from (select ROWNUM n, ") +") s where s.n < 501";
+                    
+                    // Check if we a ddl or a dml
+                    if (sql.ToLower().Contains("create") || 
+                        sql.ToLower().Contains("drop") || 
+                        sql.ToLower().Contains("alter") ||
+                        sql.ToLower().Contains("declare") ||
+                        sql.ToLower().Contains("begin"))
+                    {
+                        // It is a DDL then 
+                        using (DbCommand cmd = connexion.Cnn.CreateCommand())
+                        {
+                            cmd.CommandText = sql;
+                            cmd.Prepare();
+                            int result = cmd.ExecuteNonQuery();
+
+                            string SQL = "SELECT Line, Position, substr(text,1,200) text " +
+                                        "FROM ALL_ERRORS " +
+                                        "WHERE name={0} and type={1} and owner={2} " +
+                                        "ORDER BY Sequence ";
+
+
+                        }
+                    }
+                    else
+                    {
+                        uLib = new DGVQuery(dataGridViewOracleQueryData, connexion);
+                        //uLib.Start(textEditorControl1.Text);
+                        toolStripProgressBarQuery.Visible = true;
+                        startTime = DateTime.Now;
+                        if (backgroundWorker1.IsBusy)
+                            backgroundWorker1.CancelAsync();
+                        while (backgroundWorker1.IsBusy) ;
+
+                        backgroundWorker1.RunWorkerAsync(sql);
+                    }
+                    
                 }
                 catch(Exception e)
                 {
@@ -225,15 +291,7 @@ namespace TBQuery
                 }
                 
             }
-        }
-
-        private void textEditorControl1_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.F5)
-            {
-                ExecuteQuery();
-            }
-        }
+        }        
 
         private void backgroundWorker1_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
         {
@@ -272,5 +330,37 @@ namespace TBQuery
             }
             toolStripProgressBarQuery.Visible = false;
         }
+
+        private void toolStripButtonNextPage_Click(object sender, EventArgs e)
+        {
+            uLib = new DGVQuery(dataGridViewOracleQueryData, connexion);
+            uLib.ClearData = false;
+            //uLib.Start(string.Format("SELECT * FROM {0}", tablename));
+            toolStripProgressBarQuery.Visible = true;
+            toolStripProgressBarQuery.Value = 0;
+            startTime = DateTime.Now;
+            if (backgroundWorker1.IsBusy)
+                backgroundWorker1.CancelAsync();
+            while (backgroundWorker1.IsBusy) ;
+            int rowsFetched = dataGridViewOracleQueryData.Rows.Count;
+            string sql = textEditorControl1.Text;// .Replace("select", "select * from (select ROWNUM n, ");
+            //sql = sql + string.Format(") s where s.n BETWEEN {0} AND {1}", rowsFetched + 1, rowsFetched + 500);
+            backgroundWorker1.RunWorkerAsync(sql);
+        }
+
+        private void toolStripButtonToEnd_Click(object sender, EventArgs e)
+        {
+            uLib = new DGVQuery(dataGridViewOracleQueryData, connexion);
+            uLib.ClearData = false;
+            //uLib.Start(string.Format("SELECT * FROM {0}", tablename));
+            toolStripProgressBarQuery.Visible = true;
+            toolStripProgressBarQuery.Value = 0;
+            startTime = DateTime.Now;
+            if (backgroundWorker1.IsBusy)
+                backgroundWorker1.CancelAsync();
+            while (backgroundWorker1.IsBusy) ;
+            int rowsFetched = dataGridViewOracleQueryData.Rows.Count;
+            //backgroundWorker1.RunWorkerAsync(string.Format("SELECT * FROM (SELECT ROWNUM n, t.* FROM {0} t) s WHERE s.n > {1}", tablename, rowsFetched + 1));
+        }              
     }
 }

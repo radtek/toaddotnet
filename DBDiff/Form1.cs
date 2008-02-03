@@ -38,8 +38,8 @@ using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
 using MnuConnection;
-using rgopinat.utils.oracle;
 using PluginTypes;
+using ULib;
 
 namespace DBDiff
 {
@@ -425,6 +425,10 @@ namespace DBDiff
                     && !string.IsNullOrEmpty(formConnection.textBoxOraclePassword.Text)
                     && !string.IsNullOrEmpty(formConnection.TNSNamesComboBox.Text))
                 {
+                    Config.SaveLastConnectionInfo(formConnection.textBoxOracleUserId.Text,
+                                           formConnection.textBoxOraclePassword.Text,
+                                           formConnection.TNSNamesComboBox.Text);
+                    
                     labelTargetTnsnames.Text = string.Format("Source {0}@{1}", formConnection.textBoxOracleUserId.Text, formConnection.TNSNamesComboBox.Text);
                     TargetConnexion = new Connexion.Connexion("Oracle");
                     // Open connexions

@@ -40,11 +40,14 @@ namespace TBQuery
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripButtonExecQuery = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonAbortQuery = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButtonNextPage = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButtonToEnd = new System.Windows.Forms.ToolStripButton();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabelMessage = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelElapsedTime = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelRecords = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripProgressBarQuery = new System.Windows.Forms.ToolStripProgressBar();
+            this.toolStripStatusLabelPosition = new System.Windows.Forms.ToolStripStatusLabel();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.QueryGroupBox.SuspendLayout();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -92,6 +95,7 @@ namespace TBQuery
             // 
             // textEditorControl1
             // 
+            this.textEditorControl1.AllowDrop = true;
             this.textEditorControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
@@ -100,8 +104,6 @@ namespace TBQuery
             this.textEditorControl1.Name = "textEditorControl1";
             this.textEditorControl1.Size = new System.Drawing.Size(742, 277);
             this.textEditorControl1.TabIndex = 2;
-            this.textEditorControl1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textEditorControl1_KeyPress);
-            this.textEditorControl1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textEditorControl1_KeyDown);
             // 
             // tabControl1
             // 
@@ -167,7 +169,9 @@ namespace TBQuery
             // 
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripButtonExecQuery,
-            this.toolStripButtonAbortQuery});
+            this.toolStripButtonAbortQuery,
+            this.toolStripButtonNextPage,
+            this.toolStripButtonToEnd});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(765, 25);
@@ -196,13 +200,38 @@ namespace TBQuery
             this.toolStripButtonAbortQuery.ToolTipText = "Abort query";
             this.toolStripButtonAbortQuery.Click += new System.EventHandler(this.toolStripButtonAbortQuery_Click);
             // 
+            // toolStripButtonNextPage
+            // 
+            this.toolStripButtonNextPage.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.toolStripButtonNextPage.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButtonNextPage.Image = global::TBQuery.Properties.Resources.DataContainer_MoveNextHS;
+            this.toolStripButtonNextPage.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButtonNextPage.Name = "toolStripButtonNextPage";
+            this.toolStripButtonNextPage.Size = new System.Drawing.Size(23, 22);
+            this.toolStripButtonNextPage.Text = ">>";
+            this.toolStripButtonNextPage.ToolTipText = "Next page";
+            this.toolStripButtonNextPage.Click += new System.EventHandler(this.toolStripButtonNextPage_Click);
+            // 
+            // toolStripButtonToEnd
+            // 
+            this.toolStripButtonToEnd.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.toolStripButtonToEnd.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButtonToEnd.Image = global::TBQuery.Properties.Resources.DataContainer_MoveLastHS;
+            this.toolStripButtonToEnd.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButtonToEnd.Name = "toolStripButtonToEnd";
+            this.toolStripButtonToEnd.Size = new System.Drawing.Size(23, 22);
+            this.toolStripButtonToEnd.Text = ">>|";
+            this.toolStripButtonToEnd.ToolTipText = "Last page";
+            this.toolStripButtonToEnd.Click += new System.EventHandler(this.toolStripButtonToEnd_Click);
+            // 
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabelMessage,
             this.toolStripStatusLabelElapsedTime,
             this.toolStripStatusLabelRecords,
-            this.toolStripProgressBarQuery});
+            this.toolStripProgressBarQuery,
+            this.toolStripStatusLabelPosition});
             this.statusStrip1.Location = new System.Drawing.Point(0, 522);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(765, 22);
@@ -227,6 +256,7 @@ namespace TBQuery
             this.toolStripStatusLabelRecords.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top)
                         | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right)
                         | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+            this.toolStripStatusLabelRecords.BorderStyle = System.Windows.Forms.Border3DStyle.RaisedInner;
             this.toolStripStatusLabelRecords.Name = "toolStripStatusLabelRecords";
             this.toolStripStatusLabelRecords.Size = new System.Drawing.Size(51, 17);
             this.toolStripStatusLabelRecords.Text = "0 record";
@@ -236,6 +266,18 @@ namespace TBQuery
             this.toolStripProgressBarQuery.Name = "toolStripProgressBarQuery";
             this.toolStripProgressBarQuery.Size = new System.Drawing.Size(100, 16);
             this.toolStripProgressBarQuery.Visible = false;
+            // 
+            // toolStripStatusLabelPosition
+            // 
+            this.toolStripStatusLabelPosition.AutoSize = false;
+            this.toolStripStatusLabelPosition.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top)
+                        | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right)
+                        | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+            this.toolStripStatusLabelPosition.BorderStyle = System.Windows.Forms.Border3DStyle.RaisedInner;
+            this.toolStripStatusLabelPosition.Margin = new System.Windows.Forms.Padding(300, 3, 0, 2);
+            this.toolStripStatusLabelPosition.Name = "toolStripStatusLabelPosition";
+            this.toolStripStatusLabelPosition.Size = new System.Drawing.Size(150, 17);
+            this.toolStripStatusLabelPosition.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // backgroundWorker1
             // 
@@ -292,5 +334,8 @@ namespace TBQuery
         private System.Windows.Forms.ToolStripProgressBar toolStripProgressBarQuery;
         public System.ComponentModel.BackgroundWorker backgroundWorker1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelMessage;
+        private System.Windows.Forms.ToolStripButton toolStripButtonNextPage;
+        private System.Windows.Forms.ToolStripButton toolStripButtonToEnd;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelPosition;
     }
 }

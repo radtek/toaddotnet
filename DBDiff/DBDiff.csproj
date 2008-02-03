@@ -32,10 +32,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Connexion\bin\Debug\Connexion.dll</HintPath>
     </Reference>
-    <Reference Include="rgopinat.utils.oracle, Version=1.0.2929.21456, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\tnsnames parser\rgopinat.utils.oracle\bin\Debug\rgopinat.utils.oracle.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.OracleClient" />
@@ -79,6 +75,10 @@
       <Project>{D510B83D-3BF3-4808-B205-BC1410016EBA}</Project>
       <Name>PluginTypes</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ULib\ULib.csproj">
+      <Project>{603751F0-A236-4C24-93F9-1EBBA19F353F}</Project>
+      <Name>ULib</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Save.bmp" />
@@ -92,7 +92,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "$(SolutionDir)$(SolutionName)\$(OutDir)lib"
-copy "$(TargetDir)rgopinat.utils.oracle.dll" "$(SolutionDir)$(SolutionName)\$(OutDir)lib"</PostBuildEvent>
+    <PostBuildEvent>copy "$(TargetPath)" "$(SolutionDir)$(SolutionName)\$(OutDir)lib"</PostBuildEvent>
   </PropertyGroup>
 </Project>

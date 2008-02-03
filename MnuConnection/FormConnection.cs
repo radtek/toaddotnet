@@ -24,11 +24,13 @@ namespace MnuConnection
             TnsParser parser = new TnsParser();
             parser.Parse();
             TnsEntryCollectionType SourceEntries = parser.TnsFileEntries;
-            foreach (TnsEntryType tnsEntry in SourceEntries)
+            if (SourceEntries != null)
             {
-                TNSNamesComboBox.Items.Add(tnsEntry.TnsnameEntry);                
-            }
-
+                foreach (TnsEntryType tnsEntry in SourceEntries)
+                {
+                    TNSNamesComboBox.Items.Add(tnsEntry.TnsnameEntry);
+                }    
+            }            
             // retrieve last connections used
             int numcol = dataGridViewConnection.Columns.Add("user", "Userid");
             numcol = dataGridViewConnection.Columns.Add("password", "Password");
@@ -68,5 +70,6 @@ namespace MnuConnection
                 textBoxOraclePassword.Text = null;
             TNSNamesComboBox.Text = dgvr.Cells["datasource"].Value.ToString();
         }
+
     }
 }

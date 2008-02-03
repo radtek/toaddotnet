@@ -180,7 +180,7 @@ namespace TBColumns
             // toolStripButtonAddCol
             // 
             this.toolStripButtonAddCol.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButtonAddCol.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonAddCol.Image")));
+            this.toolStripButtonAddCol.Image = global::TBColumns.Properties.Resources.add_col;
             this.toolStripButtonAddCol.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonAddCol.Name = "toolStripButtonAddCol";
             this.toolStripButtonAddCol.Size = new System.Drawing.Size(23, 22);
@@ -190,7 +190,7 @@ namespace TBColumns
             // toolStripButtonDeleteCol
             // 
             this.toolStripButtonDeleteCol.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButtonDeleteCol.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonDeleteCol.Image")));
+            this.toolStripButtonDeleteCol.Image = global::TBColumns.Properties.Resources.del_col;
             this.toolStripButtonDeleteCol.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonDeleteCol.Name = "toolStripButtonDeleteCol";
             this.toolStripButtonDeleteCol.Size = new System.Drawing.Size(23, 22);
@@ -205,6 +205,7 @@ namespace TBColumns
             this.toolStripButtonModifyCol.Name = "toolStripButtonModifyCol";
             this.toolStripButtonModifyCol.Size = new System.Drawing.Size(23, 22);
             this.toolStripButtonModifyCol.Text = "Modify column";
+            this.toolStripButtonModifyCol.Visible = false;
             this.toolStripButtonModifyCol.Click += new System.EventHandler(this.toolStripButtonModifyCol_Click);
             // 
             // UCColumns

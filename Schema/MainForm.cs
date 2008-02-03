@@ -35,6 +35,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
+using System.Xml;
 using PluginTypes;
 using Register;
 using ULib;
@@ -101,7 +102,31 @@ namespace Schema
 
         private void EventProcess(object sender, string data)
         {
-            //throw new NotImplementedException();
+            XmlDocument xmlData = new XmlDocument();
+            xmlData.LoadXml(data);
+            XmlNode xmlNode = null;
+            foreach (XmlNode xmlNodeAction in xmlData.GetElementsByTagName("action"))
+            {
+                switch (xmlNodeAction.InnerText)
+                {
+                    case "connect":
+                        // Get Info for the oracle connection
+                        xmlNode = xmlData.SelectSingleNode("//ToadDotNet/action/connection");
+                        if (xmlNode != null)
+                        {
+                            connexion = new Connexion.Connexion("Oracle");
+                            connexion.OracleConnexion.UserId = xmlNode.Attributes.GetNamedItem("userid").Value;
+                            connexion.OracleConnexion.Password = xmlNode.Attributes.GetNamedItem("password").Value;
+                            connexion.OracleConnexion.DataSource = xmlNode.Attributes.GetNamedItem("datasource").Value;
+                            this.Text =
+                                string.Format("{0}@{1}", connexion.OracleConnexion.UserId,
+                                              connexion.OracleConnexion.DataSource);
+                        }
+                        break;
+                    default:                        
+                        break;
+                }
+            }
         }
 
         private void enregistrementToolStripMenuItem_Click(object sender, EventArgs e)

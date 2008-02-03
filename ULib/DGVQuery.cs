@@ -48,6 +48,7 @@ namespace ULib
         private Connexion.Connexion connexion;
         public Thread mythread;
         private string sql;
+        private bool clearData = true;
 
         #region consteurcteur
         public DGVQuery()
@@ -89,6 +90,12 @@ namespace ULib
         {
             get { return sql; }
             set { sql = value; }
+        }
+
+        public bool ClearData
+        {
+            get { return clearData; }
+            set { clearData = value; }
         }
 
         #endregion
@@ -188,7 +195,7 @@ namespace ULib
                         string SQLCount = "SELECT count(*) " + SQL.Substring(SQL.ToUpper().IndexOf("FROM"));
                         cmd.CommandText = SQLCount; // string.Format("SELECT count(*) FROM {0}", SelectedTable);
                         cmd.Prepare();
-                        NumRec = Convert.ToInt32(cmd.ExecuteScalar());
+                        NumRec = Convert.ToInt32(cmd.ExecuteScalar()) + dataGridViewOracleData.Rows.Count;
                     }
                     catch (Exception e)
                     {
@@ -201,25 +208,29 @@ namespace ULib
                     //int colno = 0;
                     using (DbDataReader rd = cmd.ExecuteReader())
                     {
-                        if (dataGridViewOracleData.InvokeRequired)
-                        {
-                            dataGridViewOracleData.Invoke(new datagridClear(ClearDataGrid));
-                        }
-                        else
-                        {
-                            dataGridViewOracleData.Rows.Clear();
-                            dataGridViewOracleData.Columns.Clear();
-                        }
-                        for (int i = 0; i < rd.FieldCount; i++)
+                        if (ClearData)
                         {
                             if (dataGridViewOracleData.InvokeRequired)
                             {
-                                dataGridViewOracleData.Invoke(new datagridAddCol(AddColDataGrid),
-                                                              new object[] { rd.GetName(i), rd.GetName(i) });
+                                dataGridViewOracleData.Invoke(new datagridClear(ClearDataGrid));
                             }
                             else
-                                dataGridViewOracleData.Columns.Add(rd.GetName(i), rd.GetName(i));
-                        }
+                            {
+                                dataGridViewOracleData.Rows.Clear();
+                                dataGridViewOracleData.Columns.Clear();
+                            }    
+                            for (int i = 0; i < rd.FieldCount; i++)
+                            {                               
+                                if (dataGridViewOracleData.InvokeRequired)
+                                {
+                                    dataGridViewOracleData.Invoke(new datagridAddCol(AddColDataGrid),
+                                                                  new object[] { rd.GetName(i), rd.GetName(i) });
+                                }
+                                else
+                                    dataGridViewOracleData.Columns.Add(rd.GetName(i), rd.GetName(i));
+                            }
+                        }                        
+                        
                         while (rd.Read() && !worker.CancellationPending)
                         {
                             DataGridViewRow dgrv = new DataGridViewRow();
