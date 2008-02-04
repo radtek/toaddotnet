@@ -36,11 +36,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UCPersonne.cs">
+    <Compile Include="UCDebug.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UCPersonne.Designer.cs">
-      <DependentUpon>UCPersonne.cs</DependentUpon>
+    <Compile Include="UCDebug.Designer.cs">
+      <DependentUpon>UCDebug.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -48,11 +48,15 @@
       <Project>{D510B83D-3BF3-4808-B205-BC1410016EBA}</Project>
       <Name>PluginTypes</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ULib\ULib.csproj">
+      <Project>{603751F0-A236-4C24-93F9-1EBBA19F353F}</Project>
+      <Name>ULib</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="UCPersonne.resx">
+    <EmbeddedResource Include="UCDebug.resx">
       <SubType>Designer</SubType>
-      <DependentUpon>UCPersonne.cs</DependentUpon>
+      <DependentUpon>UCDebug.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
@@ -64,6 +68,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "$(SolutionDir)$(SolutionName)\$(OutDir)"</PostBuildEvent>
+    <PostBuildEvent>copy "$(TargetPath)" "$(SolutionDir)$(SolutionName)\$(OutDir)plugin"</PostBuildEvent>
   </PropertyGroup>
 </Project>

@@ -68,6 +68,11 @@ namespace ULib
                 return null;
         }
 
+        public static string GetText(string tag)
+        {
+            return GetInnerTextValue(Load(), tag);
+        }
+
         public static XmlNode GetNode(string xmlData, string section)
         {
             XmlDocument xml = new XmlDocument();
@@ -108,6 +113,37 @@ namespace ULib
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(xml);
             xmlDoc.Save(filename);
+        }
+
+        public static void SaveText(string tag, string value)
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(Load());
+            XmlNode node = doc.SelectSingleNode(tag);
+            if (node != null)
+            {
+                node.InnerText = value;
+            }
+            else
+            {
+                char[] splitter = { '/' };
+                XmlNode nodeParent = doc.DocumentElement;
+                foreach (string sec in tag.Split(splitter))
+                {
+                    if (!string.IsNullOrEmpty(sec) && sec != nodeParent.Name)
+                    {
+                        node = nodeParent.SelectSingleNode(sec);
+                        if (node == null)
+                        {
+                            node = doc.CreateElement(sec);
+                            nodeParent.AppendChild(node);
+                        }
+                        nodeParent = node;
+                    }
+                }
+                node.InnerText = value;
+            }
+            doc.Save(filename);
         }
 
         public static string SetValue(string xmlData, string section, string tag, string value)

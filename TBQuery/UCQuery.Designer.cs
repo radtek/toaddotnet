@@ -36,7 +36,7 @@ namespace TBQuery
             this.tabPageResult = new System.Windows.Forms.TabPage();
             this.dataGridViewOracleQueryData = new System.Windows.Forms.DataGridView();
             this.tabPageMessage = new System.Windows.Forms.TabPage();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.textBoxMessage = new System.Windows.Forms.TextBox();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripButtonExecQuery = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonAbortQuery = new System.Windows.Forms.ToolStripButton();
@@ -144,7 +144,7 @@ namespace TBQuery
             // 
             // tabPageMessage
             // 
-            this.tabPageMessage.Controls.Add(this.textBox1);
+            this.tabPageMessage.Controls.Add(this.textBoxMessage);
             this.tabPageMessage.Location = new System.Drawing.Point(4, 22);
             this.tabPageMessage.Name = "tabPageMessage";
             this.tabPageMessage.Padding = new System.Windows.Forms.Padding(3);
@@ -153,17 +153,17 @@ namespace TBQuery
             this.tabPageMessage.Text = "Message";
             this.tabPageMessage.UseVisualStyleBackColor = true;
             // 
-            // textBox1
+            // textBoxMessage
             // 
-            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            this.textBoxMessage.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox1.Location = new System.Drawing.Point(7, 7);
-            this.textBox1.Multiline = true;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox1.Size = new System.Drawing.Size(720, 131);
-            this.textBox1.TabIndex = 0;
+            this.textBoxMessage.Location = new System.Drawing.Point(7, 7);
+            this.textBoxMessage.Multiline = true;
+            this.textBoxMessage.Name = "textBoxMessage";
+            this.textBoxMessage.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.textBoxMessage.Size = new System.Drawing.Size(720, 131);
+            this.textBoxMessage.TabIndex = 0;
             // 
             // toolStrip1
             // 
@@ -330,7 +330,7 @@ namespace TBQuery
         private System.Windows.Forms.TabPage tabPageResult;
         private System.Windows.Forms.DataGridView dataGridViewOracleQueryData;
         private System.Windows.Forms.TabPage tabPageMessage;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox textBoxMessage;
         private System.Windows.Forms.ToolStripProgressBar toolStripProgressBarQuery;
         public System.ComponentModel.BackgroundWorker backgroundWorker1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelMessage;
