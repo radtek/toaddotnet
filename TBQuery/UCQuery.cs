@@ -34,6 +34,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Data.Common;
 using System.Drawing;
 using System.IO;
@@ -60,6 +61,11 @@ namespace TBQuery
         private PlugEvent plugSender;
 
         private Connexion.Connexion connexion = new Connexion.Connexion("Oracle");
+        
+        private TabControl tc;
+        private static readonly int DEFAULT_TABPOSITION = 10;
+        private int tabPosition = DEFAULT_TABPOSITION;
+
         /// <summary> 
         /// Default Constructor.
         /// </summary>
@@ -76,8 +82,23 @@ namespace TBQuery
         {
             // Create a new tab page as we implement a ITabPageAddOn
             TabPage tp = new TabPage("Query");
-            // Add the new tab page to the TabControl of the main window's application
-            tabControl.TabPages.Add(tp);
+            tc = tabControl;
+            string TabPosition = Config.GetText("//alf-solution/plugins/TBQuery/tab/position");
+            if (string.IsNullOrEmpty(TabPosition))
+            {
+                Config.SaveText("/alf-solution/plugins/TBQuery/tab/position", DEFAULT_TABPOSITION.ToString());
+                tabPosition = DEFAULT_TABPOSITION;
+            }
+            else
+            {
+                tabPosition = Convert.ToInt32(TabPosition);
+            }
+            // Insert the new tab page to the TabControl of the main window's application           
+            if (tabPosition > tc.TabPages.Count)
+                tc.TabPages.Add(tp);
+            else 
+                tc.TabPages.Insert(tabPosition, tp); 
+            
             // Set automatic resizing of the UserControl
             this.Anchor = (AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom);
             this.Height = tp.Height - 10;
@@ -166,7 +187,22 @@ namespace TBQuery
             textEditorControl1.ActiveTextAreaControl.TextArea.DragDrop += new DragEventHandler(TextArea_DragDrop);
             textEditorControl1.ActiveTextAreaControl.TextArea.DragEnter += new DragEventHandler(TextArea_DragEnter);
             textEditorControl1.ActiveTextAreaControl.TextArea.Caret.PositionChanged +=new EventHandler(Caret_PositionChanged);
-            textEditorControl1.ActiveTextAreaControl.TextArea.KeyUp += new System.Windows.Forms.KeyEventHandler(TextArea_KeyUp);
+            textEditorControl1.ActiveTextAreaControl.TextArea.KeyUp += new System.Windows.Forms.KeyEventHandler(TextArea_KeyUp);         
+            textEditorControl1.ActiveTextAreaControl.TextArea.KeyDown += new System.Windows.Forms.KeyEventHandler(TextArea_KeyDown);
+
+        }
+
+        private bool ctrlDonw = false;
+
+        private void TextArea_KeyDown(object sender, KeyEventArgs e)
+        {
+            //throw new NotImplementedException();
+            if (e.KeyCode == Keys.ControlKey)
+            {
+                ctrlDonw = true;
+                this.toolStripStatusLabelMessage.Text = "Ctrl";
+            }
+                
         }
 
         private void TextArea_KeyUp(object sender, KeyEventArgs e)
@@ -174,6 +210,45 @@ namespace TBQuery
             if (e.KeyCode == Keys.F5)
             {
                 ExecuteQuery();
+            }
+            if (e.KeyCode == Keys.ControlKey)
+            {
+                ctrlDonw = false;
+                this.toolStripStatusLabelMessage.Text = "";
+            }
+            if (e.KeyCode == Keys.A && ctrlDonw)
+            {
+                TextArea ta = textEditorControl1.ActiveTextAreaControl.TextArea;
+                TextLocation CurrentLocation = ta.Caret.Position;
+                int TotalNumberOfLines = ta.Document.TotalNumberOfLines;
+                int LastLineTextLength = ta.Document.GetLineSegment(TotalNumberOfLines - 1).Length;
+                ta.SelectionManager.SetSelection(new TextLocation(0, 0), new TextLocation(TotalNumberOfLines, LastLineTextLength));
+            }
+            if (e.KeyCode == Keys.X && ctrlDonw)
+            {
+                TextArea ta = textEditorControl1.ActiveTextAreaControl.TextArea;
+                if (ta.SelectionManager.SelectedText != null)
+                {
+                    Clipboard.SetText(ta.SelectionManager.SelectedText);
+                    ta.SelectionManager.RemoveSelectedText();
+                    ta.Refresh();    
+                }
+                
+            }
+            if (e.KeyCode == Keys.C && ctrlDonw)
+            {
+                TextArea ta = textEditorControl1.ActiveTextAreaControl.TextArea;
+                if (ta.SelectionManager.SelectedText != null)
+                {
+                    Clipboard.SetText(ta.SelectionManager.SelectedText);
+                }
+                
+            }
+            if (e.KeyCode == Keys.V && ctrlDonw)
+            {
+                TextArea ta = textEditorControl1.ActiveTextAreaControl.TextArea;
+                ta.InsertString(Clipboard.GetText());
+                ta.Refresh();
             }
         }
 
@@ -197,7 +272,7 @@ namespace TBQuery
             if (e.Data.GetDataPresent(typeof (TreeNode)))
             {
                 TreeNode tn = (TreeNode) e.Data.GetData(typeof (TreeNode));
-                Console.WriteLine(textEditorControl1.ActiveTextAreaControl.TextArea.Caret.Position);
+                //Console.WriteLine(textEditorControl1.ActiveTextAreaControl.TextArea.Caret.Position);
                 int offset = textEditorControl1.ActiveTextAreaControl.TextArea.Caret.Offset;
                 TextLocation currentLocation = textEditorControl1.ActiveTextAreaControl.TextArea.Caret.Position;
                 textEditorControl1.Text = textEditorControl1.Text.Insert(offset, tn.Text);
@@ -241,7 +316,8 @@ namespace TBQuery
                     string sql = textEditorControl1.ActiveTextAreaControl.TextArea.SelectionManager.SelectedText;
                     if (string.IsNullOrEmpty(sql))
                         sql = textEditorControl1.Text; //.Replace("select", "select * from (select ROWNUM n, ") +") s where s.n < 501";
-                    
+                    sql = sql.Replace("\r", "");
+
                     // Check if we a ddl or a dml
                     if (sql.ToLower().Contains("create") || 
                         sql.ToLower().Contains("drop") || 
@@ -249,19 +325,124 @@ namespace TBQuery
                         sql.ToLower().Contains("declare") ||
                         sql.ToLower().Contains("begin"))
                     {
-                        // It is a DDL then 
+                        // It is a DDL then
+                        // Enabling dbms_output.
+                        using (DbCommand cmd = connexion.Cnn.CreateCommand())
+                        {
+                            cmd.CommandText = "begin dbms_output.enable(20000); end;";
+                            cmd.Prepare();
+                            int result = cmd.ExecuteNonQuery();
+                        }
+
                         using (DbCommand cmd = connexion.Cnn.CreateCommand())
                         {
                             cmd.CommandText = sql;
                             cmd.Prepare();
                             int result = cmd.ExecuteNonQuery();
 
-                            string SQL = "SELECT Line, Position, substr(text,1,200) text " +
-                                        "FROM ALL_ERRORS " +
-                                        "WHERE name={0} and type={1} and owner={2} " +
-                                        "ORDER BY Sequence ";
+                            if (sql.Contains("create"))
+                            {
+                                string objName;
+                                string objType;
+                                string objOwner = connexion.OracleConnexion.UserId;
+                                if (sql.Contains("package"))
+                                {
+                                    string[] sqlSplited = sql.Split(new string[] { "as" }, StringSplitOptions.None);
+                                    sqlSplited = sqlSplited[0].Trim().Split(new string[] { " " }, StringSplitOptions.None);
+                                    objName = sqlSplited[sqlSplited.Length - 1];
+                                    if (sql.Contains("body"))
+                                    {
+                                        cmd.CommandText =
+                                            string.Format("ALTER {0} {1} COMPILE BODY", "PACKAGE", objName);
+                                        objType = "PACKAGE BODY";
+                                    }
+                                    else
+                                    {
+                                        cmd.CommandText =
+                                        string.Format("ALTER {0} {1} COMPILE", "PACKAGE", objName);
+                                        objType = "PACKAGE";
+                                    }
+
+                                }
+                                else
+                                {
+                                    // Find the name of the procedure/function/package
+                                    string[] sqlSplited = sql.Split(new string[] { " is", "\nis", "is\n" }, StringSplitOptions.RemoveEmptyEntries);
+                                    if (sqlSplited[0].Trim().Contains("function"))
+                                        objType = "function";
+                                    else
+                                        if (sqlSplited[0].Trim().Contains("procedure"))
+                                            objType = "procedure";
+                                        else
+                                            if (sqlSplited[0].Trim().Contains("trigger"))
+                                                objType = "trigger";
+                                            else
+                                                objType = "";
+                                    sqlSplited = sqlSplited[0].Trim().Split(new string[] { "function", "procedure", "trigger" }, StringSplitOptions.None);
+                                    sqlSplited = sqlSplited[1].Trim().Split(new string[] { "(", " ", "\n" }, StringSplitOptions.None);
+                                    objName = sqlSplited[0].Trim();
+                                    cmd.CommandText = string.Format("ALTER {0} {1} COMPILE", objType, objName);
+                                }
 
 
+                                cmd.Prepare();
+                                result = cmd.ExecuteNonQuery();
+
+                                using (DbCommand cmdAllError = connexion.Cnn.CreateCommand())
+                                {
+                                    string SQL = "SELECT Line, Position, text " +
+                                                    "FROM ALL_ERRORS " +
+                                                    "WHERE name='{0}' and type='{1}' and owner='{2}' " +
+                                                    "ORDER BY Sequence ";
+                                    cmdAllError.CommandText = string.Format(SQL, objName.ToUpper(), objType.ToUpper(), objOwner.ToUpper());
+                                    cmdAllError.Prepare();
+                                    DbDataReader Rerr = cmdAllError.ExecuteReader();
+                                    textBoxMessage.Text = "";
+                                    while (Rerr.Read())
+                                    {
+                                        textBoxMessage.Text += string.Format("Line {0} Col {1} : {2}{3}", Rerr.GetValue(0), Rerr.GetValue(1), Rerr.GetString(2), Environment.NewLine);
+                                    }
+                                    if (string.IsNullOrEmpty(textBoxMessage.Text))
+                                        textBoxMessage.Text = "Successfully compiled";
+                                    Rerr.Close();
+                                }
+                            }
+
+                            using(DbCommand cmdDbms = connexion.Cnn.CreateCommand())
+                            {
+                                cmdDbms.CommandText = "begin dbms_output.get_line(:line, :statut); end;";
+                                DbParameter lineParameter = cmdDbms.CreateParameter();
+                                lineParameter.Direction = ParameterDirection.Output;
+                                lineParameter.DbType = DbType.String;
+                                lineParameter.ParameterName = ":line";
+                                lineParameter.Size = 255;
+                                cmdDbms.Parameters.Add(lineParameter);
+                                
+                                DbParameter statusParameter = cmdDbms.CreateParameter();
+                                statusParameter.Direction = ParameterDirection.Output;
+                                statusParameter.DbType = DbType.Int32;
+                                statusParameter.ParameterName = ":statut";
+                                statusParameter.Size = 12;
+                                cmdDbms.Parameters.Add(statusParameter);
+                                bool run = true;
+                                while (run)
+                                {
+                                    cmdDbms.ExecuteNonQuery();
+                                    if (Convert.ToInt32(statusParameter.Value) == 1)
+                                        run = false;
+                                    else
+                                        textBoxMessage.Text += lineParameter.Value.ToString() + Environment.NewLine;
+                                }
+                                
+
+                            }
+                        }
+                        // Disabling dbms_output.
+                        using (DbCommand cmd = connexion.Cnn.CreateCommand())
+                        {
+                            cmd.CommandText = "begin dbms_output.disable; end;";
+                            cmd.Prepare();
+                            int result = cmd.ExecuteNonQuery();
                         }
                     }
                     else
@@ -287,7 +468,7 @@ namespace TBQuery
                         errorMessage += "\n" + e.Message;
                     }
                     MessageBox.Show(errorMessage, "Unexpected error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    textBox1.Text = errorMessage;
+                    textBoxMessage.Text = errorMessage;
                 }
                 
             }

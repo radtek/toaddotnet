@@ -51,6 +51,9 @@ namespace TBColumns
         private string CurrentTablename = null;
         private TabPage tp = null;
         private TabControl tc = null;
+        
+        private static readonly int DEFAULT_TABPOSITION = 0;
+        private int tabPosition = DEFAULT_TABPOSITION; // default position for the tab;
 
         /// <summary> 
         /// Private attribute for the event.
@@ -76,13 +79,29 @@ namespace TBColumns
             tp = new TabPage("Columns");
             // Add the new tab page to the TabControl of the main window's application
             tc = tabControl;
-            tabControl.TabPages.Add(tp);
+            //tabControl.TabPages.Add(tp);
+            string TabPosition = Config.GetText("//alf-solution/plugins/TBColumns/tab/position");
+            if (string.IsNullOrEmpty(TabPosition))
+            {
+                Config.SaveText("/alf-solution/plugins/TBColumns/tab/position", DEFAULT_TABPOSITION.ToString());
+                tabPosition = DEFAULT_TABPOSITION;
+            }
+            else
+            {
+                tabPosition = Convert.ToInt32(TabPosition);
+            }
+            if (tabPosition > tc.TabPages.Count)
+                tc.TabPages.Add(tp);
+            else
+                tc.TabPages.Insert(tabPosition, tp);  
             // Set automatic resizing of the UserControl
             this.Anchor = (AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom);
             this.Height = tp.Height - 10;
             this.Width = tp.Width - 10;
             this.Top = 5;
             this.Left = 5;
+            
+            
             // Add the UserControl to the tab page
             tp.Controls.Add(this);
         }
@@ -135,7 +154,7 @@ namespace TBColumns
                         {
                             if (!tc.TabPages.Contains(tp))
                             {
-                                tc.TabPages.Insert(0, tp);
+                                tc.TabPages.Insert(tabPosition, tp);
                                 // Set as the selected tab this one
                                 tc.SelectedTab = tp;
                             }
@@ -158,7 +177,7 @@ namespace TBColumns
                     case "getfk":
                         if (!tc.TabPages.Contains(tp))
                         {
-                            tc.TabPages.Insert(0, tp);
+                            tc.TabPages.Insert(tabPosition, tp);
                             // Set as the selected tab this one
                             tc.SelectedTab = tp;
                         }

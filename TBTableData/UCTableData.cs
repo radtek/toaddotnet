@@ -50,8 +50,12 @@ namespace TBTableData
         private DateTime startTime;
         private string tablename;
 
+        
+
         private TabPage tp;
         private TabControl tc;
+        private static readonly int DEFAULT_TABPOSITION = 1;
+        private int tabPosition = DEFAULT_TABPOSITION;
 
         public Thread mythread;
 
@@ -79,7 +83,20 @@ namespace TBTableData
             tp = new TabPage("Data");
             // Add the new tab page to the TabControl of the main window's application
             tc = tabControl;
-            tabControl.TabPages.Add(tp);
+            string TabPosition = Config.GetText("//alf-solution/plugins/TBTableData/tab/position");
+            if (string.IsNullOrEmpty(TabPosition))
+            {
+                Config.SaveText("/alf-solution/plugins/TBTableData/tab/position", DEFAULT_TABPOSITION.ToString());
+                tabPosition = DEFAULT_TABPOSITION;
+            }
+            else
+            {
+                tabPosition = Convert.ToInt32(TabPosition);
+            }
+            if (tabPosition > tc.TabPages.Count)
+                tc.TabPages.Add(tp);
+            else
+                tc.TabPages.Insert(tabPosition, tp); 
             // Set automatic resizing of the UserControl
             this.Anchor = (AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom);
             this.Height = tp.Height - 10;
@@ -135,7 +152,7 @@ namespace TBTableData
                         break;
                     case "gettable":
                         if (!tc.TabPages.Contains(tp))
-                            tc.TabPages.Insert(1, tp);
+                            tc.TabPages.Insert(tabPosition, tp);
                         if (connexion.IsOpen)
                         {                            
                             xmlNode = xmlData.SelectSingleNode("//ToadDotNet/action/table");
@@ -162,7 +179,7 @@ namespace TBTableData
                     case "getfks":
                     case "getfk":
                         if (!tc.TabPages.Contains(tp))
-                            tc.TabPages.Insert(1, tp);
+                            tc.TabPages.Insert(tabPosition, tp);
                         break;
                     default:
                         if (tc.TabPages.Contains(tp))

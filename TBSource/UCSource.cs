@@ -41,6 +41,7 @@ using System.Windows.Forms;
 using System.Xml;
 using ICSharpCode.TextEditor;
 using PluginTypes;
+using ULib;
 
 namespace TBSource
 {
@@ -55,6 +56,9 @@ namespace TBSource
 
         private TabPage tp;
         private TabControl tc;
+        private static readonly int DEFAULT_TABPOSITION = 2;
+        private int tabPosition = DEFAULT_TABPOSITION;
+
 
         /// <summary> 
         /// Default Constructor.
@@ -74,7 +78,22 @@ namespace TBSource
             tp = new TabPage("Source");
             // Add the new tab page to the TabControl of the main window's application
             tc = tabControl;
-            tabControl.TabPages.Add(tp);
+            string TabPosition = Config.GetText("//alf-solution/plugins/TBSource/tab/position");
+            if (string.IsNullOrEmpty(TabPosition))
+            {
+                Config.SaveText("/alf-solution/plugins/TBSource/tab/position", DEFAULT_TABPOSITION.ToString());
+                tabPosition = DEFAULT_TABPOSITION;
+            }
+            else
+            {
+                tabPosition = Convert.ToInt32(TabPosition);
+            }
+            // Insert the new tab page to the TabControl of the main window's application           
+            if (tabPosition > tc.TabPages.Count)
+                tc.TabPages.Add(tp);
+            else
+                tc.TabPages.Insert(tabPosition, tp);  
+
             // Set automatic resizing of the UserControl
             this.Anchor = (AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom);
             this.Height = tp.Height - 10;
@@ -215,6 +234,20 @@ namespace TBSource
             textEditorControl1.ActiveTextAreaControl.TextArea.DragEnter += new DragEventHandler(TextArea_DragEnter);
             textEditorControl1.ActiveTextAreaControl.TextArea.Caret.PositionChanged += new EventHandler(Caret_PositionChanged);
             textEditorControl1.ActiveTextAreaControl.TextArea.KeyUp += new System.Windows.Forms.KeyEventHandler(TextArea_KeyUp);
+            textEditorControl1.ActiveTextAreaControl.TextArea.KeyDown += new System.Windows.Forms.KeyEventHandler(TextArea_KeyDown);
+        }
+
+        private bool ctrlDonw = false;
+
+        private void TextArea_KeyDown(object sender, KeyEventArgs e)
+        {
+            //throw new NotImplementedException();
+            if (e.KeyCode == Keys.ControlKey)
+            {
+                ctrlDonw = true;
+                this.toolStripStatusLabelMessage.Text = "Ctrl";
+            }
+
         }
 
         private void TextArea_KeyUp(object sender, KeyEventArgs e)
@@ -222,6 +255,35 @@ namespace TBSource
             if (e.KeyCode == Keys.F5)
             {
                 ExecuteQuery();
+            }
+            if (e.KeyCode == Keys.ControlKey)
+            {
+                ctrlDonw = false;
+                this.toolStripStatusLabelMessage.Text = "";
+            }
+            if (e.KeyCode == Keys.A && ctrlDonw)
+            {
+                TextArea ta = textEditorControl1.ActiveTextAreaControl.TextArea;
+                TextLocation CurrentLocation = ta.Caret.Position;
+                int TotalNumberOfLines = ta.Document.TotalNumberOfLines;
+                int LastLineTextLength = ta.Document.GetLineSegment(TotalNumberOfLines - 1).Length;
+                ta.SelectionManager.SetSelection(new TextLocation(0, 0), new TextLocation(TotalNumberOfLines, LastLineTextLength));
+            }
+            if (e.KeyCode == Keys.X && ctrlDonw)
+            {
+                TextArea ta = textEditorControl1.ActiveTextAreaControl.TextArea;
+                Clipboard.SetText(ta.SelectionManager.SelectedText);
+                ta.SelectionManager.RemoveSelectedText();
+            }
+            if (e.KeyCode == Keys.C && ctrlDonw)
+            {
+                TextArea ta = textEditorControl1.ActiveTextAreaControl.TextArea;
+                Clipboard.SetText(ta.SelectionManager.SelectedText);
+            }
+            if (e.KeyCode == Keys.X && ctrlDonw)
+            {
+                TextArea ta = textEditorControl1.ActiveTextAreaControl.TextArea;
+                ta.InsertString(Clipboard.GetText());
             }
         }        
 
@@ -369,34 +431,84 @@ namespace TBSource
                         string sql = textEditorControl1.Text.ToLower();
                         // Remove all comments from the sql script
                         Regex regReplaceAll = new Regex(@"(/\*(.|\s)*?\*/)|\-\-(.)*\s?");
-                        sql = regReplaceAll.Replace(sql, "").Trim();
-                        // Find the name of the procedure/function/package
-                        string expr = @"^(?<header>[\s\S\W\w\- ]*)(?<type>[\s]*function|procedure|trigger|package body|package[\s]*){1}(?<owner>([\s\S\W\w\-][^\.]*))?(\.)?(?<nom>([\s\S\W\w\-]*))(?<parameters>\(([\s\S\W\w\-]*)\))?([ \s]return)? (?<return_type>[\s\S\W\w\- ]*)(is|as)?(?<code>[\s\S\W\w\- ]*)$";
-                        Regex regEmail = new Regex(expr);
-                        Match monMatch = regEmail.Match(sql);
+                        sql = regReplaceAll.Replace(sql, "").Trim().Replace("\r", "");
+                        
                         
                         cmd.CommandText = sql;
 
                         cmd.Prepare();
                         //int colno = 0;
+                        
                         int result = cmd.ExecuteNonQuery();
 
+                        
 
-
-                        if (sql.Contains("create "))
+                        if (sql.Contains("create"))
                         {
-                            string nom = (string.IsNullOrEmpty(monMatch.Groups["nom"].Value)
-                                              ? monMatch.Groups["owner"].Value
-                                              : monMatch.Groups["nom"].Value);
-                            if (monMatch.Groups["type"].Value.ToUpper() == "PACKAGE BODY")
-                            cmd.CommandText =
-                                string.Format("ALTER {0} {1} COMPILE BODY", "PACKAGE", nom);
+                            string objName;
+                            string objType;
+                            string objOwner = connexion.OracleConnexion.UserId;
+                            if (sql.Contains("package"))
+                            {
+                                string[] sqlSplited = sql.Split(new string[] { "as" }, StringSplitOptions.None);
+                                sqlSplited = sqlSplited[0].Trim().Split(new string[] { " " }, StringSplitOptions.None);
+                                objName = sqlSplited[sqlSplited.Length - 1];
+                                if (sql.Contains("body"))
+                                {
+                                    cmd.CommandText =
+                                        string.Format("ALTER {0} {1} COMPILE BODY", "PACKAGE", objName);
+                                    objType = "PACKAGE BODY";
+                                }
+                                else
+                                {
+                                    cmd.CommandText =
+                                    string.Format("ALTER {0} {1} COMPILE", "PACKAGE", objName);
+                                    objType = "PACKAGE";
+                                }                                
+                                    
+                            }
                             else
-                            cmd.CommandText =
-                            string.Format("ALTER {0} {1} COMPILE", monMatch.Groups["type"].Value, nom);
+                            {
+                                // Find the name of the procedure/function/package
+                                string[] sqlSplited = sql.Split(new string[] { " is", "\nis", "is\n" }, StringSplitOptions.RemoveEmptyEntries);
+                                if (sqlSplited[0].Trim().Contains("function"))
+                                    objType = "function";
+                                else
+                                    if (sqlSplited[0].Trim().Contains("procedure"))
+                                        objType = "procedure";
+                                    else
+                                        if (sqlSplited[0].Trim().Contains("trigger"))
+                                            objType = "trigger";
+                                        else
+                                            objType = "";
+                                sqlSplited = sqlSplited[0].Trim().Split(new string[] { "function", "procedure", "trigger" }, StringSplitOptions.None);
+                                sqlSplited = sqlSplited[1].Trim().Split(new string[] { "(", " ", "\n" }, StringSplitOptions.None);
+                                objName = sqlSplited[0].Trim();
+                                cmd.CommandText = string.Format("ALTER {0} {1} COMPILE", objType, objName);
+                            }
+                            
                             
                             cmd.Prepare();
                             result = cmd.ExecuteNonQuery();
+
+                            using (DbCommand cmdAllError = connexion.Cnn.CreateCommand())
+                            {
+                                string SQL = "SELECT Line, Position, text " +
+                                                "FROM ALL_ERRORS " +
+                                                "WHERE name='{0}' and type='{1}' and owner='{2}' " +
+                                                "ORDER BY Sequence ";
+                                cmdAllError.CommandText = string.Format(SQL, objName.ToUpper(), objType.ToUpper(), objOwner.ToUpper());
+                                cmdAllError.Prepare();
+                                DbDataReader Rerr = cmdAllError.ExecuteReader();
+                                textBoxMessage.Text = "";
+                                while (Rerr.Read())
+                                {
+                                    textBoxMessage.Text +=string.Format("Line {0} Col {1} : {2}{3}", Rerr.GetValue(0), Rerr.GetValue(1), Rerr.GetString(2), Environment.NewLine);
+                                }
+                                if (string.IsNullOrEmpty(textBoxMessage.Text))
+                                    textBoxMessage.Text = "Successfully compiled";
+                                Rerr.Close();
+                            }
                         }
                     }
                 }
