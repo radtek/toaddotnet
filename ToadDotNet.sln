@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Register", "Register\Regist
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TBDebug", "TBDebug\TBDebug.csproj", "{C636A0EE-107A-42B1-9356-B474DF3F1721}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Intellisense", "Intellisense\Intellisense.csproj", "{251FDA41-8ABB-452F-ACE8-6140A524FCAD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -107,6 +109,10 @@ Global
 		{C636A0EE-107A-42B1-9356-B474DF3F1721}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C636A0EE-107A-42B1-9356-B474DF3F1721}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C636A0EE-107A-42B1-9356-B474DF3F1721}.Release|Any CPU.Build.0 = Release|Any CPU
+		{251FDA41-8ABB-452F-ACE8-6140A524FCAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{251FDA41-8ABB-452F-ACE8-6140A524FCAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{251FDA41-8ABB-452F-ACE8-6140A524FCAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{251FDA41-8ABB-452F-ACE8-6140A524FCAD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

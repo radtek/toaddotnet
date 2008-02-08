@@ -31,9 +31,9 @@ namespace TBTreeSchema
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UCTreeSchema));
             this.treeViewOracleSchema = new System.Windows.Forms.TreeView();
-            this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.contextMenuStripTreeSchema = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.refreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.contextMenuStripTreeSchema.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -55,6 +55,20 @@ namespace TBTreeSchema
             this.treeViewOracleSchema.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeViewOracleSchema_AfterSelect);
             this.treeViewOracleSchema.MouseDown += new System.Windows.Forms.MouseEventHandler(this.treeViewOracleSchema_MouseDown);
             // 
+            // contextMenuStripTreeSchema
+            // 
+            this.contextMenuStripTreeSchema.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.refreshToolStripMenuItem});
+            this.contextMenuStripTreeSchema.Name = "contextMenuStripTreeSchema";
+            this.contextMenuStripTreeSchema.Size = new System.Drawing.Size(113, 26);
+            // 
+            // refreshToolStripMenuItem
+            // 
+            this.refreshToolStripMenuItem.Name = "refreshToolStripMenuItem";
+            this.refreshToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
+            this.refreshToolStripMenuItem.Text = "Refresh";
+            this.refreshToolStripMenuItem.Click += new System.EventHandler(this.refreshToolStripMenuItem_Click);
+            // 
             // imageList1
             // 
             this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
@@ -71,20 +85,7 @@ namespace TBTreeSchema
             this.imageList1.Images.SetKeyName(9, "DoubleRightArrowHS.png");
             this.imageList1.Images.SetKeyName(10, "refreshLeft.png");
             this.imageList1.Images.SetKeyName(11, "refreshRight.png");
-            // 
-            // contextMenuStripTreeSchema
-            // 
-            this.contextMenuStripTreeSchema.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.refreshToolStripMenuItem});
-            this.contextMenuStripTreeSchema.Name = "contextMenuStripTreeSchema";
-            this.contextMenuStripTreeSchema.Size = new System.Drawing.Size(153, 48);
-            // 
-            // refreshToolStripMenuItem
-            // 
-            this.refreshToolStripMenuItem.Name = "refreshToolStripMenuItem";
-            this.refreshToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.refreshToolStripMenuItem.Text = "Refresh";
-            this.refreshToolStripMenuItem.Click += new System.EventHandler(this.refreshToolStripMenuItem_Click);
+            this.imageList1.Images.SetKeyName(12, "error.ico");
             // 
             // UCTreeSchema
             // 

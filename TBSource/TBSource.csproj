@@ -53,6 +53,10 @@
       <Project>{016DCDD8-DBC9-499B-8E9C-229F98B46435}</Project>
       <Name>Connexion</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Intellisense\Intellisense.csproj">
+      <Project>{251FDA41-8ABB-452F-ACE8-6140A524FCAD}</Project>
+      <Name>Intellisense</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PluginTypes\PluginTypes.csproj">
       <Project>{D510B83D-3BF3-4808-B205-BC1410016EBA}</Project>
       <Name>PluginTypes</Name>
