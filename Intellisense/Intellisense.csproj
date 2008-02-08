@@ -4,11 +4,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{603751F0-A236-4C24-93F9-1EBBA19F353F}</ProjectGuid>
+    <ProjectGuid>{251FDA41-8ABB-452F-ACE8-6140A524FCAD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ULib</RootNamespace>
-    <AssemblyName>ULib</AssemblyName>
+    <RootNamespace>Intellisense</RootNamespace>
+    <AssemblyName>Intellisense</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -28,50 +28,27 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ICSharpCode.TextEditor, Version=3.0.0.2794, Culture=neutral, PublicKeyToken=4d61825e8dd49f1a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files\SharpDevelop\3.0\bin\ICSharpCode.TextEditor.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.OracleClient" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AssemblyLoader.cs" />
-    <Compile Include="Config.cs" />
-    <Compile Include="DGVQuery.cs" />
+    <Compile Include="Class1.cs" />
+    <Compile Include="Intelli.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Intelli.Designer.cs">
+      <DependentUpon>Intelli.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Keyword.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SQLEditor.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="SQLEditor.Designer.cs">
-      <DependentUpon>SQLEditor.cs</DependentUpon>
-    </Compile>
-    <Compile Include="TreeQuery.cs" />
-    <Compile Include="Utils.cs" />
-    <Compile Include="Vigenere.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Connexion\Connexion.csproj">
-      <Project>{016DCDD8-DBC9-499B-8E9C-229F98B46435}</Project>
-      <Name>Connexion</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Intellisense\Intellisense.csproj">
-      <Project>{251FDA41-8ABB-452F-ACE8-6140A524FCAD}</Project>
-      <Name>Intellisense</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PluginTypes\PluginTypes.csproj">
-      <Project>{D510B83D-3BF3-4808-B205-BC1410016EBA}</Project>
-      <Name>PluginTypes</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="SQLEditor.resx">
+    <EmbeddedResource Include="Intelli.resx">
       <SubType>Designer</SubType>
-      <DependentUpon>SQLEditor.cs</DependentUpon>
+      <DependentUpon>Intelli.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

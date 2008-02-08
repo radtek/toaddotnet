@@ -9,7 +9,6 @@ namespace TBDebug
 {
     public partial class UCDebug : UserControl, ITabPageAddOn
     {
-        private TabPage tp = null;
         private TabControl tc = null;
 
         private static readonly int DEFAULT_TABPOSITION = 99;

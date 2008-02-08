@@ -45,9 +45,9 @@ namespace TBTreeSchema
 {
     public partial class UCTreeSchema : UserControl, ITabPageLeftAddOn
     {
-        private bool Dragging;
-        private int mouseX, mouseY;
-        private int clipLeft, clipTop, clipWidth, clipHeight;  
+        //private bool Dragging;
+        //private int mouseX, mouseY;
+        //private int clipLeft, clipTop, clipWidth, clipHeight;  
         /// <summary> 
         /// Private attribute for the event.
         /// </summary>
@@ -187,7 +187,7 @@ namespace TBTreeSchema
             }
             tNode.Nodes.Add(TablesNode);
             TreeQuery uLib = new TreeQuery(TablesNode, connexion);
-            uLib.Start(string.Format("select object_name from obj where object_type = '{0}'", obj_type));
+            uLib.Start(string.Format("select object_name, status from obj where object_type = '{0}'", obj_type));
         }
 
         private void GetSchema()
@@ -270,7 +270,7 @@ namespace TBTreeSchema
             
             productNode.Attributes.Append(productAttribute);
             actionNode.AppendChild(productNode);
-            Console.WriteLine(string.Format("tagtype = {0} - producAttribute = {1}", tagType, productAttribute.Value));
+            //Console.WriteLine(string.Format("tagtype = {0} - producAttribute = {1}", tagType, productAttribute.Value));
             if (plugSender != null)
                 plugSender.Send(doc.OuterXml);
 
@@ -290,6 +290,7 @@ namespace TBTreeSchema
 
                 switch (tagType.Trim().ToLower())
                 {
+                    case "view":
                     case "table":
                         //bool bConnexion = false;
                         if (connexion.IsOpen)
@@ -300,7 +301,7 @@ namespace TBTreeSchema
                             FieldsNode.ImageIndex = 8;
                             treeViewOracleSchema.SelectedNode.Nodes.Add(FieldsNode);
                             TreeQuery FieldsNodeQry = new TreeQuery(FieldsNode, connexion);
-                            FieldsNodeQry.Start(string.Format("SELECT cname FROM col where tname = '{0}'", treeViewOracleSchema.SelectedNode.Text));
+                            FieldsNodeQry.Start(string.Format("SELECT cname, 'VALID' FROM col where tname = '{0}'", treeViewOracleSchema.SelectedNode.Text));
                         }
                         break;
                     case "field":
@@ -311,7 +312,7 @@ namespace TBTreeSchema
                             FieldsNode.SelectedImageIndex = 9;
                             FieldsNode.ImageIndex = 9;
                             TreeQuery FKsNodeQry = new TreeQuery(FieldsNode, connexion);
-                            string SQL = "SELECT r.table_name||'.'||a.COLUMN_NAME cname " +
+                            string SQL = "SELECT r.table_name||'.'||a.COLUMN_NAME cname, 'VALID' " +
                                             "FROM user_constraints t, user_constraints r, user_cons_columns b, user_cons_columns a " +
                                             "WHERE t.r_constraint_name = r.constraint_name " +
                                             "and a.CONSTRAINT_NAME = r.CONSTRAINT_NAME " +
@@ -337,7 +338,7 @@ namespace TBTreeSchema
                             // Get all procedure and functions
                             TreeQuery PFNodeQry = new TreeQuery(PackagesNode, connexion);
                             string SQL = "Select distinct " +
-                                         "       object_name /*, position, data_type, overload, argument_name, " +
+                                         "       object_name, 'VALID' /*, position, data_type, overload, argument_name, " +
                                          "       data_level, data_length, data_precision, data_scale, default_value, " +
                                          "       in_out, object_id, sequence */" +
                                          "from   all_arguments " +
@@ -368,7 +369,7 @@ namespace TBTreeSchema
 
                             // Get all procedure and functions
                             TreeQuery ParamNodeQry = new TreeQuery(ParametersNode, connexion);
-                            string SQL = "Select lower(argument_name||': '||in_out||' '||data_type) param " +
+                            string SQL = "Select lower(argument_name||': '||in_out||' '||data_type) param, 'VALID' " +
                                          "from   all_arguments " +
                                          "where  object_id = (select object_id " +
                                          "         from sys.user_objects  " +
@@ -394,7 +395,7 @@ namespace TBTreeSchema
 
                             // Get all procedure and functions
                             TreeQuery ParamNodeQry = new TreeQuery(ParametersNode, connexion);
-                            string SQL = "Select lower(argument_name||': '||in_out||' '||data_type) param " +
+                            string SQL = "Select lower(argument_name||': '||in_out||' '||data_type) param, 'VALID' " +
                                          "from   all_arguments " +
                                          "where  object_id = (select object_id " +
                                          "         from sys.user_objects  " +
@@ -497,7 +498,10 @@ namespace TBTreeSchema
                     GetObj("Functions", "FUNCTION", RootNode);
                     break;
                     // Get All Procedure
+                case "procedures":
+                    currentNode.Remove();
                     GetObj("Procedures", "PROCEDURE", RootNode);
+                    break;
                 case "packages":
                     currentNode.Remove();
                     // Get All Packages

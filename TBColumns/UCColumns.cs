@@ -149,6 +149,7 @@ namespace TBColumns
                             }
                         }
                         break;
+                    case "getview":
                     case "gettable":
                         if (connexion.IsOpen)
                         {
@@ -158,7 +159,8 @@ namespace TBColumns
                                 // Set as the selected tab this one
                                 tc.SelectedTab = tp;
                             }
-                            xmlNode = xmlData.SelectSingleNode("//ToadDotNet/action/table");
+                            string typeAction = xmlNodeAction.InnerText.Substring(3).Replace(" ", "");
+                            xmlNode = xmlData.SelectSingleNode("//ToadDotNet/action/" + typeAction);
                             if (xmlNode != null)
                             {
                                 string newtablename = xmlNode.Attributes.GetNamedItem("id").Value;

@@ -198,7 +198,8 @@ namespace ULib
                         NumRec = Convert.ToInt32(cmd.ExecuteScalar()) + dataGridViewOracleData.Rows.Count;
                     }
                     catch (Exception e)
-                    {
+                    { 
+                        Console.WriteLine(e.Message);
                         NumRec = 0;
                     }
 

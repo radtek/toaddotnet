@@ -150,12 +150,15 @@ namespace TBTableData
                             }                            
                         }
                         break;
+                    case "getview":
                     case "gettable":
                         if (!tc.TabPages.Contains(tp))
                             tc.TabPages.Insert(tabPosition, tp);
                         if (connexion.IsOpen)
-                        {                            
-                            xmlNode = xmlData.SelectSingleNode("//ToadDotNet/action/table");
+                        {
+                            string typeAction = xmlNodeAction.InnerText.Substring(3).Replace(" ", "");
+                            xmlNode = xmlData.SelectSingleNode("//ToadDotNet/action/" + typeAction);
+                            
                             if (xmlNode != null)
                             {
                                 string newtablename = xmlNode.Attributes.GetNamedItem("id").Value;

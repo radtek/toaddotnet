@@ -192,6 +192,7 @@ namespace DBDiff
                     }
                     catch (Exception e)
                     {
+                        Console.WriteLine(e.Message);
                         NumRec = 0;
                     }
                     

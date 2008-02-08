@@ -142,7 +142,7 @@ namespace ULib
                 //string SelectedTable = treeViewOracleSchema.SelectedNode.Text;
                 using (DbCommand cmd = connexion.Cnn.CreateCommand())
                 {
-                    int NumRec = 0;                    
+                    //int NumRec = 0;                    
                     cmd.CommandText = SQL;
                     cmd.Prepare();
                     //int colno = 0;
@@ -195,6 +195,11 @@ namespace ULib
                                     node.SelectedImageIndex = 9;
                                     node.ImageIndex = 9;
                                     break;
+                            }
+                            if (rd.GetString(1) != "VALID")
+                            {
+                                node.SelectedImageIndex = 12;
+                                node.ImageIndex = 12;                                    
                             }
                             if (tn.TreeView != null && tn.TreeView.InvokeRequired)
                             {

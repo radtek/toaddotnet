@@ -35,11 +35,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Common;
+using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Xml;
 using ICSharpCode.TextEditor;
+using ICSharpCode.TextEditor.Document;
+using Intellisense;
 using PluginTypes;
 using ULib;
 
@@ -137,11 +140,13 @@ namespace TBSource
                             connexion.OracleConnexion.DataSource = xmlNode.Attributes.GetNamedItem("datasource").Value;
                             if (connexion.IsOpen)
                             {
+                                sqlEditor1.SetConnexion = connexion;
                                 connexion.Close();
                             }
                             else
                             {
                                 connexion.Open();
+                                sqlEditor1.SetConnexion = connexion;
                             }
                         }
                         break;
@@ -173,10 +178,7 @@ namespace TBSource
                                             "  FROM SYS.user_source " +
                                             " WHERE NAME = '" + functionname + "' AND TYPE = '" + NodeName + "' ";
 
-                                //uLib = new DGVQuery(dataGridViewOracleFields, connexion);
-                                //uLib.Start(SQL);
-                                textEditorControl1.Text = "CREATE OR REPLACE ";
-                                textEditorControl1.Refresh();                                
+                                sqlEditor1.Text = "CREATE OR REPLACE ";
                                 startTime = DateTime.Now;
                                 if (backgroundWorker1.IsBusy)
                                     backgroundWorker1.CancelAsync();
@@ -197,6 +199,33 @@ namespace TBSource
                             tc.SelectedTab = tp;
                         }
                         break;
+                    case "getview":
+                        if (!tc.TabPages.Contains(tp))
+                        {
+                            tc.TabPages.Insert(0, tp);
+                            tc.SelectedTab = tp;
+                        }
+                        typeAction = xmlNodeAction.InnerText.Substring(3).Replace(" ", "");
+                        if (connexion.IsOpen)
+                        {
+                            xmlNode = xmlData.SelectSingleNode("//ToadDotNet/action/" + typeAction);
+                            if (xmlNode != null)
+                            {
+                                string ViewName = xmlNode.Attributes.GetNamedItem("id").Value;
+                                string NodeName = xmlNode.Name.ToUpper();
+                                string SQL = "SELECT text " +
+                                            "  FROM SYS.user_views " +
+                                            " WHERE VIEW_NAME = '" + ViewName + "'";
+
+                                sqlEditor1.Text = "CREATE OR REPLACE VIEW " + ViewName + " AS" + Environment.NewLine;
+                                startTime = DateTime.Now;
+                                if (backgroundWorker1.IsBusy)
+                                    backgroundWorker1.CancelAsync();
+                                while (backgroundWorker1.IsBusy) ;
+                                backgroundWorker1.RunWorkerAsync(SQL);
+                            }
+                        }
+                        break;
                     default:
                         if (tc.TabPages.Contains(tp))
                             tc.TabPages.Remove(tp);
@@ -210,112 +239,22 @@ namespace TBSource
         
         private delegate void setSourceText(string text);
         private void SetSourceText(string text)
-        {
-            textEditorControl1.Text = textEditorControl1.Text + text;
+        {            
+            sqlEditor1.Text += text;
         }
 
         private delegate void setElapsedTime(TimeSpan elapsed);
         private void SetElapsedTime(TimeSpan elapsed)
         {
-            this.toolStripStatusLabelElapsedTime.Text = string.Format("Elapsed time: {0} s", elapsed.TotalSeconds);
+            sqlEditor1.toolStripStatusLabelElapsedTime.Text = string.Format("Elapsed time: {0} s", elapsed.TotalSeconds);
         }
         
         #endregion
         
         private void UCSource_Load(object sender, EventArgs e)
         {
-            string appPath = Path.GetDirectoryName(Application.ExecutablePath);
-
-            ICSharpCode.TextEditor.Document.FileSyntaxModeProvider provider = new ICSharpCode.TextEditor.Document.FileSyntaxModeProvider(appPath);
-            ICSharpCode.TextEditor.Document.HighlightingManager.Manager.AddSyntaxModeFileProvider(provider);
-            //textEditorControl1.Document.HighlightingStrategy = ICSharpCode.TextEditor.Document.HighlightingManager.Manager.FindHighlighter("SQL");
-            textEditorControl1.SetHighlighting("SQL");
-            textEditorControl1.ActiveTextAreaControl.TextArea.DragDrop += new DragEventHandler(TextArea_DragDrop);
-            textEditorControl1.ActiveTextAreaControl.TextArea.DragEnter += new DragEventHandler(TextArea_DragEnter);
-            textEditorControl1.ActiveTextAreaControl.TextArea.Caret.PositionChanged += new EventHandler(Caret_PositionChanged);
-            textEditorControl1.ActiveTextAreaControl.TextArea.KeyUp += new System.Windows.Forms.KeyEventHandler(TextArea_KeyUp);
-            textEditorControl1.ActiveTextAreaControl.TextArea.KeyDown += new System.Windows.Forms.KeyEventHandler(TextArea_KeyDown);
+            
         }
-
-        private bool ctrlDonw = false;
-
-        private void TextArea_KeyDown(object sender, KeyEventArgs e)
-        {
-            //throw new NotImplementedException();
-            if (e.KeyCode == Keys.ControlKey)
-            {
-                ctrlDonw = true;
-                this.toolStripStatusLabelMessage.Text = "Ctrl";
-            }
-
-        }
-
-        private void TextArea_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.F5)
-            {
-                ExecuteQuery();
-            }
-            if (e.KeyCode == Keys.ControlKey)
-            {
-                ctrlDonw = false;
-                this.toolStripStatusLabelMessage.Text = "";
-            }
-            if (e.KeyCode == Keys.A && ctrlDonw)
-            {
-                TextArea ta = textEditorControl1.ActiveTextAreaControl.TextArea;
-                TextLocation CurrentLocation = ta.Caret.Position;
-                int TotalNumberOfLines = ta.Document.TotalNumberOfLines;
-                int LastLineTextLength = ta.Document.GetLineSegment(TotalNumberOfLines - 1).Length;
-                ta.SelectionManager.SetSelection(new TextLocation(0, 0), new TextLocation(TotalNumberOfLines, LastLineTextLength));
-            }
-            if (e.KeyCode == Keys.X && ctrlDonw)
-            {
-                TextArea ta = textEditorControl1.ActiveTextAreaControl.TextArea;
-                Clipboard.SetText(ta.SelectionManager.SelectedText);
-                ta.SelectionManager.RemoveSelectedText();
-            }
-            if (e.KeyCode == Keys.C && ctrlDonw)
-            {
-                TextArea ta = textEditorControl1.ActiveTextAreaControl.TextArea;
-                Clipboard.SetText(ta.SelectionManager.SelectedText);
-            }
-            if (e.KeyCode == Keys.X && ctrlDonw)
-            {
-                TextArea ta = textEditorControl1.ActiveTextAreaControl.TextArea;
-                ta.InsertString(Clipboard.GetText());
-            }
-        }        
-
-        private void Caret_PositionChanged(object sender, EventArgs e)
-        {
-            ICSharpCode.TextEditor.Caret caret = (ICSharpCode.TextEditor.Caret)sender;
-            toolStripStatusLabelPosition.Text = string.Format("Line {0} Col {1}", caret.Line + 1, caret.Column + 1);
-        }
-
-        #region dragdrop
-        private void TextArea_DragEnter(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(typeof(TreeNode)))
-            {
-                e.Effect = DragDropEffects.Copy;
-            }
-
-        }
-
-        private void TextArea_DragDrop(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(typeof(TreeNode)))
-            {
-                TreeNode tn = (TreeNode)e.Data.GetData(typeof(TreeNode));
-                Console.WriteLine(textEditorControl1.ActiveTextAreaControl.TextArea.Caret.Position);
-                int offset = textEditorControl1.ActiveTextAreaControl.TextArea.Caret.Offset;
-                TextLocation currentLocation = textEditorControl1.ActiveTextAreaControl.TextArea.Caret.Position;
-                textEditorControl1.Text = textEditorControl1.Text.Insert(offset, tn.Text);
-                textEditorControl1.ActiveTextAreaControl.Caret.Position = currentLocation;
-            }
-        }
-        #endregion
 
         private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
@@ -333,6 +272,7 @@ namespace TBSource
                 }
                 catch (Exception erreur)
                 {
+                    Console.WriteLine(erreur.Message);
                     NumRec = 0;
                 }
 
@@ -347,9 +287,9 @@ namespace TBSource
                     {
                         CurrentNumRec++;
                         string text = rd.GetString(0);
-                        if (textEditorControl1.InvokeRequired)
+                        if (sqlEditor1.InvokeRequired)
                         {
-                            textEditorControl1.Invoke(new setSourceText(SetSourceText), new object[] {text});
+                            sqlEditor1.Invoke(new setSourceText(SetSourceText), new object[] { text });
                         }
                         else
                         {
@@ -383,7 +323,7 @@ namespace TBSource
 
         private void backgroundWorker1_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
         {
-            toolStripProgressBarQuery.Value = e.ProgressPercentage;
+            sqlEditor1.toolStripProgressBarQuery.Value = e.ProgressPercentage;
         }
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
@@ -394,7 +334,7 @@ namespace TBSource
             {
                 // The user canceled the operation.
                 //MessageBox.Show("Operation was canceled.");
-                toolStripStatusLabelMessage.Text = string.Format("Aborted by user. {0} records found.", dataGridViewOracleQueryData.Rows.Count);
+                sqlEditor1.toolStripStatusLabelMessage.Text = string.Format("Aborted by user. ");
             }
             else if (e.Error != null)
             {
@@ -404,126 +344,10 @@ namespace TBSource
             }
             else
             {
-                toolStripStatusLabelMessage.Text = e.Result.ToString();
+                sqlEditor1.toolStripStatusLabelMessage.Text = e.Result.ToString();
             }
-            toolStripProgressBarQuery.Visible = false;
+            sqlEditor1.toolStripProgressBarQuery.Visible = false;
         }
 
-        private void toolStripButtonExecQuery_Click(object sender, EventArgs e)
-        {
-            ExecuteQuery();
-        }
-
-        private void ExecuteQuery()
-        {
-            try
-            {
-                if (this.connexion == null || this.connexion.Cnn == null ||
-                                this.connexion.Cnn.State.ToString() == "Closed")
-                {
-                    connexion = new Connexion.Connexion("Oracle");
-                    connexion.Open();
-                }
-                if (connexion.IsOpen)
-                {
-                    using (DbCommand cmd = connexion.Cnn.CreateCommand())
-                    {
-                        string sql = textEditorControl1.Text.ToLower();
-                        // Remove all comments from the sql script
-                        Regex regReplaceAll = new Regex(@"(/\*(.|\s)*?\*/)|\-\-(.)*\s?");
-                        sql = regReplaceAll.Replace(sql, "").Trim().Replace("\r", "");
-                        
-                        
-                        cmd.CommandText = sql;
-
-                        cmd.Prepare();
-                        //int colno = 0;
-                        
-                        int result = cmd.ExecuteNonQuery();
-
-                        
-
-                        if (sql.Contains("create"))
-                        {
-                            string objName;
-                            string objType;
-                            string objOwner = connexion.OracleConnexion.UserId;
-                            if (sql.Contains("package"))
-                            {
-                                string[] sqlSplited = sql.Split(new string[] { "as" }, StringSplitOptions.None);
-                                sqlSplited = sqlSplited[0].Trim().Split(new string[] { " " }, StringSplitOptions.None);
-                                objName = sqlSplited[sqlSplited.Length - 1];
-                                if (sql.Contains("body"))
-                                {
-                                    cmd.CommandText =
-                                        string.Format("ALTER {0} {1} COMPILE BODY", "PACKAGE", objName);
-                                    objType = "PACKAGE BODY";
-                                }
-                                else
-                                {
-                                    cmd.CommandText =
-                                    string.Format("ALTER {0} {1} COMPILE", "PACKAGE", objName);
-                                    objType = "PACKAGE";
-                                }                                
-                                    
-                            }
-                            else
-                            {
-                                // Find the name of the procedure/function/package
-                                string[] sqlSplited = sql.Split(new string[] { " is", "\nis", "is\n" }, StringSplitOptions.RemoveEmptyEntries);
-                                if (sqlSplited[0].Trim().Contains("function"))
-                                    objType = "function";
-                                else
-                                    if (sqlSplited[0].Trim().Contains("procedure"))
-                                        objType = "procedure";
-                                    else
-                                        if (sqlSplited[0].Trim().Contains("trigger"))
-                                            objType = "trigger";
-                                        else
-                                            objType = "";
-                                sqlSplited = sqlSplited[0].Trim().Split(new string[] { "function", "procedure", "trigger" }, StringSplitOptions.None);
-                                sqlSplited = sqlSplited[1].Trim().Split(new string[] { "(", " ", "\n" }, StringSplitOptions.None);
-                                objName = sqlSplited[0].Trim();
-                                cmd.CommandText = string.Format("ALTER {0} {1} COMPILE", objType, objName);
-                            }
-                            
-                            
-                            cmd.Prepare();
-                            result = cmd.ExecuteNonQuery();
-
-                            using (DbCommand cmdAllError = connexion.Cnn.CreateCommand())
-                            {
-                                string SQL = "SELECT Line, Position, text " +
-                                                "FROM ALL_ERRORS " +
-                                                "WHERE name='{0}' and type='{1}' and owner='{2}' " +
-                                                "ORDER BY Sequence ";
-                                cmdAllError.CommandText = string.Format(SQL, objName.ToUpper(), objType.ToUpper(), objOwner.ToUpper());
-                                cmdAllError.Prepare();
-                                DbDataReader Rerr = cmdAllError.ExecuteReader();
-                                textBoxMessage.Text = "";
-                                while (Rerr.Read())
-                                {
-                                    textBoxMessage.Text +=string.Format("Line {0} Col {1} : {2}{3}", Rerr.GetValue(0), Rerr.GetValue(1), Rerr.GetString(2), Environment.NewLine);
-                                }
-                                if (string.IsNullOrEmpty(textBoxMessage.Text))
-                                    textBoxMessage.Text = "Successfully compiled";
-                                Rerr.Close();
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                string errorMessage = ex.Message;
-                while (ex.InnerException != null)
-                {
-                    ex = ex.InnerException;
-                    errorMessage += "\n" + ex.Message;
-                }
-                this.textBoxMessage.Text = errorMessage;
-                MessageBox.Show(errorMessage, "Unexpected error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
     }
 }
