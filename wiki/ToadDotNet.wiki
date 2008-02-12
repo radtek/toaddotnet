@@ -7,7 +7,7 @@ It will also give you the ease to manage all objects from your database.
 
 = Features =
 
-At this time, only very little features are offered. New features will be added (soon), depending on my spare time (unfortunately, unless someone wants to sponsor my work :)), but, bug fixing and request will be considered rapidly. So far the application allows you:
+At this time, only few features are offered. New features will be added (soon), depending on my spare time (unfortunately, unless someone wants to sponsor my work :)), but, bug fixing and request will be considered rapidly. So far the application allows you:
   * Connect to a database and retrieve all objects
   * Get the columns of a table
   * Get the source for functions, procedures, triggers, packages
@@ -15,6 +15,8 @@ At this time, only very little features are offered. New features will be added 
   * Query window
   * Multilple connections
   * Syntax highighted
+  * Intellisense
+  * Add/drop column to/from table
 
 = Registration =
 When using the application for the first time, automatically a register form will be prompted to you. You have to enter your full name (first and last name) and a valid email address. These informations are necessary to be able to run the application. Those informations won't be given to any third party and will be use only for statistics.
@@ -23,21 +25,18 @@ When using the application for the first time, automatically a register form wil
 As the application is today (January 2008) only at its genesis many features will come. We can already mentioned
   * Add table
   * Drop table
-  * Add column
   * Modify column
-  * Drop column
   * Add index
   * Drop index
-  * Add function
-  * Modify function
-  * Drop function
-  * Add procedure
-  * Modify procedure
-  * Drop procedure
-  * Add package (spec and body)
-  * Modify package (spec and body)
-  * Drop package
-  * Add intelisense to sql window
+  * Add function (possible via query tab page)
+  * Modify function (possible via source tab page)
+  * Drop function (possible via query tab page)
+  * Add procedure (possible via query tab page)
+  * Modify procedure (possible via source tab page)
+  * Drop procedure (possible via query tab page)
+  * Add package (spec and body) (possible via query tab page)
+  * Modify package (spec and body) (possible via source tab page)
+  * Drop package (possible via query tab page)
   * Check for update
 
 = Screenshots =
