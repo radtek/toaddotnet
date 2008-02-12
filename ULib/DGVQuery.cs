@@ -213,14 +213,15 @@ namespace ULib
                         {
                             if (dataGridViewOracleData.InvokeRequired)
                             {
-                                dataGridViewOracleData.Invoke(new datagridClear(ClearDataGrid));
+                                if (!worker.CancellationPending)
+                                    dataGridViewOracleData.Invoke(new datagridClear(ClearDataGrid));
                             }
                             else
                             {
                                 dataGridViewOracleData.Rows.Clear();
                                 dataGridViewOracleData.Columns.Clear();
                             }    
-                            for (int i = 0; i < rd.FieldCount; i++)
+                            for (int i = 0; i < rd.FieldCount && !worker.CancellationPending; i++)
                             {                               
                                 if (dataGridViewOracleData.InvokeRequired)
                                 {

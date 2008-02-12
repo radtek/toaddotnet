@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="AssemblyLoader.cs" />
     <Compile Include="Config.cs" />
+    <Compile Include="DbObjectItem.cs" />
     <Compile Include="DGVQuery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SQLEditor.cs">

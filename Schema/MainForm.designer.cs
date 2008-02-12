@@ -70,7 +70,7 @@ namespace Schema
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-                                                                                          this.toolStripStatusLabel1});
+            this.toolStripStatusLabel1});
             resources.ApplyResources(this.statusStrip1, "statusStrip1");
             this.statusStrip1.Name = "statusStrip1";
             // 
@@ -96,10 +96,10 @@ namespace Schema
 
         #endregion
 
-        private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.TabControl leftTabControl;
         private System.Windows.Forms.TabControl rightTabControl;
         public System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         public System.Windows.Forms.StatusStrip statusStrip1;
+        public System.Windows.Forms.SplitContainer splitContainer1;
     }
 }

@@ -152,10 +152,13 @@ namespace ULib
                         while (rd.Read())
                         {
                             //listBoxOracleTables.Items.Add(rd.GetString(0));
-                            string tablename = rd.GetString(0);
-                            TreeNode node = new TreeNode(tablename);
-                            node.Tag = tn.Tag.ToString().Substring(0, tn.Tag.ToString().Length - 1);
-                            switch(node.Tag.ToString())
+                            DbObjectItem tnDbOI = ((DbObjectItem) tn.Tag);
+                            DbObjectItem DbOI = new DbObjectItem(rd.GetString(0), tnDbOI.Type.Substring(0, tnDbOI.Type.Length - 1));
+                            //string tablename = rd.GetString(0);
+                            TreeNode node = new TreeNode(DbOI.Name);
+                            //DbOI.Type = tnDbOI.Type.Substring(0, tnDbOI.Type.Length - 1);
+                            node.Tag = DbOI; // tnDbOI.Type.Substring(0, tnDbOI.Type.Length - 1);
+                            switch (DbOI.Type.ToLower())
                             {
                                 case "table":
                                     node.SelectedImageIndex = 2;

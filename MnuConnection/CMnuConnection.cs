@@ -101,6 +101,7 @@ namespace MnuConnection
                     MainForm mainForm = new MainForm();
                     plugSender = mainForm.plugEvent;
                     mainForm.MdiParent = ParentForm;
+                    mainForm.ParentForm = ParentForm;
                     mainForm.Show();
                     SendConnectionInfo(formConnection.textBoxOracleUserId.Text, formConnection.textBoxOraclePassword.Text, formConnection.TNSNamesComboBox.Text);
                 }

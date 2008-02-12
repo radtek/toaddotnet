@@ -39,6 +39,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Xml;
 using System.Diagnostics;
+using PluginTypes;
 using ULib;
 
 namespace ULib
@@ -146,6 +147,83 @@ namespace ULib
                 Regex.Match(email.Trim(), pattern, RegexOptions.IgnoreCase);
             return match.Success;			
         }
-        
+
+        public static void SendConnectionInfo(Connexion.Connexion connexion, PlugEvent sender)
+        {
+            if (connexion.IsOpen && !String.IsNullOrEmpty(connexion.OracleConnexion.UserId) && !String.IsNullOrEmpty(connexion.OracleConnexion.Password) &&
+                    !String.IsNullOrEmpty(connexion.OracleConnexion.DataSource))
+            {
+                //Personnes personne = (Personnes)PersonListBox.SelectedItem;
+                XmlDocument doc = new XmlDocument();
+                XmlNode docNode = doc.CreateXmlDeclaration("1.0", "UTF-8", null);
+                doc.AppendChild(docNode);
+                XmlNode rootNode = doc.CreateElement("ToadDotNet");
+                doc.AppendChild(rootNode);
+
+                XmlNode actionNode = doc.CreateElement("action");
+                actionNode.InnerText = "connect";
+                //XmlAttribute actionAttr = doc.CreateAttribute("connection")
+                rootNode.AppendChild(actionNode);
+
+                XmlNode productNode = doc.CreateElement("connection");
+                XmlAttribute productAttribute = doc.CreateAttribute("userid");
+                productAttribute.Value = connexion.OracleConnexion.UserId;
+                productNode.Attributes.Append(productAttribute);
+
+                productAttribute = doc.CreateAttribute("password");
+                productAttribute.Value = connexion.OracleConnexion.Password;
+                productNode.Attributes.Append(productAttribute);
+
+                productAttribute = doc.CreateAttribute("datasource");
+                productAttribute.Value = connexion.OracleConnexion.DataSource;
+                productNode.Attributes.Append(productAttribute);
+
+                actionNode.AppendChild(productNode);
+
+                if (sender != null)
+                    sender.Send(doc.OuterXml);
+            }
+        }
+
+        public static void SendSelectedObject(DbObjectItem ObjItem, PlugEvent sender)
+        {
+            //Personnes personne = (Personnes)PersonListBox.SelectedItem;
+            XmlDocument doc = new XmlDocument();
+            XmlNode docNode = doc.CreateXmlDeclaration("1.0", "UTF-8", null);
+            doc.AppendChild(docNode);
+            XmlNode rootNode = doc.CreateElement("ToadDotNet");
+            doc.AppendChild(rootNode);
+
+            XmlNode actionNode = doc.CreateElement("action");
+            //string tagType = treeViewOracleSchema.SelectedNode.Tag.ToString().Replace(" ", "");
+            string tagType = ObjItem.Type.Replace(" ", "");
+
+            actionNode.InnerText = "get" + tagType.ToLower();
+            rootNode.AppendChild(actionNode);
+
+            XmlNode DbObjectItemNode = doc.CreateElement(tagType);
+            XmlAttribute DbObjectItemAttribute = doc.CreateAttribute("id");
+            DbObjectItemAttribute.Value = ObjItem.Name;
+            //switch (tagType)
+            //{
+            //    case "packagebodys":
+            //    case "packagespecs":
+            //        productAttribute.Value = treeViewOracleSchema.SelectedNode.Parent.Text;
+            //        break;
+            //    case "packagebody":
+            //    case "packagespec":
+            //        productAttribute.Value = treeViewOracleSchema.SelectedNode.Parent.Parent.Text;
+            //        break;
+            //    default:
+            //        productAttribute.Value = treeViewOracleSchema.SelectedNode.Text;
+            //        break;
+            //}
+
+            DbObjectItemNode.Attributes.Append(DbObjectItemAttribute);
+            actionNode.AppendChild(DbObjectItemNode);
+            //Console.WriteLine(string.Format("tagtype = {0} - producAttribute = {1}", tagType, productAttribute.Value));
+            if (sender != null)
+                sender.Send(doc.OuterXml);
+        }
     }
 }

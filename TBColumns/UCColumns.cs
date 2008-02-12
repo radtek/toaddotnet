@@ -222,12 +222,23 @@ namespace TBColumns
                          "ORDER BY c.tname, c.colno ";
 
 
-            uLib = new DGVQuery(dataGridViewOracleFields, connexion);
+           
             //uLib.Start(SQL);
             startTime = DateTime.Now;
             if (backgroundWorker1.IsBusy)
+            {
                 backgroundWorker1.CancelAsync();
+                backgroundWorker1 = new BackgroundWorker();
+                backgroundWorker1.WorkerSupportsCancellation = true;
+                backgroundWorker1.WorkerReportsProgress = true;
+                backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
+                backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
+                backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
+
+            }
+                
             while (backgroundWorker1.IsBusy) ;
+            uLib = new DGVQuery(dataGridViewOracleFields, connexion);
             backgroundWorker1.RunWorkerAsync(SQL);
         }
 
@@ -274,8 +285,8 @@ namespace TBColumns
 
         private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
-            BackgroundWorker worker = sender as BackgroundWorker;
-            e.Result = uLib.Display(e.Argument.ToString(), worker, e);
+            //BackgroundWorker worker = sender as BackgroundWorker;
+            e.Result = uLib.Display(e.Argument.ToString(), backgroundWorker1, e);
         }
 
         private void backgroundWorker1_RunWorkerCompleted(object sender,

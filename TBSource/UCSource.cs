@@ -345,6 +345,7 @@ namespace TBSource
             else
             {
                 sqlEditor1.toolStripStatusLabelMessage.Text = e.Result.ToString();
+                sqlEditor1.Refresh();
             }
             sqlEditor1.toolStripProgressBarQuery.Visible = false;
         }

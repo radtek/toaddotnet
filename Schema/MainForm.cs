@@ -48,6 +48,13 @@ namespace Schema
         public PlugEvent plugEvent = new PlugEvent();
 
         public Connexion.Connexion connexion = null;
+        private Form parentForm;
+
+        public Form ParentForm
+        {
+            get { return parentForm; }
+            set { parentForm = value; }
+        }
 
         /// <summary>
         /// Define the language to be use 
@@ -129,26 +136,26 @@ namespace Schema
             }
         }
 
-        private void enregistrementToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            FormRegister formRegister = new FormRegister();
-            formRegister.ShowDialog();
-        }
+        //private void enregistrementToolStripMenuItem_Click(object sender, EventArgs e)
+        //{
+        //    FormRegister formRegister = new FormRegister();
+        //    formRegister.ShowDialog();
+        //}
 
-        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Application.Exit();
-        }
+        //private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        //{
+        //    Application.Exit();
+        //}
 
-        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
-        {
+        //private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        //{
             
-        }
+        //}
 
-        private void registerToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            FormRegister formRegister = new FormRegister();
-            formRegister.ShowDialog();
-        }
+        //private void registerToolStripMenuItem_Click(object sender, EventArgs e)
+        //{
+        //    FormRegister formRegister = new FormRegister();
+        //    formRegister.ShowDialog();
+        //}
     }
 }

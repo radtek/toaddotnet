@@ -92,29 +92,11 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="ASPX.xshd" />
-    <EmbeddedResource Include="BAT-Mode.xshd" />
-    <EmbeddedResource Include="Coco-Mode.xshd" />
-    <EmbeddedResource Include="CPP-Mode.xshd" />
-    <EmbeddedResource Include="CSharp-Mode.xshd" />
-    <EmbeddedResource Include="HTML-Mode.xshd" />
-    <EmbeddedResource Include="ILAsm-Mode.xshd" />
-    <EmbeddedResource Include="Java-Mode.xshd" />
-    <EmbeddedResource Include="JavaScript-Mode.xshd" />
-    <EmbeddedResource Include="ORACLESQL-Mode.xshd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="PHP-Mode.xshd" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <SubType>Designer</SubType>
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="SQL-Mode.xshd" />
-    <EmbeddedResource Include="SQL2-Mode.xshd" />
-    <EmbeddedResource Include="Tex-Mode.xshd" />
-    <None Include="VBNET-Mode.xshd" />
-    <None Include="XML-Mode.xshd" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\DataContainer_MoveNextHS.png" />
