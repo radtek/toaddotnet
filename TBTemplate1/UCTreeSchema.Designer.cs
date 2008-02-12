@@ -54,6 +54,7 @@ namespace TBTreeSchema
             this.treeViewOracleSchema.TabIndex = 27;
             this.treeViewOracleSchema.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeViewOracleSchema_AfterSelect);
             this.treeViewOracleSchema.MouseDown += new System.Windows.Forms.MouseEventHandler(this.treeViewOracleSchema_MouseDown);
+            this.treeViewOracleSchema.KeyUp += new System.Windows.Forms.KeyEventHandler(this.treeViewOracleSchema_KeyUp);
             // 
             // contextMenuStripTreeSchema
             // 

@@ -165,13 +165,23 @@ namespace TBTableData
                                 if (newtablename != tablename)
                                 {
                                     tablename = newtablename;
+                                    if (backgroundWorker1.IsBusy)
+                                    {
+                                        backgroundWorker1.CancelAsync();
+                                        backgroundWorker1 = new BackgroundWorker();
+                                        backgroundWorker1.WorkerSupportsCancellation = true;
+                                        backgroundWorker1.WorkerReportsProgress = true;
+                                        backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
+                                        backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
+                                        backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
+            
+                                    }
+
+                                    while (backgroundWorker1.IsBusy) ;
                                     uLib = new DGVQuery(dataGridViewOracleFields, connexion);
                                     //uLib.Start(string.Format("SELECT * FROM {0}", tablename));
                                     toolStripProgressBarQuery.Visible = true;
-                                    startTime = DateTime.Now;
-                                    if (backgroundWorker1.IsBusy)
-                                        backgroundWorker1.CancelAsync();
-                                    while (backgroundWorker1.IsBusy) ;
+                                    startTime = DateTime.Now;                                                                      
                                     backgroundWorker1.RunWorkerAsync(string.Format("SELECT * FROM (SELECT ROWNUM n, t.* FROM {0} t) s WHERE s.n BETWEEN {1} AND {2}", tablename, 0, 500));    
                                 }                                
                             }
@@ -257,9 +267,9 @@ namespace TBTableData
 
         private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {            
-            BackgroundWorker worker = sender as BackgroundWorker;
-            e.Result = uLib.Display(e.Argument.ToString(), worker, e);
-            if (worker.CancellationPending)
+            //BackgroundWorker worker = sender as BackgroundWorker;
+            e.Result = uLib.Display(e.Argument.ToString(), backgroundWorker1, e);
+            if (backgroundWorker1.CancellationPending)
             {
                 e.Cancel = true;
             }
