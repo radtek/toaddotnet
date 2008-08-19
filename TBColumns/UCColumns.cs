@@ -318,6 +318,7 @@ namespace TBColumns
         private void toolStripButtonAddCol_Click(object sender, EventArgs e)
         {
             FormAddCol frmAddCol = new FormAddCol();
+            frmAddCol.labelTablename.Text = CurrentTablename;
             frmAddCol.Tablename = CurrentTablename;
             if (frmAddCol.ShowDialog() == DialogResult.OK)
             {
@@ -406,6 +407,39 @@ namespace TBColumns
 
         private void toolStripButtonModifyCol_Click(object sender, EventArgs e)
         {
+        }
+
+        private void addColumnToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            toolStripButtonAddCol_Click(sender, e);
+        }
+
+        private void dropColumnToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            toolStripButtonDeleteCol_Click(sender, e);
+        }
+
+        private void addIndexToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FormAddIndex formAddIndex = new FormAddIndex();
+            formAddIndex.labelTableName.Text = CurrentTablename;
+            string ColumnName = dataGridViewOracleFields.CurrentRow.Cells["cname"].Value.ToString();
+            formAddIndex.textBoxIndexName.Text = string.Format("NDX_{0}", ColumnName);
+            formAddIndex.dataGridViewColumnName.Rows.Add(new string[] { ColumnName });
+
+            if (formAddIndex.ShowDialog() == DialogResult.OK)
+            {
+                if (connexion.DoCmd(formAddIndex.textBoxSql.Text))
+                {
+                    //Add here the refresh of the tree
+                }
+            }
+
+        }
+
+        private void dropIndexToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

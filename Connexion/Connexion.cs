@@ -49,6 +49,8 @@ namespace Connexion
         private MySQLConnexion mysqlConnexion;
         private SQLConnexion sqlConnexion;
 
+        private DbTransaction myTransaction;
+
         private bool isOpen = false;
 
         public string Type
@@ -76,6 +78,12 @@ namespace Connexion
         {
             get { return isOpen; }
             set { isOpen = value; }
+        }
+
+        public DbTransaction MyTransaction
+        {
+            get { return myTransaction; }
+            set { myTransaction = value; }
         }
 
         public Connexion(string type)
@@ -241,9 +249,10 @@ namespace Connexion
             if (Cnn != null)
             {
                 using (DbCommand cmd = Cnn.CreateCommand())
-                {
+                {                                        
                     try
                     {
+                        cmd.Transaction = MyTransaction;
                         cmd.CommandText = sql;
                         cmd.Prepare();
                         cmd.ExecuteNonQuery();
@@ -264,6 +273,21 @@ namespace Connexion
                 }                
             }
             return result;
+        }
+
+        public void BeginTransaction()
+        {
+            MyTransaction = cnn.BeginTransaction();
+        }
+
+        public void Commit()
+        {
+            MyTransaction.Commit();
+        }
+
+        public void Rollback()
+        {
+            MyTransaction.Rollback();            
         }
     }
 }

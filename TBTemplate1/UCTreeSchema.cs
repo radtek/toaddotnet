@@ -194,6 +194,11 @@ namespace TBTreeSchema
                     TablesNode.ImageIndex = 7;
                     TablesNode.SelectedImageIndex = 7;
                     break;
+                case "INDEXES":
+                    TablesNode.ImageIndex = 13;
+                    TablesNode.SelectedImageIndex = 13;
+                    DbOI.Type = "INDEXE";
+                    break;
                 
                 default:
                     TablesNode.ImageIndex = 0;
@@ -241,6 +246,9 @@ namespace TBTreeSchema
                     
                     // Get All Sequences
                     GetObj(new DbObjectItem("Sequences", "sequences"), RootNode);
+
+                    // Get All Indexes
+                    GetObj(new DbObjectItem("Indexes", "indexes"), RootNode);
                 }
                 //connexion.Close();
             }
@@ -254,7 +262,26 @@ namespace TBTreeSchema
 
         private void treeViewOracleSchema_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            Utils.SendSelectedObject((DbObjectItem)e.Node.Tag, plugSender); // SendSelectedObject(plugSender);
+            DbObjectItem DbOI = (DbObjectItem) e.Node.Tag;
+            switch(DbOI.Type.ToUpper())
+            {
+                case "PACKAGESPECS":
+                case "PACKAGEBODYS":
+                    DbOI.Name = e.Node.Parent.Text;
+                    break;
+                case "PACKAGESPEC":
+                case "PACKAGEBODY":
+                    DbOI.Name = e.Node.Parent.Parent.Text;
+                    break;
+                case "FK":
+                case "REFERENCED":
+                    int DotPos = DbOI.Name.IndexOf('.');
+                    if (DotPos >= 0)
+                        DbOI.Name = DbOI.Name.Substring(0, DotPos);                    
+                    break;
+
+            }
+            Utils.SendSelectedObject(DbOI, plugSender); // SendSelectedObject(plugSender);
             GetTreeChildDetail(e.Node);
         }
 
@@ -299,22 +326,34 @@ namespace TBTreeSchema
 
         private void GetTreeChildDetail(TreeNode SelectedNode)
         {
+            string tagType = ((DbObjectItem)SelectedNode.Tag).Type;
             if (SelectedNode.Nodes.Count == 0)
             {
-                string tagType = ((DbObjectItem) SelectedNode.Tag).Type;
+                createIndexToolStripMenuItem.Enabled = false;
+                dropIndexToolStripMenuItem.Enabled = false;
+                
                 if (!connexion.IsOpen && !String.IsNullOrEmpty(connexion.OracleConnexion.UserId) && !String.IsNullOrEmpty(connexion.OracleConnexion.Password) &&
                             !String.IsNullOrEmpty(connexion.OracleConnexion.DataSource))
                     connexion.Open(connexion.OracleConnexion.UserId, connexion.OracleConnexion.Password,
                                        connexion.OracleConnexion.DataSource);
 
-
+                string SQL = "";
                 switch (tagType.Trim().ToLower())
                 {
                     case "view":
                     case "table":
+                    case "fk":
+                    case "referenced":
                         //bool bConnexion = false;
                         if (connexion.IsOpen)
                         {
+                            string tablename = SelectedNode.Text;
+                            if (tagType.Trim().ToLower() == "fk" || tagType.Trim().ToLower() == "referenced")
+                            {
+                                tagType = "table";
+                                int DotPos = tablename.IndexOf('.');
+                                tablename = tablename.Substring(0, DotPos);
+                            }
                             DbObjectItem DbOi = new DbObjectItem("Fields", "fields");
                             TreeNode FieldsNode = new TreeNode(DbOi.Name);
                             FieldsNode.Tag = DbOi;
@@ -322,7 +361,63 @@ namespace TBTreeSchema
                             FieldsNode.ImageIndex = 8;
                             SelectedNode.Nodes.Add(FieldsNode);
                             TreeQuery FieldsNodeQry = new TreeQuery(FieldsNode, connexion);
-                            FieldsNodeQry.Start(string.Format("SELECT cname, 'VALID' FROM col where tname = '{0}'", SelectedNode.Text));
+                            FieldsNodeQry.Start(string.Format("SELECT cname, 'VALID' FROM col where tname = '{0}' ORDER BY COLNO", tablename));
+                            if (tagType.Trim().ToLower() == "table")
+                            {
+                                DbObjectItem DbOIIndex = new DbObjectItem("Indexes", "indexes");
+                                TreeNode IndexesNode = new TreeNode(DbOIIndex.Name);
+                                IndexesNode.Tag = DbOIIndex;
+                                IndexesNode.SelectedImageIndex = 13;
+                                IndexesNode.ImageIndex = 13;
+                                SelectedNode.Nodes.Add(IndexesNode);
+                                TreeQuery IndexesNodeQry = new TreeQuery(IndexesNode, connexion);
+                                SQL = "SELECT distinct index_name , 'VALID' " +
+                                            "  FROM USER_IND_COLUMNS " +
+                                            " WHERE TABLE_NAME = '{0}' " +
+                                            " order by index_name";
+
+                                IndexesNodeQry.Start(string.Format(SQL, tablename));
+
+
+                                // Get all table that referred this one
+                                SQL = "SELECT   o.NAME||'.'||uc.COLUMN_NAME, 'VALID', oc.NAME constraint_name           " +
+                                        "    FROM SYS.con$ oc, " +
+                                        "         SYS.con$ rc, " +
+                                        "         SYS.user$ ou, " +
+                                        "         SYS.user$ ru, " +
+                                        "         SYS.obj$ o, " +
+                                        "         SYS.cdef$ c, " +
+                                        "         SYS.cdef$ rcdef, " +
+                                        "         SYS.obj$ rcobj, " +
+                                        "         user_cons_columns uc " +
+                                        "   WHERE oc.owner# = ou.user# " +
+                                        "     AND oc.con# = c.con# " +
+                                        "     AND c.obj# = o.obj# " +
+                                        "     AND c.rcon# = rc.con# " +
+                                        "     AND rc.owner# = ru.user# " +
+                                        "     AND c.type# = 4 " +
+                                        "     AND rcdef.con# = rc.con# " +
+                                        "     AND rcobj.obj# = rcdef.obj# " +
+                                        "     AND rcdef.type# IN (2, 3) " +
+                                        "     AND ru.NAME = USER " +
+                                        "     and uc.constraint_name = oc.NAME AND table_name = o.NAME " +
+                                        "     AND rcobj.NAME = '{0}' " +
+                                        "ORDER BY 1 ";
+
+                                DbObjectItem DbOIRef = new DbObjectItem("Referenced by", "Referenceds");
+                                TreeNode RefNode = new TreeNode(DbOIRef.Name);
+                                RefNode.Tag = DbOIRef;
+                                RefNode.SelectedImageIndex = 14;
+                                RefNode.ImageIndex = 14;
+                                SelectedNode.Nodes.Add(RefNode);
+                                TreeQuery RefNodeQry = new TreeQuery(RefNode, connexion);
+
+                                RefNodeQry.Start(string.Format(SQL, tablename));
+
+                            }
+                            
+
+                            SelectedNode.Expand();
                         }
                         break;
                     case "field":
@@ -334,7 +429,7 @@ namespace TBTreeSchema
                             FieldsNode.SelectedImageIndex = 9;
                             FieldsNode.ImageIndex = 9;
                             TreeQuery FKsNodeQry = new TreeQuery(FieldsNode, connexion);
-                            string SQL = "SELECT r.table_name||'.'||a.COLUMN_NAME cname, 'VALID' " +
+                            SQL = "SELECT r.table_name||'.'||a.COLUMN_NAME cname, 'VALID' " +
                                             "FROM user_constraints t, user_constraints r, user_cons_columns b, user_cons_columns a " +
                                             "WHERE t.r_constraint_name = r.constraint_name " +
                                             "and a.CONSTRAINT_NAME = r.CONSTRAINT_NAME " +
@@ -344,11 +439,72 @@ namespace TBTreeSchema
                                             "AND t.table_name = '{0}' " +
                                             "and b.COLUMN_NAME = '{1}' ";
                             //FKsNodeQry.Start(string.Format(SQL, SelectedNode.Parent.Parent.Text, SelectedNode.Text));
-                            FKsNodeQry.Display(string.Format(SQL, SelectedNode.Parent.Parent.Text, SelectedNode.Text));
+                            string tablename = SelectedNode.Parent.Parent.Text;
+                            if (tablename.Contains("."))
+                            {
+                                int DotPos = tablename.IndexOf('.');
+                                tablename = tablename.Substring(0, DotPos);
+                            }
+                            FKsNodeQry.Display(string.Format(SQL, tablename, SelectedNode.Text));
                             if (FieldsNode.Nodes.Count > 0)
                                 SelectedNode.Nodes.Add(FieldsNode);
 
+                            DbObjectItem DbOiIndex = new DbObjectItem("Indexes", "indexes");
+                            TreeNode IndexesNode = new TreeNode(DbOiIndex.Name);
+                            IndexesNode.Tag = DbOiIndex;
+                            IndexesNode.SelectedImageIndex = 9;
+                            IndexesNode.ImageIndex = 9;
+                            TreeQuery IndexesNodeQry = new TreeQuery(IndexesNode, connexion);
+                            string sql = "SELECT distinct index_name , 'VALID' " +
+                                        "  FROM USER_IND_COLUMNS " +
+                                        " WHERE TABLE_NAME = '{0}' " +
+                                        "   and column_name = '{1}' " +
+                                        " order by index_name ";
+
+                            //FKsNodeQry.Start(string.Format(SQL, SelectedNode.Parent.Parent.Text, SelectedNode.Text));
+                            IndexesNodeQry.Display(string.Format(sql, tablename, SelectedNode.Text));
+                            if (IndexesNode.Nodes.Count > 0)
+                            {
+                                SelectedNode.Nodes.Add(IndexesNode);                                
+                            }                                                            
+                            SelectedNode.Expand();
                         }
+                        break;
+                    case "index":
+                        DbObjectItem DbOiIndexCol = new DbObjectItem("Columns", "fields");
+                        TreeNode IndexesColNode = new TreeNode(DbOiIndexCol.Name);
+                        IndexesColNode.Tag = DbOiIndexCol;
+                        IndexesColNode.SelectedImageIndex = 9;
+                        IndexesColNode.ImageIndex = 9;
+                        TreeQuery IndexesColNodeQry = new TreeQuery(IndexesColNode, connexion);
+                        SQL = "SELECT distinct table_name||'.'||column_name , 'VALID', COLUMN_POSITION " +
+                                    "  FROM USER_IND_COLUMNS " +
+                                    " WHERE index_name = '{0}' " +
+                                    " order by COLUMN_POSITION ";
+
+                        //FKsNodeQry.Start(string.Format(SQL, SelectedNode.Parent.Parent.Text, SelectedNode.Text));
+                        IndexesColNodeQry.Display(string.Format(SQL, SelectedNode.Text));
+                        if (IndexesColNode.Nodes.Count > 0)
+                            SelectedNode.Nodes.Add(IndexesColNode);
+                        SelectedNode.Expand();                        
+                        break;
+                    case "indexe":
+                        DbObjectItem DbOiIndexColumn = new DbObjectItem("Columns", "fields");
+                        TreeNode IndexesColumnNode = new TreeNode(DbOiIndexColumn.Name);
+                        IndexesColumnNode.Tag = DbOiIndexColumn;
+                        IndexesColumnNode.SelectedImageIndex = 9;
+                        IndexesColumnNode.ImageIndex = 9;
+                        TreeQuery IndexesColumnNodeQry = new TreeQuery(IndexesColumnNode, connexion);
+                        SQL = "SELECT distinct column_name , 'VALID', COLUMN_POSITION " +
+                                    "  FROM USER_IND_COLUMNS " +
+                                    " WHERE index_name = '{0}' " +
+                                    " order by COLUMN_POSITION ";
+
+                        //FKsNodeQry.Start(string.Format(SQL, SelectedNode.Parent.Parent.Text, SelectedNode.Text));
+                        IndexesColumnNodeQry.Display(string.Format(SQL, SelectedNode.Text));
+                        if (IndexesColumnNode.Nodes.Count > 0)
+                            SelectedNode.Nodes.Add(IndexesColumnNode);
+                        SelectedNode.Expand();                        
                         break;
                     case "package":
                         if (connexion.IsOpen)
@@ -360,7 +516,7 @@ namespace TBTreeSchema
 
                             // Get all procedure and functions
                             TreeQuery PFNodeQry = new TreeQuery(PackagesNode, connexion);
-                            string SQL = "Select distinct " +
+                            SQL = "Select distinct " +
                                          "       object_name, 'VALID' /*, position, data_type, overload, argument_name, " +
                                          "       data_level, data_length, data_precision, data_scale, default_value, " +
                                          "       in_out, object_id, sequence */" +
@@ -381,6 +537,7 @@ namespace TBTreeSchema
                             // Get all procedure and functions
                             TreeQuery PFBNodeQry = new TreeQuery(PackagesBodyNode, connexion);
                             PFBNodeQry.Display(string.Format(SQL, SelectedNode.Text));
+                            SelectedNode.Expand();
                         }
                         break;
                     case "function":
@@ -394,7 +551,7 @@ namespace TBTreeSchema
 
                             // Get all procedure and functions
                             TreeQuery ParamNodeQry = new TreeQuery(ParametersNode, connexion);
-                            string SQL = "Select lower(argument_name||': '||in_out||' '||data_type) param, 'VALID' " +
+                            SQL = "Select lower(argument_name||': '||in_out||' '||data_type) param, 'VALID' " +
                                          "from   all_arguments " +
                                          "where  object_id = (select object_id " +
                                          "         from sys.user_objects  " +
@@ -407,6 +564,7 @@ namespace TBTreeSchema
                                 string.Format(SQL, SelectedNode.Text));
                             //if (PackagesNode.Nodes.Count > 0)
                             //    SelectedNode.Nodes.Add(PackagesNode);
+                            SelectedNode.Expand();
                         }
                         break;
                     case "packagespec":
@@ -421,7 +579,7 @@ namespace TBTreeSchema
 
                             // Get all procedure and functions
                             TreeQuery ParamNodeQry = new TreeQuery(ParametersNode, connexion);
-                            string SQL = "Select lower(argument_name||': '||in_out||' '||data_type) param, 'VALID' " +
+                            SQL = "Select lower(argument_name||': '||in_out||' '||data_type) param, 'VALID' " +
                                          "from   all_arguments " +
                                          "where  object_id = (select object_id " +
                                          "         from sys.user_objects  " +
@@ -436,11 +594,40 @@ namespace TBTreeSchema
                                               SelectedNode.Text));
                             //if (PackagesNode.Nodes.Count > 0)
                             //    SelectedNode.Nodes.Add(PackagesNode);
+                            SelectedNode.Expand();
                         }
                         break;
                     default:
                         break;
                 }
+            }
+            
+            switch (tagType.Trim().ToLower())
+            {
+                case "field":
+                    if (SelectedNode.Nodes.Count > 0)
+                    {
+                        createIndexToolStripMenuItem.Enabled = false;
+                        dropIndexToolStripMenuItem.Enabled = true;                        
+                    }
+                    else
+                    {
+                        createIndexToolStripMenuItem.Enabled = true;
+                        dropIndexToolStripMenuItem.Enabled = false;                        
+                    }
+                    break;
+                case "index":
+                    createIndexToolStripMenuItem.Enabled = true;
+                    dropIndexToolStripMenuItem.Enabled = true;
+                    break;
+                case "indexe":
+                    createIndexToolStripMenuItem.Enabled = false;
+                    dropIndexToolStripMenuItem.Enabled = true;
+                    break;
+                default:
+                    createIndexToolStripMenuItem.Enabled = false;
+                    dropIndexToolStripMenuItem.Enabled = false;
+                    break;
             }
         }
 
@@ -467,7 +654,7 @@ namespace TBTreeSchema
             TreeNode RootNode = currentNode.Parent;
             
 
-            string tagType = currentNode.Tag.ToString();
+            string tagType = ((DbObjectItem) currentNode.Tag).Type;
 
             switch(tagType)
             {
@@ -524,10 +711,12 @@ namespace TBTreeSchema
             if (e.KeyCode == Keys.F4)
             {
                 DbObjectItem DbOI = (DbObjectItem) treeViewOracleSchema.SelectedNode.Tag;
-                if (DbOI.Type.ToLower() == "fk")
+                if (DbOI.Type.ToLower() == "referenced" || DbOI.Type.ToLower() == "fk" || (DbOI.Type.ToLower() == "field" && DbOI.Name.Contains(".")))
                 {
                     DbOI.Type = "table";
-                    DbOI.Name = DbOI.Name.Substring(0, DbOI.Name.IndexOf('.'));
+                    int DotPos = DbOI.Name.IndexOf('.');
+                    if (DotPos >= 0)
+                        DbOI.Name = DbOI.Name.Substring(0, DotPos);
                 }
                 if (DbOI.Type.ToLower() == "table" || DbOI.Type.ToLower() == "view")
                 {
@@ -543,6 +732,73 @@ namespace TBTreeSchema
                     TableForm.Text = DbOI.Name + " " + TableForm.Text;
                 }
                 
+            }
+        }
+
+        private void createIndexToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TreeNode currentNode = treeViewOracleSchema.SelectedNode;
+            //TreeNode RootNode = currentNode.Parent;
+            TreeNode TableNode = currentNode;
+            TreeNode FieldNode = currentNode;
+
+            while (TableNode != null && ((DbObjectItem)TableNode.Tag).Type != "table")
+            {
+                TableNode = TableNode.Parent;
+            }
+
+            while (FieldNode != null && ((DbObjectItem)FieldNode.Tag).Type != "field")
+            {
+                FieldNode = FieldNode.Parent;
+            }
+
+            if (FieldNode != null && TableNode != null)
+            {
+                FormAddIndex formAddIndex = new FormAddIndex();
+                formAddIndex.labelTableName.Text = TableNode.Text;
+                formAddIndex.textBoxIndexName.Text = string.Format("NDX_{0}", FieldNode.Text);
+                formAddIndex.dataGridViewColumnName.Rows.Add(new string[] {FieldNode.Text});
+
+                if (formAddIndex.ShowDialog() == DialogResult.OK)
+                {
+                    if (connexion.DoCmd(formAddIndex.textBoxSql.Text))
+                    {
+                        TableNode.Nodes.Clear();
+                        GetTreeChildDetail(TableNode);    
+                    }                    
+                }
+
+                //string sql = String.Format("CREATE INDEX NDX_{0} ON {1} ({0})", FieldNode.Text, TableNode.Text);
+                //MessageBox.Show(sql);
+                //connexion.DoCmd(sql);
+                //TableNode.Nodes.Clear();
+                //GetTreeChildDetail(TableNode);
+            }
+        }
+
+        private void dropIndexToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TreeNode currentNode = treeViewOracleSchema.SelectedNode;
+            TreeNode IndexNode = currentNode;
+            TreeNode TableNode = currentNode;
+
+            while (TableNode != null && ((DbObjectItem)TableNode.Tag).Type != "table")
+            {
+                TableNode = TableNode.Parent;
+            }
+
+            while (IndexNode != null && ((DbObjectItem)IndexNode.Tag).Type != "indexe")
+            {
+                IndexNode = IndexNode.Parent;
+            }
+
+            if (IndexNode != null && TableNode != null)
+            {
+                string sql = string.Format("DROP INDEX {0}", IndexNode.Text);
+                MessageBox.Show(sql);
+                connexion.DoCmd(sql);
+                TableNode.Nodes.Clear();
+                GetTreeChildDetail(TableNode);
             }
         }
     }

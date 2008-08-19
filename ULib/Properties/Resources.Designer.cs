@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TBTableData.Properties {
+namespace ULib.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace TBTableData.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TBTableData.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("ULib.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -60,30 +60,9 @@ namespace TBTableData.Properties {
             }
         }
         
-        internal static System.Drawing.Bitmap cancel {
-            get {
-                object obj = ResourceManager.GetObject("cancel", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
         internal static System.Drawing.Bitmap commit {
             get {
                 object obj = ResourceManager.GetObject("commit", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        internal static System.Drawing.Bitmap DataContainer_MoveLastHS {
-            get {
-                object obj = ResourceManager.GetObject("DataContainer_MoveLastHS", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        internal static System.Drawing.Bitmap DataContainer_MoveNextHS {
-            get {
-                object obj = ResourceManager.GetObject("DataContainer_MoveNextHS", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

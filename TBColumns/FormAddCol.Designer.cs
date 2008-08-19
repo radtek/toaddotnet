@@ -44,10 +44,10 @@ namespace TBColumns
             this.textBoxcolumnName = new System.Windows.Forms.TextBox();
             this.labelColumnname = new System.Windows.Forms.Label();
             this.tabPageSql = new System.Windows.Forms.TabPage();
+            this.textBoxSql = new ICSharpCode.TextEditor.TextEditorControl();
             this.labelTablename = new System.Windows.Forms.Label();
             this.buttonCancel = new System.Windows.Forms.Button();
             this.buttonExecute = new System.Windows.Forms.Button();
-            this.textBoxSql = new ICSharpCode.TextEditor.TextEditorControl();
             this.tabControl1.SuspendLayout();
             this.tabPageOptions.SuspendLayout();
             this.tabPageSql.SuspendLayout();
@@ -225,6 +225,14 @@ namespace TBColumns
             this.tabPageSql.Text = "Sql";
             this.tabPageSql.UseVisualStyleBackColor = true;
             // 
+            // textBoxSql
+            // 
+            this.textBoxSql.IsReadOnly = false;
+            this.textBoxSql.Location = new System.Drawing.Point(6, 6);
+            this.textBoxSql.Name = "textBoxSql";
+            this.textBoxSql.Size = new System.Drawing.Size(302, 236);
+            this.textBoxSql.TabIndex = 0;
+            // 
             // labelTablename
             // 
             this.labelTablename.AutoSize = true;
@@ -256,14 +264,6 @@ namespace TBColumns
             this.buttonExecute.Text = "Execute";
             this.buttonExecute.UseVisualStyleBackColor = true;
             // 
-            // textBoxSql
-            // 
-            this.textBoxSql.IsReadOnly = false;
-            this.textBoxSql.Location = new System.Drawing.Point(6, 6);
-            this.textBoxSql.Name = "textBoxSql";
-            this.textBoxSql.Size = new System.Drawing.Size(302, 236);
-            this.textBoxSql.TabIndex = 0;
-            // 
             // FormAddCol
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -274,7 +274,7 @@ namespace TBColumns
             this.Controls.Add(this.labelTablename);
             this.Controls.Add(this.tabControl1);
             this.Name = "FormAddCol";
-            this.Text = "FormAddCol";
+            this.Text = "Add a column";
             this.Load += new System.EventHandler(this.FormAddCol_Load);
             this.tabControl1.ResumeLayout(false);
             this.tabPageOptions.ResumeLayout(false);
@@ -294,7 +294,6 @@ namespace TBColumns
         private System.Windows.Forms.TextBox textBoxcolumnName;
         private System.Windows.Forms.Label labelColumnname;
         private System.Windows.Forms.TabPage tabPageSql;
-        private System.Windows.Forms.Label labelTablename;
         private System.Windows.Forms.Button buttonCancel;
         private System.Windows.Forms.Button buttonExecute;
         private System.Windows.Forms.RadioButton radioButtonNotNullable;
@@ -307,5 +306,6 @@ namespace TBColumns
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         public ICSharpCode.TextEditor.TextEditorControl textBoxSql;
+        public System.Windows.Forms.Label labelTablename;
     }
 }

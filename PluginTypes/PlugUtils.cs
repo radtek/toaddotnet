@@ -70,36 +70,38 @@ namespace PluginTypes
                 //}
             //}
             // The entry menu Tools has not been found, then create id
-            if (menu.Items.Find(menuItem, true).Length == 0)
-                //if (toolsToolStripMenuItem == null)
+            if (menu != null)
             {
-                toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-                toolsToolStripMenuItem.Name = menuItem;
-                toolsToolStripMenuItem.Size = new System.Drawing.Size(40, 20);
-                toolsToolStripMenuItem.Text = menuItem;
-                //menu.Items.Add(toolsToolStripMenuItem);
-                menu.Items.Insert(2, toolsToolStripMenuItem);
-            } else
-            {
-                toolsToolStripMenuItem = menu.Items.Find(menuItem, false)[0] as ToolStripMenuItem;
+                if (menu.Items.Find(menuItem, true).Length == 0)
+                    //if (toolsToolStripMenuItem == null)
+                {
+                    toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+                    toolsToolStripMenuItem.Name = menuItem;
+                    toolsToolStripMenuItem.Size = new System.Drawing.Size(40, 20);
+                    toolsToolStripMenuItem.Text = menuItem;
+                    //menu.Items.Add(toolsToolStripMenuItem);
+                    menu.Items.Insert(2, toolsToolStripMenuItem);
+                } else
+                {
+                    toolsToolStripMenuItem = menu.Items.Find(menuItem, false)[0] as ToolStripMenuItem;
+                }
+                // Add the sub-menu to the Tools menu
+                if (toolsToolStripMenuItem.DropDownItems.Find(subMenuItem, true).Length == 0)
+                {
+
+                    toolsToolStripMenuItem.DropDownItems.Add(toolsPrefToolStripMenuItem);
+                    //toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {toolsPrefToolStripMenuItem});
+                    // 
+                    // configToolStripMenuItem
+                    // 
+                    toolsPrefToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+                    toolsPrefToolStripMenuItem.Name = subMenuItem;
+                    toolsPrefToolStripMenuItem.Text = subMenuItem;
+
+                    // Add event to execute when menu item selected
+                    toolsPrefToolStripMenuItem.Click += new System.EventHandler(Target);
+                }
             }
-            // Add the sub-menu to the Tools menu
-            if (toolsToolStripMenuItem.DropDownItems.Find(subMenuItem, true).Length == 0)
-            {
-
-                toolsToolStripMenuItem.DropDownItems.Add(toolsPrefToolStripMenuItem);
-                //toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {toolsPrefToolStripMenuItem});
-                // 
-                // configToolStripMenuItem
-                // 
-                toolsPrefToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-                toolsPrefToolStripMenuItem.Name = subMenuItem;
-                toolsPrefToolStripMenuItem.Text = subMenuItem;
-
-                // Add event to execute when menu item selected
-                toolsPrefToolStripMenuItem.Click += new System.EventHandler(Target);
-            }    
-            
             #endregion
         }
 

@@ -45,7 +45,7 @@ namespace TBTableData
 {
     public partial class UCTableData : UserControl, ITabPageAddOn
     {
-        private Connexion.Connexion connexion = new Connexion.Connexion("Oracle");
+        private Connexion.Connexion connexion = new Connexion.Connexion("Oracle");        
         private DGVQuery uLib;
         private DateTime startTime;
         private string tablename;
@@ -181,8 +181,8 @@ namespace TBTableData
                                     uLib = new DGVQuery(dataGridViewOracleFields, connexion);
                                     //uLib.Start(string.Format("SELECT * FROM {0}", tablename));
                                     toolStripProgressBarQuery.Visible = true;
-                                    startTime = DateTime.Now;                                                                      
-                                    backgroundWorker1.RunWorkerAsync(string.Format("SELECT * FROM (SELECT ROWNUM n, t.* FROM {0} t) s WHERE s.n BETWEEN {1} AND {2}", tablename, 0, 500));    
+                                    startTime = DateTime.Now;
+                                    backgroundWorker1.RunWorkerAsync(string.Format("SELECT * FROM (SELECT ROWNUM n, t.rowid ROW_ID, t.* FROM {0} t) s WHERE s.n BETWEEN {1} AND {2}", tablename, 0, 500));    
                                 }                                
                             }
                         }
@@ -295,6 +295,7 @@ namespace TBTableData
             else
             {
                 toolStripStatusLabelMessage.Text = e.Result.ToString();
+                dataGridViewOracleFields.Columns["ROW_ID"].Visible = false;
                 dataGridViewOracleFields.AutoResizeColumns();
             }
             toolStripProgressBarQuery.Visible = false;
@@ -318,7 +319,7 @@ namespace TBTableData
                 backgroundWorker1.CancelAsync();
             while (backgroundWorker1.IsBusy) ;
             int rowsFetched = dataGridViewOracleFields.Rows.Count;
-            backgroundWorker1.RunWorkerAsync(string.Format("SELECT * FROM (SELECT ROWNUM n, t.* FROM {0} t) s WHERE s.n BETWEEN {1} AND {2}", tablename, rowsFetched + 1, rowsFetched + 500));
+            backgroundWorker1.RunWorkerAsync(string.Format("SELECT * FROM (SELECT ROWNUM n, t.rowid ROW_ID, t.* FROM {0} t) s WHERE s.n BETWEEN {1} AND {2}", tablename, rowsFetched + 1, rowsFetched + 500));
         }
 
         private void toolStripButtonToEnd_Click(object sender, EventArgs e)
@@ -333,7 +334,45 @@ namespace TBTableData
                 backgroundWorker1.CancelAsync();
             while (backgroundWorker1.IsBusy) ;
             int rowsFetched = dataGridViewOracleFields.Rows.Count;
-            backgroundWorker1.RunWorkerAsync(string.Format("SELECT * FROM (SELECT ROWNUM n, t.* FROM {0} t) s WHERE s.n > {1}", tablename, rowsFetched + 1));
+            backgroundWorker1.RunWorkerAsync(string.Format("SELECT * FROM (SELECT ROWNUM n, t.rowid ROW_ID, t.* FROM {0} t) s WHERE s.n > {1}", tablename, rowsFetched + 1));
+        }
+
+        private void deleteSelectedRowsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (dataGridViewOracleFields.SelectedRows.Count > 0)
+            {
+                if (MessageBox.Show("Are you sure you want to delete the selected rows ?", "Delete rows", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                {
+                    foreach (DataGridViewRow dgvr in dataGridViewOracleFields.SelectedRows)
+                    {
+                        if (toolStripButtonCommit.Enabled == false)
+                        {
+                            connexion.BeginTransaction();
+                            toolStripButtonCommit.Enabled = true;
+                            toolStripButtonRollback.Enabled = true;                            
+                        }
+                        connexion.DoCmd(string.Format("delete from {0} where rowid = '{1}'", tablename, dgvr.Cells["ROW_ID"].Value));
+                    }
+                }
+            }
+        }
+
+        private void toolStripButtonCommit_Click(object sender, EventArgs e)
+        {
+            connexion.Commit();
+            toolStripButtonCommit.Enabled = false;
+            toolStripButtonRollback.Enabled = false;
+            dataGridViewOracleFields.Rows.Clear();
+            toolStripButtonNextPage_Click(null, null);
+        }
+
+        private void toolStripButtonRollback_Click(object sender, EventArgs e)
+        {
+            connexion.Rollback();
+            toolStripButtonCommit.Enabled = false;
+            toolStripButtonRollback.Enabled = false;
+            dataGridViewOracleFields.Rows.Clear();
+            toolStripButtonNextPage_Click(null, null);
         }
     }
 }

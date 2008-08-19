@@ -198,6 +198,15 @@ namespace ULib
                                     node.SelectedImageIndex = 9;
                                     node.ImageIndex = 9;
                                     break;
+                                case "index":
+                                case "indexe":
+                                    node.SelectedImageIndex = 13;
+                                    node.ImageIndex = 13;
+                                    break;
+                                case "referenced":
+                                    node.SelectedImageIndex = 14;
+                                    node.ImageIndex = 14;
+                                    break;
                             }
                             if (rd.GetString(1) != "VALID")
                             {

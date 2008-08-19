@@ -421,6 +421,7 @@ namespace ULib
                         sql = textEditorControl1.Text; //.Replace("select", "select * from (select ROWNUM n, ") +") s where s.n < 501";
                     sql = sql.Replace("\r", "");
 
+
                     // Check if we a ddl or a dml
                     if (sql.ToLower().Contains("create ") ||
                         sql.ToLower().Contains("drop") ||
@@ -548,6 +549,14 @@ namespace ULib
                     }
                     else
                     {
+                        if (sql.ToLower().Contains("insert ") ||
+                            sql.ToLower().Contains("delete") ||
+                            sql.ToLower().Contains("update"))
+                        {
+                            connexion.BeginTransaction();
+                            toolStripButtonRollback.Enabled = true;
+                            toolStripButtonCommit.Enabled = true;
+                        }
                         uLib = new DGVQuery(dataGridViewOracleQueryData, connexion);
                         //uLib.Start(textEditorControl1.Text);
                         toolStripProgressBarQuery.Visible = true;
@@ -658,6 +667,31 @@ namespace ULib
             while (backgroundWorker1.IsBusy) ;
             int rowsFetched = dataGridViewOracleQueryData.Rows.Count;
             //backgroundWorker1.RunWorkerAsync(string.Format("SELECT * FROM (SELECT ROWNUM n, t.* FROM {0} t) s WHERE s.n > {1}", tablename, rowsFetched + 1));
+        }
+
+        private void toolStripButtonExecQuery_Click(object sender, EventArgs e)
+        {
+            ExecuteQuery();
+        }
+
+        private void toolStripButtonAbortQuery_Click(object sender, EventArgs e)
+        {
+            if (backgroundWorker1.IsBusy)
+                backgroundWorker1.CancelAsync();
+        }
+
+        private void toolStripButtonCommit_Click(object sender, EventArgs e)
+        {
+            toolStripButtonRollback.Enabled = false;
+            toolStripButtonCommit.Enabled = false;
+            connexion.Commit();
+        }
+
+        private void toolStripButtonRollback_Click(object sender, EventArgs e)
+        {
+            toolStripButtonRollback.Enabled = false;
+            toolStripButtonCommit.Enabled = false;
+            connexion.Rollback();
         }
     }
 }
