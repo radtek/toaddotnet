@@ -50,6 +50,8 @@ namespace ULib
             this.toolStripProgressBarQuery = new System.Windows.Forms.ToolStripProgressBar();
             this.toolStripStatusLabelPosition = new System.Windows.Forms.ToolStripStatusLabel();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.toolStripButtonCommit = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButtonRollback = new System.Windows.Forms.ToolStripButton();
             this.QueryGroupBox.SuspendLayout();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -184,7 +186,9 @@ namespace ULib
             this.toolStripButtonExecQuery,
             this.toolStripButtonAbortQuery,
             this.toolStripButtonNextPage,
-            this.toolStripButtonToEnd});
+            this.toolStripButtonToEnd,
+            this.toolStripButtonCommit,
+            this.toolStripButtonRollback});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(776, 25);
@@ -200,6 +204,7 @@ namespace ULib
             this.toolStripButtonExecQuery.Size = new System.Drawing.Size(23, 22);
             this.toolStripButtonExecQuery.Text = "Execute";
             this.toolStripButtonExecQuery.ToolTipText = "Execute";
+            this.toolStripButtonExecQuery.Click += new System.EventHandler(this.toolStripButtonExecQuery_Click);
             // 
             // toolStripButtonAbortQuery
             // 
@@ -210,6 +215,7 @@ namespace ULib
             this.toolStripButtonAbortQuery.Size = new System.Drawing.Size(23, 22);
             this.toolStripButtonAbortQuery.Text = "Abort";
             this.toolStripButtonAbortQuery.ToolTipText = "Abort query";
+            this.toolStripButtonAbortQuery.Click += new System.EventHandler(this.toolStripButtonAbortQuery_Click);
             // 
             // toolStripButtonNextPage
             // 
@@ -294,6 +300,28 @@ namespace ULib
             this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
             this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
             // 
+            // toolStripButtonCommit
+            // 
+            this.toolStripButtonCommit.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButtonCommit.Enabled = false;
+            this.toolStripButtonCommit.Image = global::ULib.Properties.Resources.commit;
+            this.toolStripButtonCommit.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButtonCommit.Name = "toolStripButtonCommit";
+            this.toolStripButtonCommit.Size = new System.Drawing.Size(23, 22);
+            this.toolStripButtonCommit.Text = "Commit";
+            this.toolStripButtonCommit.Click += new System.EventHandler(this.toolStripButtonCommit_Click);
+            // 
+            // toolStripButtonRollback
+            // 
+            this.toolStripButtonRollback.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButtonRollback.Enabled = false;
+            this.toolStripButtonRollback.Image = global::ULib.Properties.Resources.rollback;
+            this.toolStripButtonRollback.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButtonRollback.Name = "toolStripButtonRollback";
+            this.toolStripButtonRollback.Size = new System.Drawing.Size(23, 22);
+            this.toolStripButtonRollback.Text = "Rollback";
+            this.toolStripButtonRollback.Click += new System.EventHandler(this.toolStripButtonRollback_Click);
+            // 
             // SQLEditor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -345,6 +373,8 @@ namespace ULib
         public System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelPosition;
         public System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelElapsedTime;
         public System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelMessage;
+        private System.Windows.Forms.ToolStripButton toolStripButtonCommit;
+        private System.Windows.Forms.ToolStripButton toolStripButtonRollback;
 
     }
 }

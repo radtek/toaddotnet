@@ -28,6 +28,7 @@ namespace TBColumns
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UCColumns));
             this.ColumnsGroupBox = new System.Windows.Forms.GroupBox();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
@@ -43,6 +44,11 @@ namespace TBColumns
             this.toolStripButtonAddCol = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonDeleteCol = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonModifyCol = new System.Windows.Forms.ToolStripButton();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.addColumnToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.dropColumnToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.addIndexToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.dropIndexToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ColumnsGroupBox.SuspendLayout();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -50,6 +56,7 @@ namespace TBColumns
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewOracleFields)).BeginInit();
             this.statusStrip1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
+            this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // ColumnsGroupBox
@@ -94,6 +101,7 @@ namespace TBColumns
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridViewOracleFields.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewOracleFields.ContextMenuStrip = this.contextMenuStrip1;
             this.dataGridViewOracleFields.Location = new System.Drawing.Point(3, 3);
             this.dataGridViewOracleFields.Name = "dataGridViewOracleFields";
             this.dataGridViewOracleFields.ReadOnly = true;
@@ -208,6 +216,44 @@ namespace TBColumns
             this.toolStripButtonModifyCol.Visible = false;
             this.toolStripButtonModifyCol.Click += new System.EventHandler(this.toolStripButtonModifyCol_Click);
             // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.addColumnToolStripMenuItem,
+            this.dropColumnToolStripMenuItem,
+            this.addIndexToolStripMenuItem,
+            this.dropIndexToolStripMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(153, 114);
+            // 
+            // addColumnToolStripMenuItem
+            // 
+            this.addColumnToolStripMenuItem.Name = "addColumnToolStripMenuItem";
+            this.addColumnToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.addColumnToolStripMenuItem.Text = "Add column";
+            this.addColumnToolStripMenuItem.Click += new System.EventHandler(this.addColumnToolStripMenuItem_Click);
+            // 
+            // dropColumnToolStripMenuItem
+            // 
+            this.dropColumnToolStripMenuItem.Name = "dropColumnToolStripMenuItem";
+            this.dropColumnToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.dropColumnToolStripMenuItem.Text = "Drop column";
+            this.dropColumnToolStripMenuItem.Click += new System.EventHandler(this.dropColumnToolStripMenuItem_Click);
+            // 
+            // addIndexToolStripMenuItem
+            // 
+            this.addIndexToolStripMenuItem.Name = "addIndexToolStripMenuItem";
+            this.addIndexToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.addIndexToolStripMenuItem.Text = "Add index";
+            this.addIndexToolStripMenuItem.Click += new System.EventHandler(this.addIndexToolStripMenuItem_Click);
+            // 
+            // dropIndexToolStripMenuItem
+            // 
+            this.dropIndexToolStripMenuItem.Name = "dropIndexToolStripMenuItem";
+            this.dropIndexToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.dropIndexToolStripMenuItem.Text = "Drop index";
+            this.dropIndexToolStripMenuItem.Click += new System.EventHandler(this.dropIndexToolStripMenuItem_Click);
+            // 
             // UCColumns
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -227,6 +273,7 @@ namespace TBColumns
             this.statusStrip1.PerformLayout();
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
+            this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -248,5 +295,10 @@ namespace TBColumns
         private System.Windows.Forms.ToolStripButton toolStripButtonAddCol;
         private System.Windows.Forms.ToolStripButton toolStripButtonDeleteCol;
         private System.Windows.Forms.ToolStripButton toolStripButtonModifyCol;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem addColumnToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem dropColumnToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem addIndexToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem dropIndexToolStripMenuItem;
     }
 }

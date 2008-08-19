@@ -161,6 +161,11 @@ namespace TBQuery
         private void UCQuery_Load(object sender, EventArgs e)
         {            
             
+        }
+
+        private void sqlEditor1_Load(object sender, EventArgs e)
+        {
+
         }  
     }
 }

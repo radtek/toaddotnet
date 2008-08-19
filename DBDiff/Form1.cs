@@ -505,5 +505,11 @@ namespace DBDiff
                                 MessageBoxIcon.Error);
             }
         }
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            TargetConnexion.Close();
+            SourceConnexion.Close();            
+        }
     }
 }

@@ -28,6 +28,7 @@ namespace TBTableData
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.TableDataGroupBox = new System.Windows.Forms.GroupBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabelMessage = new System.Windows.Forms.ToolStripStatusLabel();
@@ -36,14 +37,19 @@ namespace TBTableData
             this.toolStripProgressBarQuery = new System.Windows.Forms.ToolStripProgressBar();
             this.dataGridViewOracleFields = new System.Windows.Forms.DataGridView();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.deleteSelectedRowsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripButtonCancel = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonNextPage = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonToEnd = new System.Windows.Forms.ToolStripButton();
-            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.toolStripButtonCommit = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButtonRollback = new System.Windows.Forms.ToolStripButton();
             this.TableDataGroupBox.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewOracleFields)).BeginInit();
             this.toolStrip1.SuspendLayout();
+            this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // TableDataGroupBox
@@ -109,6 +115,7 @@ namespace TBTableData
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridViewOracleFields.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewOracleFields.ContextMenuStrip = this.contextMenuStrip1;
             this.dataGridViewOracleFields.Location = new System.Drawing.Point(7, 12);
             this.dataGridViewOracleFields.Name = "dataGridViewOracleFields";
             this.dataGridViewOracleFields.ReadOnly = true;
@@ -121,12 +128,36 @@ namespace TBTableData
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripButtonCancel,
             this.toolStripButtonNextPage,
-            this.toolStripButtonToEnd});
+            this.toolStripButtonToEnd,
+            this.toolStripButtonCommit,
+            this.toolStripButtonRollback});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(720, 25);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
+            // 
+            // backgroundWorker1
+            // 
+            this.backgroundWorker1.WorkerReportsProgress = true;
+            this.backgroundWorker1.WorkerSupportsCancellation = true;
+            this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
+            this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
+            this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.deleteSelectedRowsToolStripMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(175, 26);
+            // 
+            // deleteSelectedRowsToolStripMenuItem
+            // 
+            this.deleteSelectedRowsToolStripMenuItem.Name = "deleteSelectedRowsToolStripMenuItem";
+            this.deleteSelectedRowsToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.deleteSelectedRowsToolStripMenuItem.Text = "Delete selected rows";
+            this.deleteSelectedRowsToolStripMenuItem.Click += new System.EventHandler(this.deleteSelectedRowsToolStripMenuItem_Click);
             // 
             // toolStripButtonCancel
             // 
@@ -162,13 +193,27 @@ namespace TBTableData
             this.toolStripButtonToEnd.ToolTipText = "Last page";
             this.toolStripButtonToEnd.Click += new System.EventHandler(this.toolStripButtonToEnd_Click);
             // 
-            // backgroundWorker1
+            // toolStripButtonCommit
             // 
-            this.backgroundWorker1.WorkerReportsProgress = true;
-            this.backgroundWorker1.WorkerSupportsCancellation = true;
-            this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
-            this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
-            this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
+            this.toolStripButtonCommit.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButtonCommit.Enabled = false;
+            this.toolStripButtonCommit.Image = global::TBTableData.Properties.Resources.commit;
+            this.toolStripButtonCommit.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButtonCommit.Name = "toolStripButtonCommit";
+            this.toolStripButtonCommit.Size = new System.Drawing.Size(23, 22);
+            this.toolStripButtonCommit.Text = "Commit";
+            this.toolStripButtonCommit.Click += new System.EventHandler(this.toolStripButtonCommit_Click);
+            // 
+            // toolStripButtonRollback
+            // 
+            this.toolStripButtonRollback.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButtonRollback.Enabled = false;
+            this.toolStripButtonRollback.Image = global::TBTableData.Properties.Resources.rollback;
+            this.toolStripButtonRollback.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButtonRollback.Name = "toolStripButtonRollback";
+            this.toolStripButtonRollback.Size = new System.Drawing.Size(23, 22);
+            this.toolStripButtonRollback.Text = "Rollback";
+            this.toolStripButtonRollback.Click += new System.EventHandler(this.toolStripButtonRollback_Click);
             // 
             // UCTableData
             // 
@@ -185,6 +230,7 @@ namespace TBTableData
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewOracleFields)).EndInit();
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
+            this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -204,5 +250,9 @@ namespace TBTableData
         private System.Windows.Forms.ToolStripButton toolStripButtonCancel;
         private System.Windows.Forms.ToolStripButton toolStripButtonNextPage;
         private System.Windows.Forms.ToolStripButton toolStripButtonToEnd;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem deleteSelectedRowsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripButton toolStripButtonCommit;
+        private System.Windows.Forms.ToolStripButton toolStripButtonRollback;
     }
 }

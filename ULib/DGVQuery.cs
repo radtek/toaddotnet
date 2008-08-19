@@ -50,7 +50,7 @@ namespace ULib
         private string sql;
         private bool clearData = true;
 
-        #region consteurcteur
+        #region constructeur
         public DGVQuery()
         {
 
@@ -101,6 +101,13 @@ namespace ULib
         #endregion
 
         #region Delegate
+
+        private delegate void datagridAutoResizeColumns(DataGridView dgv);
+        private void DatagridAutoResizeColumns(DataGridView dgv)
+        {
+            dgv.AutoResizeColumns();
+        }
+
         private delegate void datagridClear();
         private void ClearDataGrid()
         {
@@ -175,7 +182,7 @@ namespace ULib
             {
                 result = DisplayQueryData(connexion, Convert.ToString(obj), dgv, worker, eArgs);
             }
-
+            
             return result;
         }
         #endregion
@@ -189,6 +196,7 @@ namespace ULib
                 //string SelectedTable = treeViewOracleSchema.SelectedNode.Text;
                 using (DbCommand cmd = connexion.Cnn.CreateCommand())
                 {
+                    cmd.Transaction = connexion.MyTransaction;
                     int NumRec = 0;
                     try
                     {
@@ -275,8 +283,12 @@ namespace ULib
                                 result = string.Format("{0} records found", dataGridViewOracleData.Rows.Count);
                             }
                         }
-
-
+                        if (dataGridViewOracleData.InvokeRequired)
+                        {
+                            dataGridViewOracleData.Invoke(new datagridAutoResizeColumns(DatagridAutoResizeColumns), new object[] { dataGridViewOracleData });
+                        }
+                        else
+                            dataGridViewOracleData.AutoResizeColumns();
                         rd.Close();
                     }
                 }

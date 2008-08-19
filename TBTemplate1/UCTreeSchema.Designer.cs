@@ -34,6 +34,8 @@ namespace TBTreeSchema
             this.contextMenuStripTreeSchema = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.refreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
+            this.createIndexToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.dropIndexToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStripTreeSchema.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -59,14 +61,16 @@ namespace TBTreeSchema
             // contextMenuStripTreeSchema
             // 
             this.contextMenuStripTreeSchema.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.refreshToolStripMenuItem});
+            this.refreshToolStripMenuItem,
+            this.createIndexToolStripMenuItem,
+            this.dropIndexToolStripMenuItem});
             this.contextMenuStripTreeSchema.Name = "contextMenuStripTreeSchema";
-            this.contextMenuStripTreeSchema.Size = new System.Drawing.Size(113, 26);
+            this.contextMenuStripTreeSchema.Size = new System.Drawing.Size(153, 92);
             // 
             // refreshToolStripMenuItem
             // 
             this.refreshToolStripMenuItem.Name = "refreshToolStripMenuItem";
-            this.refreshToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
+            this.refreshToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.refreshToolStripMenuItem.Text = "Refresh";
             this.refreshToolStripMenuItem.Click += new System.EventHandler(this.refreshToolStripMenuItem_Click);
             // 
@@ -87,6 +91,24 @@ namespace TBTreeSchema
             this.imageList1.Images.SetKeyName(10, "refreshLeft.png");
             this.imageList1.Images.SetKeyName(11, "refreshRight.png");
             this.imageList1.Images.SetKeyName(12, "error.ico");
+            this.imageList1.Images.SetKeyName(13, "index.gif");
+            this.imageList1.Images.SetKeyName(14, "DoubleLeftArrowHS.png");
+            // 
+            // createIndexToolStripMenuItem
+            // 
+            this.createIndexToolStripMenuItem.Enabled = false;
+            this.createIndexToolStripMenuItem.Name = "createIndexToolStripMenuItem";
+            this.createIndexToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.createIndexToolStripMenuItem.Text = "Create Index";
+            this.createIndexToolStripMenuItem.Click += new System.EventHandler(this.createIndexToolStripMenuItem_Click);
+            // 
+            // dropIndexToolStripMenuItem
+            // 
+            this.dropIndexToolStripMenuItem.Enabled = false;
+            this.dropIndexToolStripMenuItem.Name = "dropIndexToolStripMenuItem";
+            this.dropIndexToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.dropIndexToolStripMenuItem.Text = "Drop Index";
+            this.dropIndexToolStripMenuItem.Click += new System.EventHandler(this.dropIndexToolStripMenuItem_Click);
             // 
             // UCTreeSchema
             // 
@@ -106,6 +128,8 @@ namespace TBTreeSchema
         private System.Windows.Forms.ImageList imageList1;
         private System.Windows.Forms.ContextMenuStrip contextMenuStripTreeSchema;
         private System.Windows.Forms.ToolStripMenuItem refreshToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem createIndexToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem dropIndexToolStripMenuItem;
 
     }
 }

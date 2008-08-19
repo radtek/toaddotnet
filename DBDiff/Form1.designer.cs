@@ -33,6 +33,8 @@ namespace DBDiff
             this.AllCheckBox = new System.Windows.Forms.CheckBox();
             this.SourceRefreshButton = new System.Windows.Forms.Button();
             this.SourceTablesCheckedListBox = new System.Windows.Forms.CheckedListBox();
+            this.buttonSaveComment = new System.Windows.Forms.Button();
+            this.buttonSelectSource = new System.Windows.Forms.Button();
             this.statusStrip2 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabelRecordSource = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripProgressBarQuerySource = new System.Windows.Forms.ToolStripProgressBar();
@@ -42,6 +44,7 @@ namespace DBDiff
             this.UpdateCommentButton = new System.Windows.Forms.Button();
             this.SourceDataGridView = new System.Windows.Forms.DataGridView();
             this.CommentTextBox = new System.Windows.Forms.TextBox();
+            this.buttonSelectTarget = new System.Windows.Forms.Button();
             this.statusStrip3 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabelRecordsTarget = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripProgressBarQueryTarget = new System.Windows.Forms.ToolStripProgressBar();
@@ -49,9 +52,6 @@ namespace DBDiff
             this.labelTargetTnsnames = new System.Windows.Forms.Label();
             this.TargetCommentTextBox = new System.Windows.Forms.TextBox();
             this.TargetDataGridView = new System.Windows.Forms.DataGridView();
-            this.buttonSelectSource = new System.Windows.Forms.Button();
-            this.buttonSelectTarget = new System.Windows.Forms.Button();
-            this.buttonSaveComment = new System.Windows.Forms.Button();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -150,6 +150,28 @@ namespace DBDiff
             this.SourceTablesCheckedListBox.TabIndex = 2;
             this.SourceTablesCheckedListBox.SelectedIndexChanged += new System.EventHandler(this.SourceTablesCheckedListBox_SelectedIndexChanged);
             // 
+            // buttonSaveComment
+            // 
+            this.buttonSaveComment.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonSaveComment.Image = global::DBDiff.Properties.Resources.Save;
+            this.buttonSaveComment.Location = new System.Drawing.Point(283, 474);
+            this.buttonSaveComment.Name = "buttonSaveComment";
+            this.buttonSaveComment.Size = new System.Drawing.Size(28, 23);
+            this.buttonSaveComment.TabIndex = 11;
+            this.buttonSaveComment.UseVisualStyleBackColor = true;
+            this.buttonSaveComment.Click += new System.EventHandler(this.buttonSaveComment_Click);
+            // 
+            // buttonSelectSource
+            // 
+            this.buttonSelectSource.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonSelectSource.Location = new System.Drawing.Point(283, 5);
+            this.buttonSelectSource.Name = "buttonSelectSource";
+            this.buttonSelectSource.Size = new System.Drawing.Size(28, 23);
+            this.buttonSelectSource.TabIndex = 10;
+            this.buttonSelectSource.Text = "...";
+            this.buttonSelectSource.UseVisualStyleBackColor = true;
+            this.buttonSelectSource.Click += new System.EventHandler(this.buttonSelectSource_Click);
+            // 
             // statusStrip2
             // 
             this.statusStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -237,6 +259,17 @@ namespace DBDiff
             this.CommentTextBox.Size = new System.Drawing.Size(269, 94);
             this.CommentTextBox.TabIndex = 4;
             // 
+            // buttonSelectTarget
+            // 
+            this.buttonSelectTarget.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonSelectTarget.Location = new System.Drawing.Point(322, 10);
+            this.buttonSelectTarget.Name = "buttonSelectTarget";
+            this.buttonSelectTarget.Size = new System.Drawing.Size(28, 23);
+            this.buttonSelectTarget.TabIndex = 11;
+            this.buttonSelectTarget.Text = "...";
+            this.buttonSelectTarget.UseVisualStyleBackColor = true;
+            this.buttonSelectTarget.Click += new System.EventHandler(this.buttonSelectTarget_Click);
+            // 
             // statusStrip3
             // 
             this.statusStrip3.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -302,39 +335,6 @@ namespace DBDiff
             this.TargetDataGridView.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.TargetDataGridView_RowEnter);
             this.TargetDataGridView.RowLeave += new System.Windows.Forms.DataGridViewCellEventHandler(this.TargetDataGridView_RowLeave);
             // 
-            // buttonSelectSource
-            // 
-            this.buttonSelectSource.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonSelectSource.Location = new System.Drawing.Point(283, 5);
-            this.buttonSelectSource.Name = "buttonSelectSource";
-            this.buttonSelectSource.Size = new System.Drawing.Size(28, 23);
-            this.buttonSelectSource.TabIndex = 10;
-            this.buttonSelectSource.Text = "...";
-            this.buttonSelectSource.UseVisualStyleBackColor = true;
-            this.buttonSelectSource.Click += new System.EventHandler(this.buttonSelectSource_Click);
-            // 
-            // buttonSelectTarget
-            // 
-            this.buttonSelectTarget.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonSelectTarget.Location = new System.Drawing.Point(322, 10);
-            this.buttonSelectTarget.Name = "buttonSelectTarget";
-            this.buttonSelectTarget.Size = new System.Drawing.Size(28, 23);
-            this.buttonSelectTarget.TabIndex = 11;
-            this.buttonSelectTarget.Text = "...";
-            this.buttonSelectTarget.UseVisualStyleBackColor = true;
-            this.buttonSelectTarget.Click += new System.EventHandler(this.buttonSelectTarget_Click);
-            // 
-            // buttonSaveComment
-            // 
-            this.buttonSaveComment.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonSaveComment.Image = global::DBDiff.Properties.Resources.Save;
-            this.buttonSaveComment.Location = new System.Drawing.Point(283, 474);
-            this.buttonSaveComment.Name = "buttonSaveComment";
-            this.buttonSaveComment.Size = new System.Drawing.Size(28, 23);
-            this.buttonSaveComment.TabIndex = 11;
-            this.buttonSaveComment.UseVisualStyleBackColor = true;
-            this.buttonSaveComment.Click += new System.EventHandler(this.buttonSaveComment_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -344,6 +344,7 @@ namespace DBDiff
             this.Name = "Form1";
             this.Text = "DB Diff";
             this.Load += new System.EventHandler(this.Form1_Load);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             this.splitContainer1.Panel2.PerformLayout();
