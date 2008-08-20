@@ -17,6 +17,11 @@ At this time, only few features are offered. New features will be added (soon), 
   * Syntax highighted
   * Intellisense
   * Add/drop column to/from table
+  * Create/Drop indexes
+  * Use of transaction
+
+= Installation =
+If you are installation the application for the first time, just double-click on the .MSI installer. If you have already installed a previous version, uninstall it, check that all file, execepted the .XML file are deleted and double-click the .MSI installer. This procedure is needed as I have some problem creating the installer, but fixing this problem is not my top priority.
 
 = Registration =
 When using the application for the first time, automatically a register form will be prompted to you. You have to enter your full name (first and last name) and a valid email address. These informations are necessary to be able to run the application. Those informations won't be given to any third party and will be use only for statistics.
@@ -26,8 +31,6 @@ As the application is today (January 2008) only at its genesis many features wil
   * Add table
   * Drop table
   * Modify column
-  * Add index
-  * Drop index
   * Add function (possible via query tab page)
   * Modify function (possible via source tab page)
   * Drop function (possible via query tab page)
